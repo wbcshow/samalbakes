@@ -6,19 +6,20 @@ Static storefront for a home bakery on **Samal Island** (cakes & breads, bake-to
 **Stack:** HTML/CSS/JS + optional **Supabase** (Auth, Postgres, RLS). No build step.  
 **Payment:** Cash on Delivery (COD). Hook `#payment-step` for later PayMongo / Xendit.
 
-## Quick start (Demo mode)
+## Quick start
 
 **Do not double-click `index.html` for full features.** Serve locally:
 
 ```bash
-cd samalbakes
 python3 -m http.server 8080
 # → http://localhost:8080
 ```
 
-With placeholder Supabase keys (`js/supabase-config.js` still says `YOUR_…`), the site runs in **Demo mode**:
-- Yellow/green banner: “Demo mode — data stays in this browser”
-- Accounts, orders, admin settings stored in `localStorage`
+`js/supabase-config.js` points at the live Supabase project, so accounts, orders, and the menu use Postgres. There is no demo banner in that mode.
+
+To run **demo mode** instead, put the `YOUR_…` placeholders back in `js/supabase-config.js`. Then:
+- Green banner: “Demo mode — data stays in this browser”
+- Accounts, orders, and admin settings stay in `localStorage`
 - **Demo admin:** `admin@demo.local` / `demo-admin-2026` (shown on the login page only in demo mode)
 
 
@@ -44,14 +45,14 @@ Admin → Products can set an image path (`img/products/….jpg`) or, in **demo 
 2. Delivery checker (geo / area / Nominatim) + Esri map; radius from Admin/settings
 3. Menu + cart + ready-time calculator
 4. Place order (guest or logged-in) — COD; share via Messenger/WhatsApp/etc.
-5. Register / login + **order history**
+5. Register / login, account menu, profile (name, phone, delivery address, password), and **order history**
 6. **Admin** (admins only): fees (flat / per-km / both), free-delivery threshold, radius & center, products (price, bake times, hide/show), order status
 7. Promotions
 
 ## Go live with Supabase
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. **SQL Editor** → run `supabase/schema.sql`, then `supabase/seed.sql`.
+2. **SQL Editor** → run `supabase/schema.sql`, then `supabase/seed.sql`. If the project already exists, run `supabase/profile-delivery-address.sql` once so My account can store a delivery address.
 3. Authentication → enable **Email** (password). Magic link optional.
 4. Project Settings → API → copy **Project URL** and **anon public** key into `js/supabase-config.js`.
 5. Sign up once on the site (or create a user in Auth), then in SQL:
@@ -83,6 +84,8 @@ Orders go through the `place_order` Postgres function so **prices and fees are c
 ```bash
 node --check js/*.js
 node tests/ready-time.test.js
+node tests/account-menu.test.js
+node tests/menu-card.test.js
 ```
 
 ## Project layout

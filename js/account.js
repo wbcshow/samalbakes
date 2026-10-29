@@ -22,12 +22,29 @@
     } catch (e) { return iso; }
   }
   function escape(s) { return SB.chrome.escapeHtml(s); }
-  async function renderHistory() {
+  function fillProfile(session) {
+    var name = qs("#profile-name");
+    if (!name || !session) return;
+    name.value = session.user.full_name || "";
+    qs("#profile-email").value = session.user.email || "";
+    qs("#profile-phone").value = session.user.phone || "";
+    qs("#profile-address").value = session.user.delivery_address || "";
+  }
+  async function renderAccount() {
     var session = await SB.data.getSession();
     var authPanels = qs("#auth-panels");
     var history = qs("#history");
-    if (!session) { authPanels.hidden = false; history.hidden = true; return; }
-    authPanels.hidden = true; history.hidden = false;
+    var profile = qs("#profile");
+    if (!session) {
+      authPanels.hidden = false;
+      history.hidden = true;
+      if (profile) profile.hidden = true;
+      return;
+    }
+    authPanels.hidden = true;
+    history.hidden = false;
+    if (profile) profile.hidden = false;
+    fillProfile(session);
     qs("#history-user").textContent = session.user.email + (session.user.is_admin ? " (admin)" : "");
     var orders = await SB.data.getMyOrders();
     var list = qs("#history-list"); var empty = qs("#history-empty");
@@ -62,7 +79,7 @@
         await SB.chrome.refreshAuthNav();
         var s = await SB.data.getSession();
         if (s.user.is_admin) { location.href = "admin.html"; return; }
-        await renderHistory();
+        await renderAccount();
       } catch (err) { show(qs("#login-msg"), err.message, "warn"); }
     });
     qs("#register-form").addEventListener("submit", async function (e) {
@@ -71,9 +88,47 @@
         await SB.data.register(qs("#reg-email").value, qs("#reg-password").value, qs("#reg-name").value);
         show(qs("#reg-msg"), "Account created.", "ok");
         await SB.chrome.refreshAuthNav();
-        await renderHistory();
-      } catch (err) { show(qs("#reg-msg"), err.message, "warn"); }
+        await renderAccount();
+      } catch (err) {
+        show(qs("#reg-msg"), err.message, err.code === "email_confirmation_required" ? "ok" : "warn");
+      }
     });
-    await renderHistory();
+    qs("#profile-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var msg = qs("#profile-msg");
+      try {
+        await SB.data.updateProfile({
+          full_name: qs("#profile-name").value,
+          phone: qs("#profile-phone").value,
+          delivery_address: qs("#profile-address").value,
+        });
+        show(msg, "Profile saved.", "ok");
+      } catch (err) {
+        show(msg, err.message || "Could not save profile.", "warn");
+      }
+      await SB.chrome.refreshAuthNav();
+      await renderAccount();
+    });
+    qs("#password-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var msg = qs("#password-msg");
+      var next = qs("#pw-new").value;
+      if (next !== qs("#pw-confirm").value) {
+        show(msg, "New password and confirmation don’t match.", "warn");
+        return;
+      }
+      try {
+        await SB.data.changePassword(qs("#pw-current").value, next);
+        qs("#password-form").reset();
+        show(msg, "Password updated.", "ok");
+      } catch (err) {
+        show(msg, err.message || "Could not change password.", "warn");
+      }
+    });
+    await renderAccount();
+    if (location.hash === "#profile" || location.hash === "#history") {
+      var target = qs(location.hash);
+      if (target && !target.hidden) target.scrollIntoView();
+    }
   });
 })();

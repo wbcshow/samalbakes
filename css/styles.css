@@ -651,6 +651,152 @@ button.linkish {
   font: inherit; font-weight: 600; cursor: pointer; padding: 0;
   text-decoration: underline;
 }
+
+.field input[readonly],
+.field textarea[readonly] {
+  background: var(--sand);
+  color: var(--muted);
+}
+
+/* Account menu — same control in the wrapping header on small screens.
+   There is no separate mobile nav. */
+[data-auth-nav] {
+  display: inline-flex;
+  align-items: center;
+}
+
+.account-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.account-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.15rem 0.7rem 0.15rem 0.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(61, 35, 20, 0.12);
+  background: var(--sand);
+  color: var(--cocoa);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.account-trigger:hover,
+.account-trigger[aria-expanded="true"] {
+  background: #f3e2cf;
+  border-color: rgba(196, 92, 38, 0.45);
+  color: var(--caramel-dark);
+}
+
+.account-trigger:focus-visible,
+.account-panel .account-item:focus-visible {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
+.account-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--caramel);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.account-avatar svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+.account-name {
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-caret {
+  width: 0.7rem;
+  height: 0.45rem;
+  display: block;
+  flex-shrink: 0;
+}
+
+.account-trigger[aria-expanded="true"] .account-caret {
+  transform: rotate(180deg);
+}
+
+.account-panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 30;
+  min-width: 12.5rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem;
+  background: var(--card);
+  border: 1px solid rgba(61, 35, 20, 0.08);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.account-panel.align-start {
+  right: auto;
+  left: 0;
+}
+
+.account-panel[hidden] {
+  display: none !important;
+}
+
+.account-panel .account-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--cocoa);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-panel .account-item:hover,
+.account-panel .account-item:focus-visible {
+  background: var(--sand);
+  color: var(--caramel-dark);
+}
+
+.account-logout {
+  margin-top: 0.2rem;
+  color: var(--caramel-dark);
+  box-shadow: inset 0 1px 0 rgba(61, 35, 20, 0.08);
+  border-radius: 0 0 8px 8px;
+}
+
+@media (max-width: 560px) {
+  .account-name {
+    max-width: 6.5rem;
+  }
+}
 .admin-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .admin-tabs .tab.active { background: var(--caramel); color: #fff; }
 
