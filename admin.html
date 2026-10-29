@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Admin — SamalBakes</title>
+<link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">Samal<span>Bakes</span></a>
+    <nav class="nav">
+      <a href="index.html">Storefront</a>
+      <a href="account.html">Account</a>
+      <span data-auth-nav></span>
+    </nav>
+  </div>
+</header>
+<main class="container" style="padding:2rem 0">
+  <div id="admin-gate" class="card">
+    <h1>Admin</h1>
+    <p class="muted">Sign in with an admin account to manage products, delivery settings, and orders.</p>
+    <p><a class="btn primary" href="account.html">Go to login</a></p>
+  </div>
+  <div id="admin-app" hidden>
+    <div class="section-head">
+      <h1>Admin dashboard</h1>
+      <p>Changes here update the live storefront (demo: this browser; live: Supabase).</p>
+    </div>
+    <div class="admin-tabs">
+      <button type="button" class="btn ghost tab active" data-tab="settings">Settings</button>
+      <button type="button" class="btn ghost tab" data-tab="products">Products</button>
+      <button type="button" class="btn ghost tab" data-tab="orders">Orders</button>
+    </div>
+
+    <section id="tab-settings" class="card admin-panel" style="margin-top:1rem">
+      <h2>Delivery &amp; fees</h2>
+      <form id="settings-form">
+        <div class="row" style="gap:1rem;align-items:flex-start">
+          <div class="field" style="flex:1"><label>Center lat</label><input name="delivery_center_lat" type="number" step="any" required/></div>
+          <div class="field" style="flex:1"><label>Center lng</label><input name="delivery_center_lng" type="number" step="any" required/></div>
+          <div class="field" style="flex:1"><label>Radius (km)</label><input name="delivery_radius_km" type="number" step="any" min="1" required/></div>
+        </div>
+        <div class="field"><label>Fee type</label>
+          <select name="delivery_fee_type">
+            <option value="flat">Flat fee</option>
+            <option value="per_km">Per km</option>
+            <option value="flat_plus_per_km">Flat + per km</option>
+          </select>
+        </div>
+        <div class="row" style="gap:1rem">
+          <div class="field" style="flex:1"><label>Flat fee (PHP)</label><input name="delivery_fee_flat" type="number" step="1" min="0"/></div>
+          <div class="field" style="flex:1"><label>Per-km fee (PHP)</label><input name="delivery_fee_per_km" type="number" step="1" min="0"/></div>
+          <div class="field" style="flex:1"><label>Free delivery min order (PHP)</label><input name="free_delivery_min_order" type="number" step="1" min="0"/></div>
+        </div>
+        <div class="row" style="gap:1rem">
+          <div class="field" style="flex:1"><label>Oven batch slots</label><input name="oven_batch_slots" type="number" min="1"/></div>
+          <div class="field" style="flex:1"><label>Packing buffer (min)</label><input name="packing_buffer_minutes" type="number" min="0"/></div>
+          <div class="field" style="flex:1"><label>Delivery buffer (min)</label><input name="delivery_buffer_minutes" type="number" min="0"/></div>
+        </div>
+        <button class="btn primary" type="submit">Save settings</button>
+        <div id="settings-msg" class="msg info" style="display:none"></div>
+      </form>
+    </section>
+
+    <section id="tab-products" class="card admin-panel" hidden style="margin-top:1rem">
+      <h2>Products (cakes &amp; breads)</h2>
+      <div id="admin-products"></div>
+      <hr style="margin:1.25rem 0;border:none;border-top:1px solid #eee"/>
+      <h3>Add / edit product</h3>
+      <form id="product-form">
+        <div class="row" style="gap:1rem">
+          <div class="field" style="flex:1"><label>ID (slug)</label><input name="id" required placeholder="e.g. pandesal-dozen"/></div>
+          <div class="field" style="flex:2"><label>Name</label><input name="name" required/></div>
+        </div>
+        <div class="field"><label>Description</label><input name="description"/></div>
+        <div class="row" style="gap:1rem">
+          <div class="field" style="flex:1"><label>Price (PHP)</label><input name="price" type="number" min="0" step="1" required/></div>
+          <div class="field" style="flex:1"><label>Bake min</label><input name="bake_time_minutes" type="number" min="0" required/></div>
+          <div class="field" style="flex:1"><label>Prep min</label><input name="prep_minutes" type="number" min="0"/></div>
+          <div class="field" style="flex:1"><label>Min lead</label><input name="min_lead_minutes" type="number" min="0"/></div>
+          <div class="field" style="flex:1"><label>Slots</label><input name="slots" type="number" min="1" value="1"/></div>
+        </div>
+        <div class="row" style="gap:1rem">
+          <div class="field" style="flex:1"><label>Category</label>
+            <select name="category"><option>Breads</option><option>Cakes</option></select>
+          </div>
+          <div class="field" style="flex:1"><label>Active</label>
+            <select name="active"><option value="true">Visible</option><option value="false">Hidden</option></select>
+          </div>
+          <div class="field" style="flex:1"><label>Sort</label><input name="sort_order" type="number" value="0"/></div>
+        </div>
+        <div class="field"><label>Wholesale note</label><input name="wholesale_note"/></div>
+        <div class="field"><label>Image URL / path</label>
+          <input name="image_url" placeholder="img/products/my-cake.jpg or https://…"/></div>
+        <div class="field" id="demo-image-upload">
+          <label for="product-image-file">Or choose local image (demo mode)</label>
+          <input id="product-image-file" type="file" accept="image/*"/>
+          <img id="product-image-preview" class="admin-thumb lg" alt="" hidden/>
+        </div>
+        <div class="field"><label>Photo note</label>
+          <select name="photo_real">
+            <option value="true">Real photo · name/price TBC</option>
+            <option value="false">Sample / placeholder</option>
+          </select>
+        </div>
+        <button class="btn secondary" type="submit">Save product</button>
+        <div id="product-msg" class="msg info" style="display:none"></div>
+      </form>
+    </section>
+
+    <section id="tab-orders" class="card admin-panel" hidden style="margin-top:1rem">
+      <h2>Incoming orders</h2>
+      <div id="admin-orders"></div>
+    </section>
+  </div>
+</main>
+<footer class="site-footer"><div class="container"><p>Payment: Cash on Delivery · <a href="index.html">Storefront</a></p></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/chrome.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
