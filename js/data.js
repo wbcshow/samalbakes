@@ -34,6 +34,21 @@
     localStorage.setItem(key, JSON.stringify(val));
   }
 
+  function cleanProfile(fields) {
+    fields = fields || {};
+    return {
+      full_name: String(fields.full_name == null ? "" : fields.full_name).trim(),
+      phone: String(fields.phone == null ? "" : fields.phone).trim(),
+      delivery_address: String(fields.delivery_address == null ? "" : fields.delivery_address).trim(),
+    };
+  }
+
+  function assertNewPassword(pw) {
+    if (pw == null || String(pw).length < 6) {
+      throw new Error("Password must be at least 6 characters.");
+    }
+  }
+
   function defaultSettings() {
     var c = SB.config || {};
     var d = c.delivery || {};
@@ -95,6 +110,7 @@
         password: DEMO_ADMIN_PASS,
         full_name: "Demo Admin",
         phone: "",
+        delivery_address: "",
         is_admin: true,
       });
       lsSet(LS.users, users);
@@ -200,7 +216,8 @@
           id: u.id,
           email: u.email,
           full_name: u.full_name,
-          phone: u.phone,
+          phone: u.phone || "",
+          delivery_address: u.delivery_address || "",
           is_admin: !!u.is_admin,
         },
       };
@@ -217,6 +234,7 @@
         password: String(password),
         full_name: fullName || "",
         phone: "",
+        delivery_address: "",
         is_admin: false,
       };
       users.push(u);
@@ -236,6 +254,32 @@
     },
     async logout() {
       localStorage.removeItem(LS.session);
+    },
+    async updateProfile(fields) {
+      var session = await demo.getSession();
+      if (!session) throw new Error("Log in to update your account.");
+      var clean = cleanProfile(fields);
+      var users = lsGet(LS.users, []);
+      var u = users.find(function (x) { return x.id === session.user.id; });
+      if (!u) throw new Error("Account not found.");
+      u.full_name = clean.full_name;
+      u.phone = clean.phone;
+      u.delivery_address = clean.delivery_address;
+      lsSet(LS.users, users);
+      return demo.getSession();
+    },
+    async changePassword(currentPassword, newPassword) {
+      assertNewPassword(newPassword);
+      var session = await demo.getSession();
+      if (!session) throw new Error("Log in to change your password.");
+      var users = lsGet(LS.users, []);
+      var u = users.find(function (x) { return x.id === session.user.id; });
+      if (!u || u.password !== String(currentPassword)) {
+        throw new Error("Current password is incorrect.");
+      }
+      u.password = String(newPassword);
+      lsSet(LS.users, users);
+      return true;
     },
     async getProducts(includeInactive) {
       var list = lsGet(LS.products, seedProductsFromStatic()).map(mapProductRow);
@@ -386,6 +430,7 @@
           email: session.user.email,
           full_name: p.full_name || "",
           phone: p.phone || "",
+          delivery_address: p.delivery_address || "",
           is_admin: !!p.is_admin,
         },
       };
@@ -397,7 +442,13 @@
         options: { data: { full_name: fullName || "" } },
       });
       if (res.error) throw new Error(res.error.message);
-      return remote.getSession();
+      var session = await remote.getSession();
+      if (session) return session;
+      var pending = new Error(
+        "Account created. Check your email to confirm it, then log in."
+      );
+      pending.code = "email_confirmation_required";
+      throw pending;
     },
     async login(email, password) {
       var res = await remote.client.auth.signInWithPassword({ email: email, password: password });
@@ -406,6 +457,53 @@
     },
     async logout() {
       await remote.client.auth.signOut();
+    },
+    async updateProfile(fields) {
+      var session = await remote.getSession();
+      if (!session) throw new Error("Log in to update your account.");
+      var clean = cleanProfile(fields);
+      var base = { full_name: clean.full_name, phone: clean.phone };
+      var res = await remote.client
+        .from("profiles")
+        .update(Object.assign({ delivery_address: clean.delivery_address }, base))
+        .eq("id", session.user.id)
+        .select()
+        .maybeSingle();
+      if (res.error && /delivery_address/i.test(res.error.message || "")) {
+        var retry = await remote.client
+          .from("profiles")
+          .update(base)
+          .eq("id", session.user.id)
+          .select()
+          .maybeSingle();
+        if (retry.error) throw new Error(retry.error.message);
+        if (!retry.data) throw new Error("Couldn't update your profile.");
+        throw new Error(
+          "Name and phone were saved, but delivery address is not in the database yet. Run supabase/profile-delivery-address.sql in the Supabase SQL editor."
+        );
+      }
+      if (res.error) throw new Error(res.error.message);
+      if (!res.data) throw new Error("Couldn't update your profile.");
+      return remote.getSession();
+    },
+    async changePassword(currentPassword, newPassword) {
+      assertNewPassword(newPassword);
+      var session = await remote.getSession();
+      if (!session) throw new Error("Log in to change your password.");
+      var check = await remote.client.auth.signInWithPassword({
+        email: session.user.email,
+        password: String(currentPassword),
+      });
+      if (check.error) {
+        var message = check.error.message || "";
+        if (/invalid|credential|password/i.test(message)) {
+          throw new Error("Current password is incorrect.");
+        }
+        throw new Error(message);
+      }
+      var updated = await remote.client.auth.updateUser({ password: String(newPassword) });
+      if (updated.error) throw new Error(updated.error.message);
+      return true;
     },
     async getProducts(includeInactive) {
       var q = remote.client.from("products").select("*").order("sort_order");
@@ -530,6 +628,10 @@
     register: function (e, p, n) { return api.backend.register(e, p, n); },
     login: function (e, p) { return api.backend.login(e, p); },
     logout: function () { return api.backend.logout(); },
+    updateProfile: function (fields) { return api.backend.updateProfile(fields); },
+    changePassword: function (currentPassword, newPassword) {
+      return api.backend.changePassword(currentPassword, newPassword);
+    },
     getProducts: function (inc) { return api.backend.getProducts(inc); },
     saveProduct: function (p) { return api.backend.saveProduct(p); },
     getSettings: function () { return api.backend.getSettings(); },

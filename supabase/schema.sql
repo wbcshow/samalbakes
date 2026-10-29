@@ -10,6 +10,7 @@ create table if not exists public.profiles (
   email text,
   full_name text,
   phone text,
+  delivery_address text,
   is_admin boolean not null default false,
   created_at timestamptz not null default now()
 );
@@ -37,6 +38,9 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Trigger function: not callable from the API. Already applied on the live project.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
 -- Products
 create table if not exists public.products (
   id text primary key,
@@ -60,6 +64,7 @@ create table if not exists public.products (
 -- Migrations for existing projects:
 -- alter table public.products add column if not exists image_url text not null default '';
 -- alter table public.products add column if not exists photo_real boolean not null default false;
+-- Delivery address for accounts created before that column: supabase/profile-delivery-address.sql
 
 -- Site settings (single row id = 1)
 create table if not exists public.settings (

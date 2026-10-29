@@ -52,6 +52,45 @@
           </div>
         </div>
       </div>
+      <section id="profile" hidden>
+        <div class="section-head">
+          <h1>My account</h1>
+          <p>Manage your name, phone, and delivery address. Email stays the same.</p>
+        </div>
+        <div class="order-layout">
+          <div class="card">
+            <h2>Profile</h2>
+            <form id="profile-form">
+              <div class="field"><label for="profile-name">Name</label>
+                <input id="profile-name" type="text" autocomplete="name" /></div>
+              <div class="field"><label for="profile-email">Email</label>
+                <input id="profile-email" type="email" autocomplete="username" readonly /></div>
+              <div class="field"><label for="profile-phone">Phone</label>
+                <input id="profile-phone" type="tel" autocomplete="tel" placeholder="09xx" /></div>
+              <div class="field"><label for="profile-address">Delivery address</label>
+                <textarea id="profile-address" rows="3" autocomplete="street-address" placeholder="Barangay, landmark, or full address"></textarea>
+                <p class="muted">Saved on your account and filled in on your next order.</p>
+              </div>
+              <button class="btn primary" type="submit">Save profile</button>
+              <div id="profile-msg" class="msg info" role="status" style="display:none"></div>
+            </form>
+          </div>
+          <div class="card">
+            <h2>Password</h2>
+            <form id="password-form">
+              <div class="field"><label for="pw-current">Current password</label>
+                <input id="pw-current" type="password" autocomplete="current-password" required /></div>
+              <div class="field"><label for="pw-new">New password</label>
+                <input id="pw-new" type="password" autocomplete="new-password" required minlength="6" /></div>
+              <div class="field"><label for="pw-confirm">Confirm new password</label>
+                <input id="pw-confirm" type="password" autocomplete="new-password" required minlength="6" /></div>
+              <p class="muted">At least 6 characters.</p>
+              <button class="btn secondary" type="submit">Change password</button>
+              <div id="password-msg" class="msg info" role="status" style="display:none"></div>
+            </form>
+          </div>
+        </div>
+      </section>
       <section id="history" style="margin-top:2rem" hidden>
         <div class="section-head">
           <h2>Order history</h2>

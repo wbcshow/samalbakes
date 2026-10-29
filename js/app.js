@@ -56,38 +56,10 @@
 
   function renderMenu() {
     var grid = $("#menu-grid");
-    if (!grid) return;
+    if (!grid || !SB.menuCard) return;
     grid.innerHTML = products
       .map(function (p) {
-        var bakeLabel =
-          p.bakeTimeMinutes >= 60
-            ? (p.bakeTimeMinutes / 60).toFixed(1).replace(/\.0$/, "") + " hr bake"
-            : p.bakeTimeMinutes + " min bake";
-        var img = p.image || p.image_url || "";
-        var badge = p.example
-          ? '<span class="badge sample">Sample</span>'
-          : (p.photoReal || p.photo_real
-              ? '<span class="badge photo-real">Photo: real · name/price TBC</span>'
-              : "");
-        var media = img
-          ? '<div class="product-media"><img src="' + escapeHtml(img) + '" alt="' +
-            escapeHtml(p.name) + '" loading="lazy" width="600" height="600"/></div>'
-          : "";
-        return (
-          '<article class="card product-card" data-id="' + p.id + '">' +
-          badge + media +
-          '<div class="product-cat">' + escapeHtml(p.category || "") + "</div>" +
-          "<h3>" + escapeHtml(p.name) + "</h3>" +
-          '<p class="desc">' + escapeHtml(p.description) + "</p>" +
-          '<div class="meta"><span class="price">' + peso(p.price) +
-          '</span><span class="bake">' + bakeLabel + "</span></div>" +
-          (p.wholesaleNote ? '<p class="wholesale">' + escapeHtml(p.wholesaleNote) + "</p>" : "") +
-          '<div class="qty-row">' +
-          '<button type="button" class="btn ghost qty-minus" aria-label="Decrease">−</button>' +
-          '<span class="qty" data-qty="' + p.id + '">0</span>' +
-          '<button type="button" class="btn ghost qty-plus" aria-label="Increase">+</button>' +
-          '<button type="button" class="btn primary add-btn">Add</button></div></article>'
-        );
+        return SB.menuCard.customerProductCardHtml(p, { escapeHtml: escapeHtml, peso: peso });
       })
       .join("");
     grid.onclick = function (e) {
@@ -471,6 +443,19 @@
     }
   }
 
+  function prefillCheckoutFromSession() {
+    if (!session || !session.user) return;
+    var u = session.user;
+    function fill(sel, value) {
+      var el = $(sel);
+      if (el && !String(el.value || "").trim() && value) el.value = value;
+    }
+    fill("#guest-name", u.full_name || "");
+    fill("#guest-phone", u.phone || "");
+    fill("#guest-email", u.email || "");
+    fill("#guest-address", u.delivery_address || "");
+  }
+
   function bindCheckout() {
     var promoBtn = $("#btn-apply-promo");
     if (promoBtn) promoBtn.addEventListener("click", applyPromoCode);
@@ -536,6 +521,7 @@
     config = SB.config;
     session = await SB.data.getSession();
     await SB.chrome.boot();
+    prefillCheckoutFromSession();
 
     var accountHint = $("#account-hint");
     if (accountHint) {
