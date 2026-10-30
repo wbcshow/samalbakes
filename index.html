@@ -8,6 +8,29 @@
       name="description"
       content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City. Check delivery area, build an order, and see when it will be ready."
     />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SamalBakes" />
+    <meta property="og:title" content="SamalBakes — Freshly baked to order on Samal Island" />
+    <meta
+      property="og:description"
+      content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City. Check delivery area, build an order, and see when it will be ready."
+    />
+    <meta property="og:url" content="https://samalbakes.com/" />
+    <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SamalBakes — Freshly baked to order on Samal Island" />
+    <meta
+      name="twitter:description"
+      content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City."
+    />
+    <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
     <link rel="stylesheet" href="css/styles.css" />
     <link
       rel="stylesheet"
@@ -19,7 +42,12 @@
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="logo" href="#top">Samal<span>Bakes</span></a>
+        <a class="logo" href="#top">
+          <picture>
+            <source srcset="assets/logo-header.webp" type="image/webp" />
+            <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
+          </picture>
+        </a>
         <nav class="nav" aria-label="Primary">
           <a href="#delivery">Delivery</a>
           <a href="#menu">Menu</a>
@@ -37,6 +65,17 @@
       <section class="hero">
         <div class="container hero-grid">
           <div>
+            <div class="hero-logo">
+              <picture>
+                <source srcset="assets/logo.webp" type="image/webp" />
+                <img
+                  src="assets/logo.png"
+                  alt="Samal Bakes — cakes &amp; breads, Samal Island"
+                  width="930"
+                  height="313"
+                />
+              </picture>
+            </div>
             <h1>Fresh from our oven on Samal Island — baked to order for you</h1>
             <p class="lede">
               A small home bakery serving Samal Island and Davao City. We bake cakes and breads to order, then deliver — for homes, coffee shops,
