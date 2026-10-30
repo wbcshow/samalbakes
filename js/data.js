@@ -311,6 +311,13 @@
       lsSet(LS.products, list);
       return mapProductRow(row);
     },
+    async deleteProduct(id) {
+      var list = lsGet(LS.products, []);
+      var next = list.filter(function (p) { return p.id !== id; });
+      if (next.length === list.length) throw new Error("Product not found.");
+      lsSet(LS.products, next);
+      return true;
+    },
     async getSettings() {
       return lsGet(LS.settings, defaultSettings());
     },
@@ -535,6 +542,12 @@
       if (res.error) throw new Error(res.error.message);
       return mapProductRow(res.data);
     },
+    async deleteProduct(id) {
+      var res = await remote.client.from("products").delete().eq("id", id).select("id");
+      if (res.error) throw new Error(res.error.message);
+      if (!res.data || !res.data.length) throw new Error("Couldn't delete that product.");
+      return true;
+    },
     async getSettings() {
       var res = await remote.client.from("settings").select("*").eq("id", 1).single();
       if (res.error) throw new Error(res.error.message);
@@ -634,6 +647,7 @@
     },
     getProducts: function (inc) { return api.backend.getProducts(inc); },
     saveProduct: function (p) { return api.backend.saveProduct(p); },
+    deleteProduct: function (id) { return api.backend.deleteProduct(id); },
     getSettings: function () { return api.backend.getSettings(); },
     saveSettings: function (p) { return api.backend.saveSettings(p); },
     placeOrder: function (p) { return api.backend.placeOrder(p); },
