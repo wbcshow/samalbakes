@@ -338,21 +338,63 @@ section[id] {
   font-size: 1.1rem;
 }
 
-.pill-row {
+.feature-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  align-items: center;
+  gap: 0.65rem 1.25rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.feature-row li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #5a3220;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.feature-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  display: block;
+  color: #e8b03a;
+}
+
+@media (max-width: 640px) {
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem 0.85rem;
+    align-items: start;
+  }
 }
 
 .pill {
-  background: #fbf6ea;
-  color: var(--brown);
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  color: #5a3220;
+  padding: 0;
+  border-radius: 0;
   font-size: 0.85rem;
   font-weight: 600;
-  box-shadow: inset 0 0 0 1px rgba(232, 176, 58, 0.45);
+  box-shadow: none;
+}
+
+.pill::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #e8b03a;
+  flex-shrink: 0;
 }
 
 .actions {
