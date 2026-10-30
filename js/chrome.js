@@ -19,8 +19,7 @@
     b.id = "demo-banner";
     b.className = "demo-banner";
     b.innerHTML =
-      "<strong>Demo mode</strong> — data stays in this browser (localStorage). " +
-      "Paste real Supabase keys in <code>js/supabase-config.js</code> to go live.";
+      "<strong>Demo mode</strong> — orders stay in this browser and are not sent to the bakery.";
     document.body.insertBefore(b, document.body.firstChild);
   }
 

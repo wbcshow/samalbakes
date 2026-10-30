@@ -18,11 +18,7 @@
     var escapeHtml = helpers.escapeHtml;
     var peso = helpers.peso;
     var img = p.image || p.image_url || "";
-    var badge = p.example
-      ? '<span class="badge sample">Sample</span>'
-      : p.photoReal || p.photo_real
-        ? '<span class="badge photo-real">Photo: real · name/price TBC</span>'
-        : "";
+    var badge = "";
     var media = img
       ? '<div class="product-media"><img src="' +
         escapeHtml(img) +
