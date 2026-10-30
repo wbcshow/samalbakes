@@ -18,6 +18,7 @@
   var mapMarker = null;
   var lastOrderText = "";
   var lastDistanceKm = null;
+  var deliveryCheck = null;
   var session = null;
   var settings = null;
 
@@ -64,6 +65,7 @@
         JSON.stringify({
           promo: appliedPromo && appliedPromo.code ? appliedPromo.code : "",
           distanceKm: lastDistanceKm,
+          deliveryCheck: deliveryCheck,
         })
       );
     } catch (e) {}
@@ -83,6 +85,7 @@
     } catch (e) {}
     appliedPromo = null;
     lastDistanceKm = null;
+    deliveryCheck = null;
     try {
       var meta = JSON.parse(localStorage.getItem(CART_META_KEY) || "{}");
       if (meta && meta.promo) {
@@ -91,9 +94,37 @@
       }
       if (meta && meta.distanceKm != null && meta.distanceKm !== "") {
         var dist = Number(meta.distanceKm);
-        if (!isNaN(dist)) lastDistanceKm = dist;
+        if (!isNaN(dist) && dist >= 0) lastDistanceKm = dist;
+      }
+      if (meta && (meta.deliveryCheck === "in" || meta.deliveryCheck === "out")) {
+        deliveryCheck = meta.deliveryCheck;
+      } else if (lastDistanceKm != null) {
+        deliveryCheck = lastDistanceKm > deliveryRadiusKm() ? "out" : "in";
+      }
+      if (deliveryCheck === "in" && lastDistanceKm != null && lastDistanceKm > deliveryRadiusKm()) {
+        deliveryCheck = "out";
       }
     } catch (e2) {}
+  }
+
+  function deliveryRadiusKm() {
+    var radius = Number(config && config.delivery && config.delivery.radiusKm);
+    if (isNaN(radius) || radius <= 0) return 25;
+    return radius;
+  }
+
+  function formatAboutKm(km) {
+    var rounded = Math.round(Number(km));
+    if (isNaN(rounded) || rounded < 0) return "";
+    if (rounded < 1) return "under 1 km";
+    return "about " + rounded + " km";
+  }
+
+  function deliveryAreaState() {
+    if (lastDistanceKm != null && Number(lastDistanceKm) > deliveryRadiusKm()) return "out";
+    if (deliveryCheck === "out") return "out";
+    if (deliveryCheck === "in") return "in";
+    return "none";
   }
 
   function onGridClick(e) {
@@ -209,31 +240,41 @@
     var sub = subtotal();
     var disc = SB.data.calcDiscount(sub, appliedPromo && appliedPromo.code);
     var after = Math.max(0, sub - disc);
-    var delFee = SB.data.calcDeliveryFee(
-      settings || {
-        free_delivery_min_order: config.delivery.freeDeliveryMinOrder,
-        delivery_fee_type: config.delivery.feeType || "flat",
-        delivery_fee_flat: config.delivery.feeFlat || 0,
-        delivery_fee_per_km: config.delivery.feePerKm || 0,
-      },
-      after,
-      lastDistanceKm
-    );
-    var total = after + delFee;
+    var areaState = deliveryAreaState();
+    var feeSettings = settings || {
+      free_delivery_min_order: config.delivery.freeDeliveryMinOrder,
+      delivery_fee_type: config.delivery.feeType || "flat",
+      delivery_fee_flat: config.delivery.feeFlat || 0,
+      delivery_fee_per_km: config.delivery.feePerKm || 0,
+    };
+    var delFee = areaState === "in" ? SB.data.calcDeliveryFee(feeSettings, after, lastDistanceKm) : 0;
+    var total = after + (areaState === "in" ? delFee : 0);
 
     var subEl = $("#cart-subtotal");
     if (!subEl) return;
     subEl.textContent = peso(sub);
     $("#cart-discount").textContent = disc ? "−" + peso(disc) : "—";
     var feeEl = $("#cart-delivery-fee");
-    if (feeEl) feeEl.textContent = delFee ? peso(delFee) : "Free";
+    if (feeEl) {
+      if (areaState !== "in") feeEl.textContent = "—";
+      else feeEl.textContent = delFee ? peso(delFee) : "Free";
+    }
     $("#cart-total").textContent = peso(total);
-    $("#cart-delivery-note").textContent =
-      delFee === 0
-        ? "Free delivery on this order."
-        : lastDistanceKm != null
-          ? "Delivery fee for about " + lastDistanceKm + " km."
-          : "Delivery fee is included in the total.";
+    var note = $("#cart-delivery-note");
+    if (note) {
+      if (areaState === "out") {
+        note.innerHTML =
+          'That location is outside our delivery area (Samal Island and Davao City). Please <a href="delivery.html">check a delivery address</a> or pick your area.';
+      } else if (areaState !== "in") {
+        note.innerHTML = '<a href="delivery.html">Check your delivery area</a> to see the fee';
+      } else if (!delFee) {
+        note.textContent = "Free delivery on this order.";
+      } else if (lastDistanceKm != null) {
+        note.textContent = "Delivery fee for " + formatAboutKm(lastDistanceKm) + ".";
+      } else {
+        note.textContent = "Delivery fee for your area.";
+      }
+    }
     $("#payment-method-label").textContent = "Cash on Delivery (COD)";
 
     var est = SB.readyTime.estimate({ lines: lines, config: config, now: new Date() });
@@ -245,9 +286,9 @@
     $("#ready-assumptions").textContent =
       "This is an estimate from our baking hours. We’ll confirm the time when we accept your order.";
 
-    buildOrderSummaryText(lines, sub, disc, delFee, total, est);
+    buildOrderSummaryText(lines, sub, disc, delFee, total, est, areaState);
     var placeBtn = $("#btn-place-order");
-    if (placeBtn) placeBtn.disabled = false;
+    if (placeBtn) placeBtn.disabled = areaState !== "in";
   }
 
   function showAddedToast(product) {
@@ -261,7 +302,7 @@
     }, 2600);
   }
 
-  function buildOrderSummaryText(lines, sub, disc, delFee, total, est) {
+  function buildOrderSummaryText(lines, sub, disc, delFee, total, est, areaState) {
     var tz = config.timezone;
     var linesTxt = lines
       .map(function (l) {
@@ -275,7 +316,11 @@
       "Hi! I'd like to order from SamalBakes:\n\n" +
       linesTxt +
       "\n\nSubtotal: " + peso(sub) + "\n" + promoLine +
-      "Delivery fee: " + (delFee ? peso(delFee) : "Free") + "\n" +
+      (areaState === "out"
+        ? "Delivery: outside our delivery area\n"
+        : areaState !== "in"
+          ? "Delivery fee: check your delivery area\n"
+          : "Delivery fee: " + (delFee ? peso(delFee) : "Free") + "\n") +
       "Total: " + peso(total) + "\nPayment: Cash on Delivery (COD)\n\n" +
       "Estimated ready: " + SB.readyTime.formatReady(est.readyAt, tz) + "\n" +
       "Earliest delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz) +
@@ -377,20 +422,27 @@
   function showDeliveryResult(result, label) {
     var box = $("#delivery-result");
     var d = config.delivery;
-    if (result.distanceKm != null) lastDistanceKm = result.distanceKm;
-    if (result.inZone) {
+    deliveryCheck = result.inZone ? "in" : "out";
+    if (result.distanceKm != null && result.distanceKm !== "" && !isNaN(Number(result.distanceKm))) {
+      lastDistanceKm = Number(result.distanceKm);
+    } else {
+      lastDistanceKm = null;
+    }
+    if (lastDistanceKm != null && lastDistanceKm > deliveryRadiusKm()) deliveryCheck = "out";
+    var distNote = lastDistanceKm != null
+      ? "(" + formatAboutKm(lastDistanceKm) + "; zone " + d.radiusKm + " km.) "
+      : "";
+    if (result.inZone && deliveryCheck === "in") {
       box.className = "msg ok";
       box.innerHTML =
         "<strong>Yes — you're in our delivery area!</strong> " +
-        (result.distanceKm != null
-          ? "(~" + result.distanceKm + " km; zone " + d.radiusKm + " km.) "
-          : "") +
+        distNote +
         (label ? escapeHtml(label) + ". " : "");
     } else {
       box.className = "msg warn";
       box.innerHTML =
         "<strong>Outside our current zone.</strong> " +
-        (result.distanceKm != null ? "(~" + result.distanceKm + " km; zone " + d.radiusKm + " km.) " : "") +
+        distNote +
         "Message us — special delivery may be possible.";
     }
     if (map && result.lat != null) {
@@ -521,6 +573,17 @@
         msg.style.display = "block";
         msg.className = "msg warn";
         msg.textContent = "Add items first.";
+      }
+      return;
+    }
+    var areaState = deliveryAreaState();
+    if (areaState !== "in") {
+      if (msg) {
+        msg.style.display = "block";
+        msg.className = "msg warn";
+        msg.textContent = areaState === "out"
+          ? "That location is outside our delivery area. Check a delivery address or pick your area."
+          : "Check your delivery area to see the fee before placing an order.";
       }
       return;
     }

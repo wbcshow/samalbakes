@@ -112,10 +112,6 @@
                     </div>
                   </div>
                   <p id="cart-delivery-note" class="muted"></p>
-                  <p class="muted">
-                    The fee uses your area after you
-                    <a href="delivery.html">check delivery</a>.
-                  </p>
 
                   <div class="payment-box">
                     <strong>Payment method:</strong>
@@ -149,7 +145,7 @@
                   <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
                 <div class="field"><label for="guest-notes">Notes</label>
                   <input id="guest-notes" type="text" placeholder="Allergies, gate codes"/></div>
-                <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem">Place order (COD)</button>
+                <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem" disabled>Place order (COD)</button>
                 <div id="place-order-msg" class="msg info" style="display:none"></div>
                 <div id="payment-step" data-phase="cod-only" hidden></div>
                 <pre id="order-preview">Add items to generate an order summary.</pre>
