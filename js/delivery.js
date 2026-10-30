@@ -62,7 +62,7 @@
     // Nominatim often blocks file:// origins and may rate-limit; callers should fall back to the area dropdown.
     if (typeof location !== "undefined" && location.protocol === "file:") {
       return Promise.reject(
-        new Error("Address lookup needs http:// or https:// (not file://). Use the area dropdown, or serve the site locally.")
+        new Error("Address lookup isn’t available right now. Please pick your area from the list.")
       );
     }
     var url =

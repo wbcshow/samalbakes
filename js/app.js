@@ -142,9 +142,10 @@
     $("#cart-total").textContent = peso(total);
     $("#cart-delivery-note").textContent =
       delFee === 0
-        ? "Free delivery (meets threshold or promo)."
-        : "Delivery fee from Admin settings" +
-          (lastDistanceKm != null ? " (~" + lastDistanceKm + " km)." : " (flat or after distance check).");
+        ? "Free delivery on this order."
+        : lastDistanceKm != null
+          ? "Delivery fee for about " + lastDistanceKm + " km."
+          : "Delivery fee is included in the total.";
     $("#payment-method-label").textContent = "Cash on Delivery (COD)";
 
     var est = SB.readyTime.estimate({ lines: lines, config: config, now: new Date() });
@@ -153,7 +154,8 @@
       "Estimated ready: " + SB.readyTime.formatReady(est.readyAt, tz);
     $("#delivery-estimate").textContent =
       "Earliest delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz);
-    $("#ready-assumptions").textContent = est.assumptions.join(" ");
+    $("#ready-assumptions").textContent =
+      "This is an estimate from our baking hours. We’ll confirm the time when we accept your order.";
 
     buildOrderSummaryText(lines, sub, disc, delFee, total, est);
     var placeBtn = $("#btn-place-order");
@@ -250,7 +252,7 @@
     }).addTo(map);
     L.marker([d.center.lat, d.center.lng])
       .addTo(map)
-      .bindPopup("Approx. bakery / hub area");
+      .bindPopup("Our bakery");
     setTimeout(function () { map.invalidateSize(); }, 200);
   }
 
@@ -355,7 +357,7 @@
           var viaFile = location.protocol === "file:";
           if (viaFile || /file:\/\/|blocked|403|Failed to fetch|NetworkError|cors/i.test(reason)) {
             box.textContent =
-              "Address lookup isn’t available here (file:// often blocks it). Use the area dropdown, or serve via python3 -m http.server.";
+              "Address lookup isn’t available right now. Please pick your area from the list.";
           } else {
             box.textContent = "Address lookup failed. Try the area dropdown.";
           }

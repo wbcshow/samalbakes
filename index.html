@@ -82,7 +82,7 @@
               and resorts.
             </p>
             <div class="actions">
-              <a class="btn primary" href="#menu">Browse sample menu</a>
+              <a class="btn primary" href="#menu">Browse the menu</a>
               <a class="btn ghost" href="#delivery">Check delivery area</a>
             </div>
             <div class="pill-row">
@@ -108,10 +108,6 @@
                 across Samal and into Davao City — including coffee shops and
                 resorts.
               </p>
-              <p class="muted">
-                Cake photos below are real. Working names and placeholder prices —
-                confirm with the family. Breads are still sample items.
-              </p>
             </div>
           </aside>
         </div>
@@ -123,8 +119,7 @@
             <h2>Do we deliver to you?</h2>
             <p>
               Check with your location, pick a known area, or type an address.
-              The delivery radius is a <strong>placeholder (<span id="radius-copy">25</span> km)</strong>
-              and can be changed in Admin (or in config until Supabase is connected).
+              We deliver within about <span id="radius-copy">25</span> km.
             </p>
           </div>
           <div class="delivery-tools">
@@ -159,9 +154,6 @@
                     Look up
                   </button>
                 </div>
-                <p class="muted">
-                  Address lookup uses OpenStreetMap Nominatim (public service).
-                </p>
               </div>
 
               <div id="delivery-result" class="msg info" role="status">
@@ -171,9 +163,7 @@
             <div>
               <div id="delivery-map" role="img" aria-label="Delivery zone map"></div>
               <p class="muted" style="margin-top: 0.5rem">
-                Orange circle = approximate delivery zone (center near Babak /
-                Davao crossing area). Edit
-                <code>js/config.js</code> → <code>delivery.radiusKm</code>.
+                The orange circle shows our approximate delivery area.
               </p>
             </div>
           </div>
@@ -185,9 +175,6 @@
           <div class="section-head">
             <h2>Menu</h2>
             <p>Add items to build your order. Ready time updates as you go.</p>
-          </div>
-          <div class="note-banner">
-            <strong>Real cake photos</strong> — working names &amp; placeholder prices (confirm with the family). Breads are still sample items. Edit in Admin or <code>js/products.js</code>.
           </div>
           <div class="photo-gallery" aria-label="Cake photos">
             <img src="img/products/chiffon-cake.jpg" alt="Chiffon cakes" loading="lazy"/>
@@ -241,10 +228,6 @@
                 <div class="payment-box">
                   <strong>Payment method:</strong>
                   <span id="payment-method-label">Cash on Delivery (COD)</span>
-                  <p class="future">
-                    Card, GCash, and Maya can be added later (e.g. PayMongo or
-                    Xendit) as an optional step before you send the order.
-                  </p>
                 </div>
 
                 <div class="ready-box">
@@ -260,8 +243,7 @@
               <p class="muted">
                 No online payment yet — we’ll confirm your order and collect
                 <strong>cash on delivery</strong>. Copy or open a chat with this
-                summary. Contact details below are
-                <span class="placeholder-tag">PLACEHOLDERS</span>.
+                summary.
               </p>
               <!-- Future payment step mounts here: #payment-step -->
               <p id="account-hint" class="muted"></p>
@@ -312,8 +294,7 @@
           <div class="section-head">
             <h2>Promotions</h2>
             <p>
-              Ideas to welcome new customers and partners. Figures and codes are
-              editable placeholders in <code>js/promos.js</code>.
+              A few offers for new customers and for cafés and resorts.
             </p>
           </div>
           <div id="promo-list" class="promo-grid"></div>
@@ -337,10 +318,10 @@
             <li>Samal Island (Babak, Peñaplata, Kaputian &amp; resorts)</li>
             <li>Davao City (within delivery zone)</li>
           </ul>
-          <p>Exact range TBD — currently shown as ~25 km (placeholder).</p>
+          <p>We deliver within the area shown on the map.</p>
         </div>
         <div>
-          <h3>Contact <span class="placeholder-tag">EDIT ME</span></h3>
+          <h3>Contact</h3>
           <p>Phone: <span data-contact="phone">+63 9XX XXX XXXX</span></p>
           <p>
             Email:

@@ -65,6 +65,8 @@ console.log("customer card");
   assert(html.indexOf("240") === -1, "lead minutes are not printed");
   assert(html.indexOf("Min lead") === -1, "card has no lead-time message");
   assert(html.indexOf("Estimated ready") === -1, "card has no ready-time message");
+  assert(html.indexOf("TBC") === -1, "card does not show a name/price note");
+  assert(html.indexOf("Photo: real") === -1, "card does not show a photo-status badge");
   assert(product.bakeTimeMinutes === 17, "hiding the label does not strip bake-time data");
   assert(product.minLeadMinutes === 240, "lead time stays on the product");
 }
@@ -86,7 +88,8 @@ console.log("sample card without a note");
     },
     { escapeHtml: escapeHtml, peso: peso }
   );
-  assert(html.indexOf("Sample") !== -1, "sample badge stays");
+  assert(html.indexOf("Sample") === -1, "sample badge is not shown to customers");
+  assert(html.indexOf("placeholder") === -1, "sample card has no placeholder note");
   assert(html.indexOf("45") === -1, "sample card does not print bake minutes");
   assert(html.indexOf("120") === -1, "sample card does not print lead minutes");
   assert(html.indexOf("wholesale") === -1, "empty ordering note is omitted");

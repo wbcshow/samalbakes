@@ -27,7 +27,7 @@ window.SAMALBAKES.promos = [
     id: "free-del",
     code: "FREESHIP1500",
     title: "Free delivery over ₱1,500",
-    description: "Orders of ₱1,500+ qualify for free delivery within our zone (fee TBD offline until confirmed).",
+    description: "Orders of ₱1,500 or more qualify for free delivery within our area.",
     type: "free_delivery",
     minSubtotal: 1500,       // PLACEHOLDER — sync with config.delivery.freeDeliveryMinOrder
     audience: "everyone",
