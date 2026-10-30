@@ -24,11 +24,21 @@
         <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
       </picture>
     </a>
-    <nav class="nav">
-      <a href="index.html">Storefront</a>
-      <a href="account.html">Account</a>
-      <span data-auth-nav></span>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="delivery.html">Delivery</a>
+      <a href="promotions.html">Promos</a>
+      <a href="contact.html">Contact</a>
     </nav>
+    <div class="header-tools">
+      <a class="cart-link" href="menu.html#order">Order <span id="cart-count" hidden>0</span></a>
+      <span data-auth-nav></span>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Open menu</span>
+      </button>
+    </div>
   </div>
 </header>
 <main class="container" style="padding:2rem 0">

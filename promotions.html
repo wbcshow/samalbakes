@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Promotions — SamalBakes</title>
+    <meta
+      name="description"
+      content="Current SamalBakes offers for new customers, cafés, and resorts on Samal Island and in Davao City."
+    />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SamalBakes" />
+    <meta property="og:title" content="Promotions — SamalBakes" />
+    <meta
+      property="og:description"
+      content="Current SamalBakes offers for new customers, cafés, and resorts on Samal Island and in Davao City."
+    />
+    <meta property="og:url" content="https://samalbakes.com/promotions.html" />
+    <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Promotions — SamalBakes" />
+    <meta
+      name="twitter:description"
+      content="Current SamalBakes offers for new customers, cafés, and resorts on Samal Island and in Davao City."
+    />
+    <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo" href="index.html">
+          <picture>
+            <source srcset="assets/logo-header.webp" type="image/webp" />
+            <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
+          </picture>
+        </a>
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="delivery.html">Delivery</a>
+          <a href="promotions.html" aria-current="page">Promos</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <div class="header-tools">
+          <a class="cart-link" href="menu.html#order">Order <span id="cart-count" hidden>0</span></a>
+          <span data-auth-nav></span>
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+            <span class="visually-hidden">Open menu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="container">
+          <div class="section-head">
+            <h1>Promotions</h1>
+            <p>A few offers for new customers and for cafés and resorts.</p>
+          </div>
+          <div id="promo-list" class="promo-grid"></div>
+          <div class="actions" style="margin-top: 1.25rem">
+            <a class="btn primary" href="menu.html">Use a code on your order</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <h3>SamalBakes</h3>
+          <p>
+            Freshly baked to order on Samal Island. Serving the Island Garden
+            City of Samal and Davao City.
+          </p>
+          <p>samalbakes.com</p>
+        </div>
+        <div>
+          <h3>Explore</h3>
+          <ul>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="delivery.html">Delivery</a></li>
+            <li><a href="promotions.html">Promotions</a></li>
+            <li><a href="contact.html">About &amp; contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contact</h3>
+          <p>Phone: <span data-contact="phone">+63 9XX XXX XXXX</span></p>
+          <p>
+            Email:
+            <a href="mailto:orders@samalbakes.example" data-contact="email"
+              >orders@samalbakes.example</a
+            >
+          </p>
+          <p>
+            <a data-contact-href="facebookPage" href="#" target="_blank" rel="noopener"
+              >Facebook</a
+            >
+            ·
+            <a data-contact-href="messenger" href="#" target="_blank" rel="noopener"
+              >Messenger</a
+            >
+          </p>
+          <p>Payment: Cash on Delivery (COD)</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/promos.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/ready-time.js"></script>
+    <script src="js/delivery.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/chrome.js"></script>
+    <script src="js/menu-card.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
