@@ -1,14 +1,20 @@
-/* SamalBakes — warm tropical bakery, mobile-first */
+/* SamalBakes — warm tropical bakery, mobile-first.
+   Brand colours follow the logo: brown, gold, coral. */
 :root {
   --cream: #fff8f0;
   --sand: #f5e6d3;
-  --caramel: #c45c26;
-  --caramel-dark: #9a3f14;
-  --cocoa: #3d2314;
+  --brown: #5a3220;
+  --brown-dark: #3f2416;
+  --gold: #e8b03a;
+  --gold-deep: #c9962a;
+  --coral: #e0654f;
+  --coral-ink: #c44734;
+  --caramel: var(--brown);
+  --caramel-dark: var(--brown-dark);
+  --cocoa: var(--brown);
   --leaf: #2d6a4f;
   --leaf-soft: #d8f3dc;
-  --coral: #e76f51;
-  --muted: #6b5344;
+  --muted: #6f5648;
   --card: #ffffff;
   --ok: #1b4332;
   --ok-bg: #d8f3dc;
@@ -16,7 +22,7 @@
   --warn-bg: #ffedd5;
   --info-bg: #e0f2fe;
   --radius: 14px;
-  --shadow: 0 8px 24px rgba(61, 35, 20, 0.08);
+  --shadow: 0 8px 24px rgba(90, 50, 32, 0.08);
   --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 }
 
@@ -58,34 +64,41 @@ a {
   z-index: 50;
   background: rgba(255, 248, 240, 0.92);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(61, 35, 20, 0.08);
+  border-bottom: 1px solid rgba(232, 176, 58, 0.45);
 }
 
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0;
-  gap: 1rem;
+  padding: 0.4rem 0;
+  gap: 0.75rem 1rem;
 }
 
 .logo {
-  font-weight: 800;
-  font-size: 1.15rem;
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  line-height: 0;
   text-decoration: none;
-  color: var(--cocoa);
-  letter-spacing: -0.02em;
 }
 
-.logo span {
-  color: var(--caramel);
+.logo img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-height: 3.65rem;
+  max-width: min(16.5rem, 42vw);
 }
 
 .nav {
   display: flex;
+  flex: 1 1 auto;
   flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0.65rem 1rem;
   align-items: center;
+  min-width: 0;
 }
 
 .nav a {
@@ -96,7 +109,23 @@ a {
 }
 
 .nav a:hover {
-  color: var(--caramel);
+  color: var(--coral-ink);
+}
+
+@media (max-width: 720px) {
+  .header-inner {
+    padding: 0.35rem 0;
+    gap: 0.45rem 0.65rem;
+  }
+
+  .logo img {
+    max-height: 2.85rem;
+    max-width: min(10.5rem, 46vw);
+  }
+
+  .nav {
+    gap: 0.4rem 0.65rem;
+  }
 }
 
 .cart-link {
@@ -107,7 +136,7 @@ a {
   position: absolute;
   top: -8px;
   right: -12px;
-  background: var(--caramel);
+  background: var(--coral-ink);
   color: #fff;
   font-size: 0.7rem;
   min-width: 1.15rem;
@@ -123,9 +152,20 @@ a {
 .hero {
   padding: 2.5rem 0 2rem;
   background:
-    radial-gradient(ellipse at 20% 20%, rgba(232, 168, 124, 0.35), transparent 50%),
-    radial-gradient(ellipse at 90% 10%, rgba(45, 106, 79, 0.12), transparent 40%),
+    radial-gradient(ellipse at 20% 20%, rgba(232, 176, 58, 0.28), transparent 52%),
+    radial-gradient(ellipse at 90% 10%, rgba(224, 101, 79, 0.12), transparent 42%),
     var(--cream);
+}
+
+.hero-logo {
+  margin: 0 0 1rem;
+  max-width: 28rem;
+}
+
+.hero-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .hero-grid {
@@ -158,7 +198,7 @@ a {
   border-radius: var(--radius);
   padding: 1.25rem;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(61, 35, 20, 0.06);
+  border: 1px solid rgba(90, 50, 32, 0.06);
 }
 
 .hero-card h2 {
@@ -174,12 +214,13 @@ a {
 }
 
 .pill {
-  background: var(--sand);
-  color: var(--cocoa);
+  background: #fbf6ea;
+  color: var(--brown);
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-size: 0.85rem;
   font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(232, 176, 58, 0.45);
 }
 
 .actions {
@@ -219,8 +260,13 @@ a {
 }
 
 .btn.secondary {
-  background: var(--leaf);
-  color: #fff;
+  background: var(--gold);
+  color: var(--brown);
+}
+
+.btn.secondary:hover {
+  background: var(--gold-deep);
+  color: var(--brown);
 }
 
 .btn.ghost {
@@ -262,9 +308,9 @@ section.alt {
 }
 
 .note-banner {
-  background: #fff3cd;
-  border: 1px dashed #c9a227;
-  color: #5c4a00;
+  background: #fbf6ea;
+  border: 1px dashed var(--gold);
+  color: var(--brown-dark);
   padding: 0.65rem 1rem;
   border-radius: 10px;
   font-size: 0.9rem;
@@ -276,7 +322,7 @@ section.alt {
   border-radius: var(--radius);
   padding: 1.15rem;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(61, 35, 20, 0.05);
+  border: 1px solid rgba(90, 50, 32, 0.05);
 }
 
 /* Delivery */
@@ -308,7 +354,7 @@ section.alt {
 .field textarea {
   padding: 0.65rem 0.75rem;
   border-radius: 10px;
-  border: 1px solid rgba(61, 35, 20, 0.18);
+  border: 1px solid rgba(90, 50, 32, 0.18);
   font: inherit;
   background: #fff;
 }
@@ -324,7 +370,7 @@ section.alt {
   height: 260px;
   border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid rgba(61, 35, 20, 0.1);
+  border: 1px solid rgba(90, 50, 32, 0.1);
   background: #dde5d9;
 }
 
@@ -392,7 +438,7 @@ section.alt {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--leaf);
+  color: var(--coral-ink);
   font-weight: 700;
 }
 
@@ -406,7 +452,7 @@ section.alt {
 .price {
   font-weight: 800;
   font-size: 1.15rem;
-  color: var(--caramel-dark);
+  color: var(--coral);
 }
 
 .bake {
@@ -467,7 +513,7 @@ section.alt {
   grid-template-columns: 1fr auto;
   gap: 0.25rem 0.75rem;
   padding: 0.65rem 0;
-  border-bottom: 1px solid rgba(61, 35, 20, 0.08);
+  border-bottom: 1px solid rgba(90, 50, 32, 0.08);
   list-style: none;
 }
 
@@ -542,7 +588,7 @@ section.alt {
 
 .ready-box {
   background: var(--cream);
-  border: 1px solid rgba(196, 92, 38, 0.25);
+  border: 1px solid rgba(232, 176, 58, 0.55);
   border-radius: 10px;
   padding: 0.85rem 1rem;
   margin: 0.75rem 0;
@@ -595,7 +641,7 @@ section.alt {
 }
 
 .site-footer a {
-  color: #e8a87c;
+  color: var(--gold);
 }
 
 .footer-grid {
@@ -668,6 +714,7 @@ button.linkish {
 .account-menu {
   position: relative;
   display: inline-flex;
+  flex-shrink: 0;
 }
 
 .account-trigger {
@@ -677,7 +724,7 @@ button.linkish {
   min-height: 2.75rem;
   padding: 0.15rem 0.7rem 0.15rem 0.2rem;
   border-radius: 999px;
-  border: 1px solid rgba(61, 35, 20, 0.12);
+  border: 1px solid rgba(90, 50, 32, 0.14);
   background: var(--sand);
   color: var(--cocoa);
   font: inherit;
@@ -688,14 +735,14 @@ button.linkish {
 
 .account-trigger:hover,
 .account-trigger[aria-expanded="true"] {
-  background: #f3e2cf;
-  border-color: rgba(196, 92, 38, 0.45);
-  color: var(--caramel-dark);
+  background: #fbf6ea;
+  border-color: rgba(232, 176, 58, 0.85);
+  color: var(--brown);
 }
 
 .account-trigger:focus-visible,
 .account-panel .account-item:focus-visible {
-  outline: 2px solid var(--caramel);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
 
@@ -703,8 +750,8 @@ button.linkish {
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  background: var(--caramel);
-  color: #fff;
+  background: var(--gold);
+  color: var(--brown);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -749,7 +796,7 @@ button.linkish {
   flex-direction: column;
   padding: 0.35rem;
   background: var(--card);
-  border: 1px solid rgba(61, 35, 20, 0.08);
+  border: 1px solid rgba(90, 50, 32, 0.08);
   border-radius: 12px;
   box-shadow: var(--shadow);
 }
@@ -788,7 +835,7 @@ button.linkish {
 .account-logout {
   margin-top: 0.2rem;
   color: var(--caramel-dark);
-  box-shadow: inset 0 1px 0 rgba(61, 35, 20, 0.08);
+  box-shadow: inset 0 1px 0 rgba(90, 50, 32, 0.08);
   border-radius: 0 0 8px 8px;
 }
 
@@ -838,7 +885,7 @@ button.linkish {
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(61, 35, 20, 0.06);
+  border: 1px solid rgba(90, 50, 32, 0.06);
   background: var(--sand);
 }
 .hero-photo img {
@@ -859,7 +906,7 @@ button.linkish {
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 12px;
-  border: 1px solid rgba(61, 35, 20, 0.06);
+  border: 1px solid rgba(90, 50, 32, 0.06);
 }
 @media (max-width: 560px) {
   .photo-gallery { grid-template-columns: 1fr 1fr; }
