@@ -191,6 +191,12 @@ begin
     raise exception 'Settings missing';
   end if;
 
+  -- A measured distance past the delivery radius cannot be ordered.
+  -- A null distance is allowed: an in-area choice from the area list has no kilometers.
+  if p_distance_km is not null and p_distance_km > v_settings.delivery_radius_km then
+    raise exception 'That location is outside our delivery area';
+  end if;
+
   -- Create order shell
   insert into public.orders (
     user_id, guest_name, guest_email, guest_phone,

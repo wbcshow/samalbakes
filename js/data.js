@@ -355,6 +355,11 @@
         });
       });
       if (!items.length) throw new Error("Cart is empty");
+      var checkedRadius = Number(settings.delivery_radius_km);
+      var checkedDist = payload.distance_km != null && payload.distance_km !== "" ? Number(payload.distance_km) : null;
+      if (checkedDist != null && !isNaN(checkedDist) && checkedDist > checkedRadius) {
+        throw new Error("That location is outside our delivery area.");
+      }
       var discount = calcDiscount(subtotal, payload.promo_code);
       var after = Math.max(0, subtotal - discount);
       var deliveryFee = calcDeliveryFee(settings, after, payload.distance_km);
@@ -561,6 +566,12 @@
       return res.data;
     },
     async placeOrder(payload) {
+      var liveSettings = await remote.getSettings();
+      var liveRadius = Number(liveSettings.delivery_radius_km);
+      var liveDist = payload.distance_km != null && payload.distance_km !== "" ? Number(payload.distance_km) : null;
+      if (liveDist != null && !isNaN(liveDist) && liveDist > liveRadius) {
+        throw new Error("That location is outside our delivery area.");
+      }
       var res = await remote.client.rpc("place_order", {
         p_items: (payload.items || []).map(function (i) {
           return { product_id: i.product_id, qty: i.qty };
