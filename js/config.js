@@ -24,15 +24,17 @@ window.SAMALBAKES.config = {
   tagline: "Freshly baked to order on Samal Island",
   timezone: "Asia/Manila",
 
-  // --- CONTACT (PLACEHOLDERS — replace with real channels) ---
+  // --- CONTACT ---
+  // Phone is the bakery line. Messenger, Facebook, and email stay placeholders
+  // until real ones are set. The storefront hides a placeholder email.
   contact: {
-    // TODO: replace with real phone / Messenger / email
-    phone: "+63 9XX XXX XXXX",           // PLACEHOLDER
-    phoneSms: "639XXXXXXXXX",            // digits only for sms: link — PLACEHOLDER
-    whatsapp: "639XXXXXXXXX",            // PLACEHOLDER (country code, no +)
-    viber: "639XXXXXXXXX",               // PLACEHOLDER
+    phone: "0915 294 3883",
+    phoneTel: "tel:+639152943883",
+    phoneSms: "+639152943883",
+    whatsapp: "639152943883",
+    viber: "639152943883",
     messenger: "https://m.me/YOUR_PAGE", // PLACEHOLDER Facebook Messenger link
-    email: "orders@samalbakes.example",  // PLACEHOLDER
+    email: "orders@samalbakes.example",  // PLACEHOLDER — hidden on the public site
     facebookPage: "https://facebook.com/YOUR_PAGE", // PLACEHOLDER
   },
 

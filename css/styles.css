@@ -257,6 +257,40 @@ section[id] {
   height: 1.45rem;
 }
 
+.view-order-bar {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 1rem;
+}
+
+.view-order-bar[hidden] {
+  display: none;
+}
+
+.cart-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.15rem;
+  transform: translateX(-50%);
+  z-index: 70;
+  background: #5a3220;
+  color: #fff8f0;
+  padding: 0.7rem 1.05rem;
+  border-radius: 999px;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  max-width: min(92vw, 26rem);
+  text-align: center;
+}
+
+.cart-toast[hidden] {
+  display: none;
+}
+
+[data-contact-email-line][hidden] {
+  display: none;
+}
+
 #cart-count {
   position: absolute;
   top: 0.15rem;
