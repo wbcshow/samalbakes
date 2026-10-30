@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your order — SamalBakes</title>
+    <meta
+      name="description"
+      content="Review your SamalBakes cart, delivery, and ready time, then place a cash-on-delivery order."
+    />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="SamalBakes" />
+    <meta property="og:title" content="Your order — SamalBakes" />
+    <meta
+      property="og:description"
+      content="Review your SamalBakes cart, delivery, and ready time, then place a cash-on-delivery order."
+    />
+    <meta property="og:url" content="https://samalbakes.com/order.html" />
+    <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Your order — SamalBakes" />
+    <meta
+      name="twitter:description"
+      content="Review your SamalBakes cart, delivery, and ready time, then place a cash-on-delivery order."
+    />
+    <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="logo" href="index.html">
+          <picture>
+            <source srcset="assets/logo-header.webp" type="image/webp" />
+            <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
+          </picture>
+        </a>
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="delivery.html">Delivery</a>
+          <a href="promotions.html">Promos</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <div class="header-tools">
+          <a class="cart-link" href="order.html" aria-label="Order / cart" title="Your order">
+            <svg class="cart-icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+              <path d="M6.4 10.2h11.2l1.05 10.2H5.35L6.4 10.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M8.3 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1M12.6 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <span id="cart-count" hidden>0</span>
+          </a>
+          <span data-auth-nav></span>
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+            <span class="visually-hidden">Open menu</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section>
+        <div class="container">
+          <div class="section-head">
+            <h1>Your order</h1>
+            <p>
+              Review your cart, delivery, and ready time. Payment is
+              <strong>cash on delivery</strong>.
+            </p>
+          </div>
+
+          <div id="cart-empty" class="card">
+            <h2>Your cart is empty</h2>
+            <p>Add cakes or breads from the menu, then come back here to check out.</p>
+            <a class="btn primary" href="menu.html">Back to the menu</a>
+          </div>
+
+          <div id="order-filled" hidden>
+            <div class="order-layout">
+              <div class="card" id="cart-card">
+                <h2>Cart</h2>
+                <ul id="cart-lines" class="cart-lines"></ul>
+                <div id="cart-summary">
+                  <div class="field">
+                    <label for="promo-code">Promo code</label>
+                    <div class="row">
+                      <input id="promo-code" type="text" placeholder="e.g. SAMALWELCOME" style="flex: 1" />
+                      <button type="button" class="btn ghost" id="btn-apply-promo">Apply</button>
+                    </div>
+                    <div id="promo-msg" class="msg info" hidden style="display: none"></div>
+                  </div>
+                  <div class="totals">
+                    <div class="totals-row">
+                      <span>Subtotal</span><span id="cart-subtotal">₱0</span>
+                    </div>
+                    <div class="totals-row">
+                      <span>Discount</span><span id="cart-discount">—</span>
+                    </div>
+                    <div class="totals-row">
+                      <span>Delivery fee</span><span id="cart-delivery-fee">—</span>
+                    </div>
+                    <div class="totals-row grand">
+                      <span>Total</span><span id="cart-total">₱0</span>
+                    </div>
+                  </div>
+                  <p id="cart-delivery-note" class="muted"></p>
+                  <p class="muted">
+                    The fee uses your area after you
+                    <a href="delivery.html">check delivery</a>.
+                  </p>
+
+                  <div class="payment-box">
+                    <strong>Payment method:</strong>
+                    <span id="payment-method-label">Cash on Delivery (COD)</span>
+                  </div>
+
+                  <div class="ready-box">
+                    <strong id="ready-estimate">Estimated ready: —</strong>
+                    <span id="delivery-estimate">Earliest delivery: —</span>
+                    <p id="ready-assumptions"></p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <h2>Delivery and checkout</h2>
+                <p class="muted">
+                  We’ll confirm your order and collect
+                  <strong>cash on delivery</strong>. You can also copy or open a chat with this summary.
+                </p>
+                <p id="account-hint" class="muted"></p>
+                <div class="field"><label for="guest-name">Name (required for guests)</label>
+                  <input id="guest-name" type="text" placeholder="Your name"/></div>
+                <div class="row" style="gap:0.5rem">
+                  <div class="field" style="flex:1"><label for="guest-phone">Phone</label>
+                    <input id="guest-phone" type="tel" placeholder="09xx"/></div>
+                  <div class="field" style="flex:1"><label for="guest-email">Email</label>
+                    <input id="guest-email" type="email" placeholder="optional"/></div>
+                </div>
+                <div class="field"><label for="guest-address">Delivery address</label>
+                  <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
+                <div class="field"><label for="guest-notes">Notes</label>
+                  <input id="guest-notes" type="text" placeholder="Allergies, gate codes"/></div>
+                <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem">Place order (COD)</button>
+                <div id="place-order-msg" class="msg info" style="display:none"></div>
+                <div id="payment-step" data-phase="cod-only" hidden></div>
+                <pre id="order-preview">Add items to generate an order summary.</pre>
+                <div class="share-links">
+                  <button type="button" class="btn secondary" id="btn-copy-order">Copy order text</button>
+                  <a class="btn primary" id="link-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
+                  <a class="btn ghost" id="link-messenger" href="#" target="_blank" rel="noopener">Messenger</a>
+                  <a class="btn ghost" id="link-viber" href="#" target="_blank" rel="noopener">Viber</a>
+                  <a class="btn ghost" id="link-sms" href="#">SMS</a>
+                  <a class="btn ghost" id="link-email" hidden>Email</a>
+                </div>
+                <div id="copy-msg" class="msg ok" style="display: none"></div>
+                <p class="muted" style="margin-top: 0.75rem">
+                  <a href="menu.html">Back to the menu</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <h3>SamalBakes</h3>
+          <p>
+            Freshly baked to order on Samal Island. Serving the Island Garden
+            City of Samal and Davao City.
+          </p>
+          <p>samalbakes.com</p>
+        </div>
+        <div>
+          <h3>Explore</h3>
+          <ul>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="delivery.html">Delivery</a></li>
+            <li><a href="promotions.html">Promotions</a></li>
+            <li><a href="contact.html">About &amp; contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Contact</h3>
+          <p>Phone: <a data-contact="phone" data-contact-href="phoneTel" href="tel:+639152943883">0915 294 3883</a></p>
+          <p data-contact-email-line hidden>Email: <a href="mailto:orders@samalbakes.example" data-contact="email" data-contact-href="email">orders@samalbakes.example</a></p>
+          <p>Payment: Cash on Delivery (COD)</p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/config.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/promos.js"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/ready-time.js"></script>
+    <script src="js/delivery.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/chrome.js"></script>
+    <script src="js/menu-card.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

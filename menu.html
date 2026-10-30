@@ -6,7 +6,7 @@
     <title>Menu — SamalBakes</title>
     <meta
       name="description"
-      content="Browse SamalBakes cakes and breads, build an order, and check out with cash on delivery."
+      content="Browse SamalBakes cakes and breads and add them to your order."
     />
     <link rel="icon" href="favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
@@ -17,7 +17,7 @@
     <meta property="og:title" content="Menu — SamalBakes" />
     <meta
       property="og:description"
-      content="Browse SamalBakes cakes and breads, build an order, and check out with cash on delivery."
+      content="Browse SamalBakes cakes and breads and add them to your order."
     />
     <meta property="og:url" content="https://samalbakes.com/menu.html" />
     <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
@@ -28,7 +28,7 @@
     <meta name="twitter:title" content="Menu — SamalBakes" />
     <meta
       name="twitter:description"
-      content="Browse SamalBakes cakes and breads, build an order, and check out with cash on delivery."
+      content="Browse SamalBakes cakes and breads and add them to your order."
     />
     <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
     <link rel="stylesheet" href="css/styles.css" />
@@ -50,7 +50,7 @@
           <a href="contact.html">Contact</a>
         </nav>
         <div class="header-tools">
-          <a class="cart-link" href="#order" aria-label="Order / cart" title="Your order">
+          <a class="cart-link" href="order.html" aria-label="Order / cart" title="Your order">
             <svg class="cart-icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
               <path d="M6.4 10.2h11.2l1.05 10.2H5.35L6.4 10.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
               <path d="M8.3 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1M12.6 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -71,7 +71,10 @@
         <div class="container">
           <div class="section-head">
             <h1>Menu</h1>
-            <p>Add items to build your order. Ready time updates as you go.</p>
+            <p>Add cakes and breads, then view your order when you’re ready.</p>
+          </div>
+          <div id="view-order-bar" class="view-order-bar" hidden>
+            <a class="btn primary" href="order.html">View order</a>
           </div>
           <div class="photo-gallery" aria-label="Cake photos">
             <img src="img/products/chiffon-cake.jpg" alt="Chiffon cakes" loading="lazy"/>
@@ -81,111 +84,8 @@
           <div id="menu-grid" class="menu-grid" style="margin-top:1.25rem"></div>
         </div>
       </section>
-
-      <section id="order" class="alt">
-        <div class="container">
-          <div class="section-head">
-            <h2>Your order</h2>
-            <p>
-              Review your cart, see when it’ll be ready, then send the order via
-              Messenger, WhatsApp, Viber, SMS, or email. Payment is
-              <strong>Cash on Delivery (COD)</strong> for now.
-            </p>
-          </div>
-          <div class="order-layout">
-            <div class="card">
-              <h3>Cart</h3>
-              <p id="cart-empty" class="muted">Your cart is empty — add items from the menu.</p>
-              <ul id="cart-lines" class="cart-lines"></ul>
-              <div id="cart-summary" hidden>
-                <div class="field">
-                  <label for="promo-code">Promo code</label>
-                  <div class="row">
-                    <input id="promo-code" type="text" placeholder="e.g. SAMALWELCOME" style="flex: 1" />
-                    <button type="button" class="btn ghost" id="btn-apply-promo">Apply</button>
-                  </div>
-                  <div id="promo-msg" class="msg info" hidden style="display: none"></div>
-                </div>
-                <div class="totals">
-                  <div class="totals-row">
-                    <span>Subtotal</span><span id="cart-subtotal">₱0</span>
-                  </div>
-                  <div class="totals-row">
-                    <span>Discount</span><span id="cart-discount">—</span>
-                  </div>
-                  <div class="totals-row">
-                    <span>Delivery fee</span><span id="cart-delivery-fee">—</span>
-                  </div>
-                  <div class="totals-row grand">
-                    <span>Total</span><span id="cart-total">₱0</span>
-                  </div>
-                </div>
-                <p id="cart-delivery-note" class="muted"></p>
-
-                <div class="payment-box">
-                  <strong>Payment method:</strong>
-                  <span id="payment-method-label">Cash on Delivery (COD)</span>
-                </div>
-
-                <div class="ready-box">
-                  <strong id="ready-estimate">Estimated ready: —</strong>
-                  <span id="delivery-estimate">Earliest delivery: —</span>
-                  <p id="ready-assumptions"></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3>Send your order</h3>
-              <p class="muted">
-                No online payment yet — we’ll confirm your order and collect
-                <strong>cash on delivery</strong>. Copy or open a chat with this
-                summary.
-              </p>
-              <!-- Future payment step mounts here: #payment-step -->
-              <p id="account-hint" class="muted"></p>
-              <div class="field"><label for="guest-name">Name (required for guests)</label>
-                <input id="guest-name" type="text" placeholder="Your name"/></div>
-              <div class="row" style="gap:0.5rem">
-                <div class="field" style="flex:1"><label for="guest-phone">Phone</label>
-                  <input id="guest-phone" type="tel" placeholder="09xx"/></div>
-                <div class="field" style="flex:1"><label for="guest-email">Email</label>
-                  <input id="guest-email" type="email" placeholder="optional"/></div>
-              </div>
-              <div class="field"><label for="guest-address">Delivery address</label>
-                <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
-              <div class="field"><label for="guest-notes">Notes</label>
-                <input id="guest-notes" type="text" placeholder="Allergies, gate codes"/></div>
-              <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem">Place order (COD)</button>
-              <div id="place-order-msg" class="msg info" style="display:none"></div>
-              <div id="payment-step" data-phase="cod-only" hidden></div>
-              <pre id="order-preview">Add items to generate an order summary.</pre>
-              <div class="share-links">
-                <button type="button" class="btn secondary" id="btn-copy-order">
-                  Copy order text
-                </button>
-                <a class="btn primary" id="link-whatsapp" href="#" target="_blank" rel="noopener"
-                  >WhatsApp</a
-                >
-                <a class="btn ghost" id="link-messenger" href="#" target="_blank" rel="noopener"
-                  >Messenger</a
-                >
-                <a class="btn ghost" id="link-viber" href="#" target="_blank" rel="noopener"
-                  >Viber</a
-                >
-                <a class="btn ghost" id="link-sms" href="#">SMS</a>
-                <a class="btn ghost" id="link-email" href="#">Email</a>
-              </div>
-              <div id="copy-msg" class="msg ok" style="display: none"></div>
-              <p class="muted" style="margin-top: 0.75rem">
-                Tip: after copying, paste into Messenger if the app doesn’t
-                prefill the message.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
+    <div id="cart-toast" class="cart-toast" hidden role="status"></div>
 
     <footer class="site-footer">
       <div class="container footer-grid">
@@ -208,13 +108,8 @@
         </div>
         <div>
           <h3>Contact</h3>
-          <p>Phone: <span data-contact="phone">+63 9XX XXX XXXX</span></p>
-          <p>
-            Email:
-            <a href="mailto:orders@samalbakes.example" data-contact="email"
-              >orders@samalbakes.example</a
-            >
-          </p>
+          <p>Phone: <a data-contact="phone" data-contact-href="phoneTel" href="tel:+639152943883">0915 294 3883</a></p>
+          <p data-contact-email-line hidden>Email: <a href="mailto:orders@samalbakes.example" data-contact="email" data-contact-href="email">orders@samalbakes.example</a></p>
           <p>
             <a data-contact-href="facebookPage" href="#" target="_blank" rel="noopener"
               >Facebook</a

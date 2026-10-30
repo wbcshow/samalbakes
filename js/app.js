@@ -103,6 +103,7 @@
     if (e.target.classList.contains("qty-plus") || e.target.classList.contains("add-btn")) {
       cart[id] = (cart[id] || 0) + 1;
       refreshCartUI();
+      if (card.closest("#menu-grid, #featured-grid")) showAddedToast(productById(id));
     } else if (e.target.classList.contains("qty-minus")) {
       cart[id] = Math.max(0, (cart[id] || 0) - 1);
       if (!cart[id]) delete cart[id];
@@ -140,38 +141,67 @@
     var empty = $("#cart-empty");
     var summary = $("#cart-summary");
     var countBadge = $("#cart-count");
+    var n = lines.reduce(function (s, l) { return s + l.qty; }, 0);
     if (countBadge) {
-      var n = lines.reduce(function (s, l) { return s + l.qty; }, 0);
       countBadge.textContent = n;
       countBadge.hidden = n === 0;
     }
+    var viewOrder = $("#view-order-bar");
+    if (viewOrder) viewOrder.hidden = n === 0;
     persistCart();
     if (!list) return;
+    var filled = $("#order-filled");
+    var placed = $("#place-order-msg");
+    var justPlaced = placed && placed.style.display === "block" && placed.classList.contains("ok");
     if (!lines.length) {
-      if (list) list.innerHTML = "";
-      if (empty) empty.hidden = false;
+      list.innerHTML = "";
       if (summary) summary.hidden = true;
+      if (justPlaced) {
+        if (empty) empty.hidden = true;
+        if (filled) filled.hidden = false;
+        var cartCard = $("#cart-card");
+        if (cartCard) cartCard.hidden = true;
+      } else {
+        if (empty) empty.hidden = false;
+        if (filled) filled.hidden = true;
+      }
       return;
     }
     if (empty) empty.hidden = true;
+    if (filled) filled.hidden = false;
+    var cartCardShow = $("#cart-card");
+    if (cartCardShow) cartCardShow.hidden = false;
     if (summary) summary.hidden = false;
 
     list.innerHTML = lines
       .map(function (l) {
         return (
           '<li class="cart-line"><div><strong>' + escapeHtml(l.product.name) +
-          "</strong> × " + l.qty +
-          '<div class="muted">' + peso(l.product.price) + " each</div></div>" +
-          '<div class="line-total">' + peso(l.product.price * l.qty) + "</div>" +
+          '</strong><div class="muted">' + peso(l.product.price) + " each</div>" +
+          '<div class="qty-row">' +
+          '<button type="button" class="btn ghost small" data-cart-dec="' + escapeHtml(l.product.id) + '" aria-label="Decrease">−</button>' +
+          "<span>" + l.qty + "</span>" +
+          '<button type="button" class="btn ghost small" data-cart-inc="' + escapeHtml(l.product.id) + '" aria-label="Increase">+</button>' +
           '<button type="button" class="btn ghost small remove" data-remove="' +
-          l.product.id + '">Remove</button></li>'
+          escapeHtml(l.product.id) + '">Remove</button></div></div>' +
+          '<div class="line-total">' + peso(l.product.price * l.qty) + "</div></li>"
         );
       })
       .join("");
     list.onclick = function (e) {
-      var id = e.target.getAttribute("data-remove");
-      if (id) {
-        delete cart[id];
+      var t = e.target;
+      var dec = t.getAttribute("data-cart-dec");
+      var inc = t.getAttribute("data-cart-inc");
+      var removeId = t.getAttribute("data-remove");
+      if (dec) {
+        cart[dec] = Math.max(0, (cart[dec] || 0) - 1);
+        if (!cart[dec]) delete cart[dec];
+        refreshCartUI();
+      } else if (inc) {
+        cart[inc] = (cart[inc] || 0) + 1;
+        refreshCartUI();
+      } else if (removeId) {
+        delete cart[removeId];
         refreshCartUI();
       }
     };
@@ -220,6 +250,17 @@
     if (placeBtn) placeBtn.disabled = false;
   }
 
+  function showAddedToast(product) {
+    var toast = $("#cart-toast");
+    if (!toast || !product) return;
+    toast.textContent = product.name + " added to your order.";
+    toast.hidden = false;
+    clearTimeout(showAddedToast._t);
+    showAddedToast._t = setTimeout(function () {
+      toast.hidden = true;
+    }, 2600);
+  }
+
   function buildOrderSummaryText(lines, sub, disc, delFee, total, est) {
     var tz = config.timezone;
     var linesTxt = lines
@@ -253,10 +294,21 @@
     var msg = $("#link-messenger");
     var viber = $("#link-viber");
     if (wa) wa.href = "https://wa.me/" + c.whatsapp + "?text=" + enc;
-    if (sms) sms.href = "sms:" + c.phoneSms + "?body=" + enc;
-    if (mail)
-      mail.href =
-        "mailto:" + c.email + "?subject=" + encodeURIComponent("SamalBakes order") + "&body=" + enc;
+    if (sms) {
+      var smsBase = String(c.phoneSms || "");
+      if (smsBase.indexOf("sms:") !== 0) smsBase = "sms:" + smsBase;
+      sms.href = smsBase + (smsBase.indexOf("?") >= 0 ? "&" : "?") + "body=" + enc;
+    }
+    if (mail) {
+      if (isPublicEmail(c.email)) {
+        mail.hidden = false;
+        mail.href =
+          "mailto:" + c.email + "?subject=" + encodeURIComponent("SamalBakes order") + "&body=" + enc;
+      } else {
+        mail.hidden = true;
+        mail.removeAttribute("href");
+      }
+    }
     if (msg) msg.href = c.messenger;
     if (viber) viber.href = "viber://chat?number=%2B" + c.viber;
   }
@@ -579,15 +631,30 @@
     if (placeBtn) placeBtn.addEventListener("click", placeOrder);
   }
 
+  function isPublicEmail(email) {
+    var value = String(email || "").trim().toLowerCase();
+    if (!value || value.indexOf("@") < 1) return false;
+    if (value.indexOf("example") !== -1 || value.indexOf("your_") !== -1) return false;
+    return true;
+  }
+
   function fillContactPlaceholders() {
     var c = config.contact;
     $$("[data-contact]").forEach(function (el) {
       var key = el.getAttribute("data-contact");
+      if (key === "email" && !isPublicEmail(c.email)) return;
       if (c[key]) el.textContent = c[key];
     });
     $$("a[data-contact-href]").forEach(function (el) {
       var key = el.getAttribute("data-contact-href");
-      if (c[key]) el.href = c[key];
+      if (key === "email" && !isPublicEmail(c.email)) return;
+      if (!c[key]) return;
+      var href = c[key];
+      if (key === "phoneSms" && String(href).indexOf("sms:") !== 0) href = "sms:" + href;
+      el.href = href;
+    });
+    $$("[data-contact-email-line]").forEach(function (el) {
+      el.hidden = !isPublicEmail(c.email);
     });
   }
 
@@ -601,12 +668,17 @@
     var map = {
       delivery: "delivery.html",
       menu: "menu.html",
-      order: "menu.html#order",
+      order: "order.html",
       promos: "promotions.html",
       contact: "contact.html",
     };
-    if (!map[hash]) return;
     var path = location.pathname || "";
+    var onMenu = /menu\.html$/.test(path);
+    if (onMenu && hash === "order") {
+      location.replace("order.html");
+      return;
+    }
+    if (!map[hash]) return;
     var onHome = /\/$/.test(path) || /index\.html$/.test(path);
     if (onHome) location.replace(map[hash]);
   })();
