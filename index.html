@@ -6,7 +6,7 @@
     <title>SamalBakes — Freshly baked to order on Samal Island</title>
     <meta
       name="description"
-      content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City. Check delivery area, build an order, and see when it will be ready."
+      content="SamalBakes bakes cakes and breads to order on Samal Island and delivers to Samal and Davao City."
     />
     <link rel="icon" href="favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
@@ -17,7 +17,7 @@
     <meta property="og:title" content="SamalBakes — Freshly baked to order on Samal Island" />
     <meta
       property="og:description"
-      content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City. Check delivery area, build an order, and see when it will be ready."
+      content="SamalBakes bakes cakes and breads to order on Samal Island and delivers to Samal and Davao City."
     />
     <meta property="og:url" content="https://samalbakes.com/" />
     <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
@@ -28,40 +28,39 @@
     <meta name="twitter:title" content="SamalBakes — Freshly baked to order on Samal Island" />
     <meta
       name="twitter:description"
-      content="SamalBakes delivers freshly baked goods to order across Samal Island and Davao City."
+      content="SamalBakes bakes cakes and breads to order on Samal Island and delivers to Samal and Davao City."
     />
     <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
     <link rel="stylesheet" href="css/styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
   </head>
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="logo" href="#top">
+        <a class="logo" href="index.html">
           <picture>
             <source srcset="assets/logo-header.webp" type="image/webp" />
             <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
           </picture>
         </a>
-        <nav class="nav" aria-label="Primary">
-          <a href="#delivery">Delivery</a>
-          <a href="#menu">Menu</a>
-          <a href="#order" class="cart-link"
-            >Order <span id="cart-count" hidden>0</span></a
-          >
-          <a href="#promos">Promos</a>
-          <a href="#contact">Contact</a>
-          <span data-auth-nav></span>
+        <nav class="nav" id="site-nav" aria-label="Primary">
+          <a href="index.html" aria-current="page">Home</a>
+          <a href="menu.html">Menu</a>
+          <a href="delivery.html">Delivery</a>
+          <a href="promotions.html">Promos</a>
+          <a href="contact.html">Contact</a>
         </nav>
+        <div class="header-tools">
+          <a class="cart-link" href="menu.html#order">Order <span id="cart-count" hidden>0</span></a>
+          <span data-auth-nav></span>
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+            <span class="nav-toggle-bars" aria-hidden="true"></span>
+            <span class="visually-hidden">Open menu</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="top">
+    <main>
       <section class="hero">
         <div class="container hero-grid">
           <div>
@@ -82,8 +81,8 @@
               and resorts.
             </p>
             <div class="actions">
-              <a class="btn primary" href="#menu">Browse the menu</a>
-              <a class="btn ghost" href="#delivery">Check delivery area</a>
+              <a class="btn primary" href="menu.html">Browse the menu</a>
+              <a class="btn ghost" href="delivery.html">Check delivery area</a>
             </div>
             <div class="pill-row">
               <span class="pill">Bake to order</span>
@@ -100,209 +99,38 @@
                 height="1077"
               />
             </div>
-            <div class="hero-card" style="margin-top: 1rem">
-              <h2>About SamalBakes</h2>
-              <p>
-                We’re a family bakery based on the Island Garden City of Samal
-                (Davao del Norte). We bake cakes and breads to order, then deliver
-                across Samal and into Davao City — including coffee shops and
-                resorts.
-              </p>
-            </div>
           </aside>
         </div>
       </section>
 
-      <section id="delivery" class="alt">
+      <section class="alt">
         <div class="container">
           <div class="section-head">
-            <h2>Do we deliver to you?</h2>
-            <p>
-              Check with your location, pick a known area, or type an address.
-              We deliver within about <span id="radius-copy">25</span> km.
-            </p>
+            <h2>From the oven</h2>
+            <p>A few cakes we bake to order. See the full menu to build an order.</p>
           </div>
-          <div class="delivery-tools">
-            <div class="card">
-              <button type="button" class="btn primary" id="btn-geo">
-                Check if we deliver to you
-              </button>
-              <p class="muted" style="margin-top: 0.5rem">
-                Uses your browser location (we don’t store it).
-              </p>
-
-              <div class="field" style="margin-top: 1rem">
-                <label for="area-select">Or pick your area</label>
-                <div class="row">
-                  <select id="area-select" style="flex: 1"></select>
-                  <button type="button" class="btn secondary" id="btn-area">
-                    Check area
-                  </button>
-                </div>
-              </div>
-
-              <div class="field">
-                <label for="address-input">Or type an address / barangay</label>
-                <div class="row">
-                  <input
-                    id="address-input"
-                    type="text"
-                    placeholder="e.g. Peñaplata, Samal Island"
-                    style="flex: 1"
-                  />
-                  <button type="button" class="btn ghost" id="btn-geocode">
-                    Look up
-                  </button>
-                </div>
-              </div>
-
-              <div id="delivery-result" class="msg info" role="status">
-                Choose a method above to see if you’re in our zone.
-              </div>
-            </div>
-            <div>
-              <div id="delivery-map" role="img" aria-label="Delivery zone map"></div>
-              <p class="muted" style="margin-top: 0.5rem">
-                The orange circle shows our approximate delivery area.
-              </p>
-            </div>
+          <div id="featured-grid" class="menu-grid"></div>
+          <div class="actions" style="margin-top: 1.25rem">
+            <a class="btn primary" href="menu.html">See the full menu</a>
           </div>
         </div>
       </section>
 
-      <section id="menu">
+      <section>
         <div class="container">
           <div class="section-head">
-            <h2>Menu</h2>
-            <p>Add items to build your order. Ready time updates as you go.</p>
+            <h2>Current offers</h2>
+            <p>Welcome offers for new customers, cafés, and resorts.</p>
           </div>
-          <div class="photo-gallery" aria-label="Cake photos">
-            <img src="img/products/chiffon-cake.jpg" alt="Chiffon cakes" loading="lazy"/>
-            <img src="img/products/chocolate-drip-cake.jpg" alt="Chocolate drip cake" loading="lazy"/>
-            <img src="img/products/black-forest-cake.jpg" alt="Black Forest cake" loading="lazy"/>
+          <div id="promo-teaser" class="promo-grid"></div>
+          <div class="actions" style="margin-top: 1.25rem">
+            <a class="btn ghost" href="promotions.html">See all promotions</a>
           </div>
-          <div id="menu-grid" class="menu-grid" style="margin-top:1.25rem"></div>
-        </div>
-      </section>
-
-      <section id="order" class="alt">
-        <div class="container">
-          <div class="section-head">
-            <h2>Your order</h2>
-            <p>
-              Review your cart, see when it’ll be ready, then send the order via
-              Messenger, WhatsApp, Viber, SMS, or email. Payment is
-              <strong>Cash on Delivery (COD)</strong> for now.
-            </p>
-          </div>
-          <div class="order-layout">
-            <div class="card">
-              <h3>Cart</h3>
-              <p id="cart-empty" class="muted">Your cart is empty — add items from the menu.</p>
-              <ul id="cart-lines" class="cart-lines"></ul>
-              <div id="cart-summary" hidden>
-                <div class="field">
-                  <label for="promo-code">Promo code</label>
-                  <div class="row">
-                    <input id="promo-code" type="text" placeholder="e.g. SAMALWELCOME" style="flex: 1" />
-                    <button type="button" class="btn ghost" id="btn-apply-promo">Apply</button>
-                  </div>
-                  <div id="promo-msg" class="msg info" hidden style="display: none"></div>
-                </div>
-                <div class="totals">
-                  <div class="totals-row">
-                    <span>Subtotal</span><span id="cart-subtotal">₱0</span>
-                  </div>
-                  <div class="totals-row">
-                    <span>Discount</span><span id="cart-discount">—</span>
-                  </div>
-                  <div class="totals-row">
-                    <span>Delivery fee</span><span id="cart-delivery-fee">—</span>
-                  </div>
-                  <div class="totals-row grand">
-                    <span>Total</span><span id="cart-total">₱0</span>
-                  </div>
-                </div>
-                <p id="cart-delivery-note" class="muted"></p>
-
-                <div class="payment-box">
-                  <strong>Payment method:</strong>
-                  <span id="payment-method-label">Cash on Delivery (COD)</span>
-                </div>
-
-                <div class="ready-box">
-                  <strong id="ready-estimate">Estimated ready: —</strong>
-                  <span id="delivery-estimate">Earliest delivery: —</span>
-                  <p id="ready-assumptions"></p>
-                </div>
-              </div>
-            </div>
-
-            <div class="card">
-              <h3>Send your order</h3>
-              <p class="muted">
-                No online payment yet — we’ll confirm your order and collect
-                <strong>cash on delivery</strong>. Copy or open a chat with this
-                summary.
-              </p>
-              <!-- Future payment step mounts here: #payment-step -->
-              <p id="account-hint" class="muted"></p>
-              <div class="field"><label for="guest-name">Name (required for guests)</label>
-                <input id="guest-name" type="text" placeholder="Your name"/></div>
-              <div class="row" style="gap:0.5rem">
-                <div class="field" style="flex:1"><label for="guest-phone">Phone</label>
-                  <input id="guest-phone" type="tel" placeholder="09xx"/></div>
-                <div class="field" style="flex:1"><label for="guest-email">Email</label>
-                  <input id="guest-email" type="email" placeholder="optional"/></div>
-              </div>
-              <div class="field"><label for="guest-address">Delivery address</label>
-                <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
-              <div class="field"><label for="guest-notes">Notes</label>
-                <input id="guest-notes" type="text" placeholder="Allergies, gate codes"/></div>
-              <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem">Place order (COD)</button>
-              <div id="place-order-msg" class="msg info" style="display:none"></div>
-              <div id="payment-step" data-phase="cod-only" hidden></div>
-              <pre id="order-preview">Add items to generate an order summary.</pre>
-              <div class="share-links">
-                <button type="button" class="btn secondary" id="btn-copy-order">
-                  Copy order text
-                </button>
-                <a class="btn primary" id="link-whatsapp" href="#" target="_blank" rel="noopener"
-                  >WhatsApp</a
-                >
-                <a class="btn ghost" id="link-messenger" href="#" target="_blank" rel="noopener"
-                  >Messenger</a
-                >
-                <a class="btn ghost" id="link-viber" href="#" target="_blank" rel="noopener"
-                  >Viber</a
-                >
-                <a class="btn ghost" id="link-sms" href="#">SMS</a>
-                <a class="btn ghost" id="link-email" href="#">Email</a>
-              </div>
-              <div id="copy-msg" class="msg ok" style="display: none"></div>
-              <p class="muted" style="margin-top: 0.75rem">
-                Tip: after copying, paste into Messenger if the app doesn’t
-                prefill the message.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="promos">
-        <div class="container">
-          <div class="section-head">
-            <h2>Promotions</h2>
-            <p>
-              A few offers for new customers and for cafés and resorts.
-            </p>
-          </div>
-          <div id="promo-list" class="promo-grid"></div>
         </div>
       </section>
     </main>
 
-    <footer class="site-footer" id="contact">
+    <footer class="site-footer">
       <div class="container footer-grid">
         <div>
           <h3>SamalBakes</h3>
@@ -313,12 +141,13 @@
           <p>samalbakes.com</p>
         </div>
         <div>
-          <h3>Service areas</h3>
+          <h3>Explore</h3>
           <ul>
-            <li>Samal Island (Babak, Peñaplata, Kaputian &amp; resorts)</li>
-            <li>Davao City (within delivery zone)</li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="delivery.html">Delivery</a></li>
+            <li><a href="promotions.html">Promotions</a></li>
+            <li><a href="contact.html">About &amp; contact</a></li>
           </ul>
-          <p>We deliver within the area shown on the map.</p>
         </div>
         <div>
           <h3>Contact</h3>
@@ -343,9 +172,6 @@
       </div>
     </footer>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>
     <script src="js/products.js"></script>

@@ -9,6 +9,8 @@
   var config = SB.config;
   var products = SB.products;
   var promos = SB.promos || [];
+  var CART_KEY = "sb_cart";
+  var CART_META_KEY = "sb_cart_meta";
   var cart = {};
   var appliedPromo = null;
   var map = null;
@@ -54,27 +56,79 @@
     return null;
   }
 
-  function renderMenu() {
-    var grid = $("#menu-grid");
+  function persistCart() {
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      localStorage.setItem(
+        CART_META_KEY,
+        JSON.stringify({
+          promo: appliedPromo && appliedPromo.code ? appliedPromo.code : "",
+          distanceKm: lastDistanceKm,
+        })
+      );
+    } catch (e) {}
+    if (SB.chrome && SB.chrome.refreshCartBadge) SB.chrome.refreshCartBadge();
+  }
+
+  function restoreCart() {
+    cart = {};
+    try {
+      var raw = JSON.parse(localStorage.getItem(CART_KEY) || "{}");
+      if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+        Object.keys(raw).forEach(function (id) {
+          var qty = parseInt(raw[id], 10);
+          if (qty > 0) cart[id] = qty;
+        });
+      }
+    } catch (e) {}
+    appliedPromo = null;
+    lastDistanceKm = null;
+    try {
+      var meta = JSON.parse(localStorage.getItem(CART_META_KEY) || "{}");
+      if (meta && meta.promo) {
+        var found = findPromoByCode(meta.promo);
+        if (found && found.type !== "info") appliedPromo = found;
+      }
+      if (meta && meta.distanceKm != null && meta.distanceKm !== "") {
+        var dist = Number(meta.distanceKm);
+        if (!isNaN(dist)) lastDistanceKm = dist;
+      }
+    } catch (e2) {}
+  }
+
+  function onGridClick(e) {
+    var card = e.target.closest(".product-card");
+    if (!card) return;
+    var id = card.getAttribute("data-id");
+    if (e.target.classList.contains("qty-plus") || e.target.classList.contains("add-btn")) {
+      cart[id] = (cart[id] || 0) + 1;
+      refreshCartUI();
+    } else if (e.target.classList.contains("qty-minus")) {
+      cart[id] = Math.max(0, (cart[id] || 0) - 1);
+      if (!cart[id]) delete cart[id];
+      refreshCartUI();
+    }
+  }
+
+  function renderInto(grid, list) {
     if (!grid || !SB.menuCard) return;
-    grid.innerHTML = products
+    grid.innerHTML = list
       .map(function (p) {
         return SB.menuCard.customerProductCardHtml(p, { escapeHtml: escapeHtml, peso: peso });
       })
       .join("");
-    grid.onclick = function (e) {
-      var card = e.target.closest(".product-card");
-      if (!card) return;
-      var id = card.getAttribute("data-id");
-      if (e.target.classList.contains("qty-plus") || e.target.classList.contains("add-btn")) {
-        cart[id] = (cart[id] || 0) + 1;
-        refreshCartUI();
-      } else if (e.target.classList.contains("qty-minus")) {
-        cart[id] = Math.max(0, (cart[id] || 0) - 1);
-        if (!cart[id]) delete cart[id];
-        refreshCartUI();
-      }
-    };
+    if (grid.getAttribute("data-cart-bound") === "1") return;
+    grid.setAttribute("data-cart-bound", "1");
+    grid.addEventListener("click", onGridClick);
+  }
+
+  function renderMenu() {
+    renderInto($("#menu-grid"), products);
+    var featured = $("#featured-grid");
+    if (!featured) return;
+    var picks = products.filter(function (p) { return p.image || p.image_url; }).slice(0, 3);
+    if (!picks.length) picks = products.slice(0, 3);
+    renderInto(featured, picks);
   }
 
   function refreshCartUI() {
@@ -91,6 +145,8 @@
       countBadge.textContent = n;
       countBadge.hidden = n === 0;
     }
+    persistCart();
+    if (!list) return;
     if (!lines.length) {
       if (list) list.innerHTML = "";
       if (empty) empty.hidden = false;
@@ -135,7 +191,9 @@
     );
     var total = after + delFee;
 
-    $("#cart-subtotal").textContent = peso(sub);
+    var subEl = $("#cart-subtotal");
+    if (!subEl) return;
+    subEl.textContent = peso(sub);
     $("#cart-discount").textContent = disc ? "−" + peso(disc) : "—";
     var feeEl = $("#cart-delivery-fee");
     if (feeEl) feeEl.textContent = delFee ? peso(delFee) : "Free";
@@ -304,7 +362,9 @@
   }
 
   function bindDelivery() {
-    $("#btn-geo").addEventListener("click", function () {
+    var geoBtn = $("#btn-geo");
+    if (!geoBtn || !SB.delivery) return;
+    geoBtn.addEventListener("click", function () {
       var box = $("#delivery-result");
       box.className = "msg info";
       box.textContent = "Checking your location…";
@@ -365,20 +425,40 @@
     });
   }
 
+  function promoCardHtml(p) {
+    return (
+      '<article class="card promo-card"><h3>' + escapeHtml(p.title) + "</h3><p>" +
+      escapeHtml(p.description) + "</p>" +
+      (p.code ? '<p class="code">Code: <code>' + escapeHtml(p.code) + "</code></p>" : "") +
+      '<span class="audience">' + escapeHtml(p.audience || "") + "</span></article>"
+    );
+  }
+
   function renderPromos() {
+    var active = promos.filter(function (p) { return p.active; });
     var el = $("#promo-list");
+    if (el) el.innerHTML = active.map(promoCardHtml).join("");
+    var teaser = $("#promo-teaser");
+    if (teaser) teaser.innerHTML = active.slice(0, 2).map(promoCardHtml).join("");
+  }
+
+  function renderDeliveryFees() {
+    var el = $("#delivery-fees");
     if (!el) return;
-    el.innerHTML = promos
-      .filter(function (p) { return p.active; })
-      .map(function (p) {
-        return (
-          '<article class="card promo-card"><h3>' + escapeHtml(p.title) + "</h3><p>" +
-          escapeHtml(p.description) + "</p>" +
-          (p.code ? '<p class="code">Code: <code>' + escapeHtml(p.code) + "</code></p>" : "") +
-          '<span class="audience">' + escapeHtml(p.audience || "") + "</span></article>"
-        );
-      })
-      .join("");
+    var d = config.delivery || {};
+    var type = d.feeType || "flat";
+    var flat = Number(d.feeFlat);
+    var per = Number(d.feePerKm);
+    var freeMin = Number(d.freeDeliveryMinOrder);
+    if (isNaN(flat)) flat = 0;
+    if (isNaN(per)) per = 0;
+    if (isNaN(freeMin)) freeMin = 0;
+    var feeText = peso(flat) + " flat fee";
+    if (type === "per_km") feeText = peso(per) + " per km";
+    else if (type === "flat_plus_per_km") feeText = peso(flat) + " plus " + peso(per) + " per km";
+    el.textContent =
+      "Delivery fee: " + feeText + ". Free delivery on orders of " + peso(freeMin) +
+      " or more. Payment is cash on delivery.";
   }
 
   async function placeOrder() {
@@ -516,13 +596,34 @@
     if (el) el.textContent = String(config.delivery.radiusKm);
   }
 
+  (function redirectLegacyHash() {
+    var hash = (location.hash || "").replace(/^#/, "");
+    var map = {
+      delivery: "delivery.html",
+      menu: "menu.html",
+      order: "menu.html#order",
+      promos: "promotions.html",
+      contact: "contact.html",
+    };
+    if (!map[hash]) return;
+    var path = location.pathname || "";
+    var onHome = /\/$/.test(path) || /index\.html$/.test(path);
+    if (onHome) location.replace(map[hash]);
+  })();
+
   document.addEventListener("DOMContentLoaded", async function () {
     await SB.data.init();
     settings = await SB.data.getSettings();
     products = SB.products;
     config = SB.config;
+    promos = SB.promos || [];
     session = await SB.data.getSession();
     await SB.chrome.boot();
+    restoreCart();
+    var savedPromo = $("#promo-code");
+    if (savedPromo && appliedPromo && appliedPromo.code && !savedPromo.value) {
+      savedPromo.value = appliedPromo.code;
+    }
     prefillCheckoutFromSession();
 
     var accountHint = $("#account-hint");
@@ -534,6 +635,7 @@
 
     renderMenu();
     renderPromos();
+    renderDeliveryFees();
     fillAreaDropdown();
     fillContactPlaceholders();
     bindDelivery();

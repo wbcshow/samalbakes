@@ -173,6 +173,42 @@
     window.addEventListener("resize", onResize);
   }
 
+  function refreshCartBadge() {
+    var badge = document.getElementById("cart-count");
+    if (!badge) return;
+    var n = 0;
+    try {
+      var cart = JSON.parse(localStorage.getItem("sb_cart") || "{}");
+      if (cart && typeof cart === "object") {
+        Object.keys(cart).forEach(function (id) {
+          var qty = parseInt(cart[id], 10);
+          if (qty > 0) n += qty;
+        });
+      }
+    } catch (e) {}
+    badge.textContent = String(n);
+    badge.hidden = n === 0;
+  }
+
+  function bindNavToggle() {
+    var btn = document.querySelector(".nav-toggle");
+    var nav = document.getElementById("site-nav");
+    if (!btn || !nav || btn.getAttribute("data-bound") === "1") return;
+    btn.setAttribute("data-bound", "1");
+    var label = btn.querySelector(".visually-hidden");
+    function setOpen(open) {
+      nav.classList.toggle("is-open", open);
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      if (label) label.textContent = open ? "Close menu" : "Open menu";
+    }
+    btn.addEventListener("click", function () {
+      setOpen(btn.getAttribute("aria-expanded") !== "true");
+    });
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest("a")) setOpen(false);
+    });
+  }
+
   async function refreshAuthNav() {
     var slot = document.querySelector("[data-auth-nav]");
     if (!slot || !SB.data) return;
@@ -185,9 +221,12 @@
     boot: async function () {
       ensureDemoBanner();
       bindGlobals();
+      bindNavToggle();
+      refreshCartBadge();
       await refreshAuthNav();
     },
     refreshAuthNav: refreshAuthNav,
+    refreshCartBadge: refreshCartBadge,
     escapeHtml: helpers.escapeHtml,
   };
 })(typeof window !== "undefined" ? window : globalThis, function () {
