@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Product — Admin — SamalBakes</title>
+<link rel="icon" href="favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="SamalBakes" />
+<meta property="og:title" content="Product — Admin — SamalBakes" />
+<meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
+<meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island" />
+<link rel="stylesheet" href="css/styles.css"/>
+</head>
+<body>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html">
+      <picture>
+        <source srcset="assets/logo-header.webp" type="image/webp" />
+        <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
+      </picture>
+    </a>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="delivery.html">Delivery</a>
+      <a href="promotions.html">Promos</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="header-tools">
+      <a class="cart-link" href="menu.html#order">Order <span id="cart-count" hidden>0</span></a>
+      <span data-auth-nav></span>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+        <span class="nav-toggle-bars" aria-hidden="true"></span>
+        <span class="visually-hidden">Open menu</span>
+      </button>
+    </div>
+  </div>
+</header>
+<main class="container" style="padding:2rem 0">
+  <div id="admin-gate" class="card">
+    <h1>Admin</h1>
+    <p class="muted">Checking access…</p>
+  </div>
+  <div id="product-editor" hidden>
+    <p><a class="back-link" href="admin.html#products">← Products</a></p>
+    <div class="section-head">
+      <h1 id="editor-title">Add product</h1>
+    </div>
+    <form id="product-form" class="card" method="post" action="admin-product.html">
+      <div class="field">
+        <label for="product-name">Name</label>
+        <input id="product-name" name="name" required />
+      </div>
+      <div class="row" style="gap:1rem">
+        <div class="field" style="flex:1">
+          <label for="product-category">Category</label>
+          <select id="product-category" name="category" required>
+            <option value="Cakes">Cake</option>
+            <option value="Breads">Bread</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1">
+          <label for="product-price">Price (PHP)</label>
+          <input id="product-price" name="price" type="number" min="0" step="1" required />
+        </div>
+        <div class="field" style="flex:1">
+          <label for="product-bake">Bake time (minutes)</label>
+          <input id="product-bake" name="bake_time_minutes" type="number" min="0" step="1" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="product-description">Description</label>
+        <textarea id="product-description" name="description" rows="4"></textarea>
+      </div>
+      <div class="field">
+        <label for="product-image">Photo</label>
+        <input id="product-image" name="image_url" placeholder="img/products/my-cake.jpg or https://…" />
+        <p class="muted">Paste a path or image address already on the site.</p>
+      </div>
+      <div class="field" id="demo-image-upload">
+        <label for="product-image-file">Or choose a photo from this device</label>
+        <input id="product-image-file" type="file" accept="image/*" />
+      </div>
+      <img id="product-image-preview" class="admin-thumb lg" alt="" hidden />
+      <div class="field">
+        <label for="product-active">Status</label>
+        <select id="product-active" name="active">
+          <option value="true">Active</option>
+          <option value="false">Hidden</option>
+        </select>
+      </div>
+      <div class="actions">
+        <button class="btn primary" type="submit">Save</button>
+        <a class="btn ghost" href="admin.html#products">Cancel</a>
+        <button type="button" class="btn ghost" id="btn-visibility" hidden>Hide</button>
+        <button type="button" class="btn ghost" id="btn-delete" hidden>Delete</button>
+      </div>
+      <div id="product-msg" class="msg info" style="display:none"></div>
+    </form>
+  </div>
+</main>
+<footer class="site-footer"><div class="container"><p>Payment: Cash on Delivery · <a href="index.html">Storefront</a> · <a href="admin.html#products">Products</a></p></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/products.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/chrome.js"></script>
+<script src="js/admin-product.js"></script>
+</body>
+</html>
