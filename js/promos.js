@@ -17,7 +17,7 @@ window.SAMALBAKES.promos = [
     id: "welcome10",
     code: "SAMALWELCOME",
     title: "First-order welcome",
-    description: "10% off your first online order. Use code SAMALWELCOME at checkout.",
+    description: "10% off your first online order. First orders only, one per customer. Use code SAMALWELCOME at checkout.",
     type: "percent",
     percentOff: 10,          // PLACEHOLDER
     audience: "new customers",

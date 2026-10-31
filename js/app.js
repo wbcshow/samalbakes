@@ -382,7 +382,9 @@
       return;
     }
     appliedPromo = p;
-    showPromoMsg(msg, "Applied: " + p.title, "ok");
+    showPromoMsg(msg, p.code === "SAMALWELCOME"
+      ? "SAMALWELCOME is for first orders only, one per customer. Eligibility is checked when you place your order."
+      : "Applied: " + p.title, p.code === "SAMALWELCOME" ? "info" : "ok");
     refreshCartUI();
   }
 
