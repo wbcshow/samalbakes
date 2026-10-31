@@ -598,8 +598,9 @@
     },
     async saveSettings(partial) {
       var payload = Object.assign({}, partial, { id: 1, updated_at: new Date().toISOString() });
-      var res = await remote.client.from("settings").upsert(payload).select().single();
+      var res = await remote.client.from("settings").update(payload).eq("id", 1).select().maybeSingle();
       if (res.error) throw new Error(res.error.message);
+      if (!res.data) throw new Error("Settings could not be saved. Make sure you are logged in as an admin, then try again.");
       applySettingsToConfig(res.data);
       return res.data;
     },

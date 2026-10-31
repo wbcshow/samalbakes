@@ -7,7 +7,7 @@ const hours={0:null,1:{open:'08:00',close:'18:00'},2:{open:'08:00',close:'18:00'
  create policy settings_select_all on settings for select using(true);
  create policy settings_admin_update on settings for update using(public.is_admin());
  grant usage on schema public to anon,authenticated;
- grant select,update on public.settings to anon,authenticated;`);
+ grant select,insert,update on public.settings to anon,authenticated;`);
  await db.query('insert into settings values (1,$1)',[JSON.stringify(hours)]);
  const migration=fs.readFileSync(path.join(__dirname,'../supabase/baking-hours-home-products.sql'),'utf8');
  await db.exec(migration);await db.exec(migration);
@@ -17,6 +17,12 @@ const hours={0:null,1:{open:'08:00',close:'18:00'},2:{open:'08:00',close:'18:00'
  await db.query('update settings set featured_product_ids=$1',[['c','a','b']]);
  await db.exec("set role anon");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,0);await db.exec('reset role');
  await db.exec("set role authenticated");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,0);
- await db.exec("select set_config('test.admin','yes',false)");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,1);await db.exec('reset role');
+ await db.exec("select set_config('test.admin','yes',false)");
+ // INSERT ... ON CONFLICT still requires an INSERT policy, even for the existing row.
+ await assert.rejects(db.query('insert into settings(id,working_hours) values (1,$1) on conflict (id) do update set working_hours=excluded.working_hours',[JSON.stringify(hours)]),/row-level security/);
+ assert.equal((await db.query("update settings set featured_product_ids=null where id=1 returning id")).rows.length,1);
+ await db.query('update settings set featured_product_ids=$1,working_hours=$2 where id=1',[['new-cake','chiffon','drip'],JSON.stringify(hours)]);
+ assert.deepEqual((await db.query('select featured_product_ids from settings where id=1')).rows[0].featured_product_ids,['new-cake','chiffon','drip']);
+ await db.exec('reset role');
  console.log('Database settings checks passed: migration rerun/preservation, valid schedules, invalid times, all-closed rejection, distinct three-product choices, admin-only writes.');
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>db.close());
