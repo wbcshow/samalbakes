@@ -571,6 +571,18 @@
       if (res.error) throw new Error(res.error.message);
       return mapProductRow(res.data);
     },
+    async uploadProductPhoto(file) {
+      var extension = SB.productPhoto.validate(file);
+      var session = await remote.getSession();
+      if (!session || !session.user.is_admin) throw new Error("Log in as an admin to upload a photo.");
+      var storage = remote.client.storage.from("product-photos");
+      var objectPath = session.user.id + "/" + uid() + "." + extension;
+      var res = await storage.upload(objectPath, file, { contentType: file.type, upsert: false });
+      if (res.error) throw new Error("Photo upload failed. " + res.error.message);
+      var url = storage.getPublicUrl(objectPath);
+      if (!url.data || !url.data.publicUrl) throw new Error("Could not get the uploaded photo address.");
+      return url.data.publicUrl;
+    },
     async deleteProduct(id) {
       var res = await remote.client.from("products").delete().eq("id", id).select("id");
       if (res.error) throw new Error(res.error.message);
@@ -682,6 +694,10 @@
     },
     getProducts: function (inc) { return api.backend.getProducts(inc); },
     saveProduct: function (p) { return api.backend.saveProduct(p); },
+    uploadProductPhoto: function (file) {
+      if (api.isDemo) return Promise.reject(new Error("Photo uploads use the live site."));
+      return api.backend.uploadProductPhoto(file);
+    },
     deleteProduct: function (id) { return api.backend.deleteProduct(id); },
     getSettings: function () { return api.backend.getSettings(); },
     saveSettings: function (p) { return api.backend.saveSettings(p); },

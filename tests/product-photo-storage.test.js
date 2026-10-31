@@ -1,0 +1,28 @@
+const {PGlite}=require('../.review-tools/node_modules/@electric-sql/pglite');
+const fs=require('node:fs');const path=require('node:path');const assert=require('node:assert/strict');
+const db=new PGlite();
+(async()=>{
+ await db.exec(`create role anon;create role authenticated;create schema auth;create schema storage;
+ create table public.test_admins(id uuid primary key);
+ create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+ create function public.is_admin() returns boolean language sql stable security definer as $$ select exists(select 1 from public.test_admins where id=auth.uid()) $$;
+ create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name,'/'))[1:array_length(string_to_array(name,'/'),1)-1] $$;
+ create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+ create table storage.objects(id uuid default gen_random_uuid(),bucket_id text,name text);
+ alter table storage.objects enable row level security;
+ grant usage on schema public,storage,auth to anon,authenticated;
+ grant insert,select on storage.objects to anon,authenticated;
+ insert into test_admins values ('11111111-1111-4111-8111-111111111111');`);
+ const migration=fs.readFileSync(path.join(__dirname,'../supabase/product-photo-storage.sql'),'utf8');
+ await db.exec(migration);await db.exec(migration);
+ const bucket=(await db.query('select * from storage.buckets')).rows[0];assert.equal(bucket.public,true);assert.equal(Number(bucket.file_size_limit),5242880);assert.deepEqual(bucket.allowed_mime_types,['image/jpeg','image/png','image/webp']);
+ await db.exec('set role anon');await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('product-photos','guest/test.jpg')"),/row-level security/);
+ await db.exec('reset role');await db.exec('set role authenticated');
+ await db.query("select set_config('request.jwt.claim.sub','22222222-2222-4222-8222-222222222222',false)");
+ await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('product-photos','22222222-2222-4222-8222-222222222222/test.jpg')"),/row-level security/);
+ await db.query("select set_config('request.jwt.claim.sub','11111111-1111-4111-8111-111111111111',false)");
+ await db.exec("insert into storage.objects(bucket_id,name) values ('product-photos','11111111-1111-4111-8111-111111111111/test.jpg')");
+ await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('product-photos','22222222-2222-4222-8222-222222222222/test.jpg')"),/row-level security/);
+ await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('other-bucket','11111111-1111-4111-8111-111111111111/test.jpg')"),/row-level security/);
+ console.log('Storage PostgreSQL checks passed: migration rerun, bucket restrictions, guest/customer denial, admin-only own-folder upload.');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>db.close());
