@@ -1,14 +1,4 @@
-/**
- * SamalBakes.com — PROMOTIONS (PLACEHOLDER FIGURES)
- * =================================================
- * Edit codes, discounts, and copy here. Promo codes are applied in the cart.
- *
- * type: "percent" | "fixed" | "free_delivery" | "info"
- *   percent       — percentOff of subtotal
- *   fixed         — peso off subtotal
- *   free_delivery — waives delivery note (fee still TBD offline)
- *   info          — display-only promo (no cart math)
- */
+/** Default promotions for demo mode and initial database setup. Live offers are managed in Admin. */
 
 window.SAMALBAKES = window.SAMALBAKES || {};
 
@@ -63,3 +53,20 @@ window.SAMALBAKES.promos = [
     active: true,
   },
 ];
+
+window.SAMALBAKES.promotionRules = {
+ available: function(p,now){now=now||Date.now();return p.active && (!p.startsAt||Date.parse(p.startsAt)<=now)&&(!p.endsAt||Date.parse(p.endsAt)>now);},
+ validate: function(list){
+ if(!Array.isArray(list)||list.length>100)throw new Error('Use at most 100 promotions.');
+ var codes={};return list.map(function(p){var r=Object.assign({},p);r.code=String(p.code||'').trim().toUpperCase();r.title=String(p.title||'').trim();
+ if(!r.title)throw new Error('Enter a promotion title.');
+ if(['percent','fixed','free_delivery','info'].indexOf(r.type)<0)throw new Error('Choose a valid promotion type.');
+ if(r.type!=='info'&&!r.code)throw new Error('Enter a discount code.');
+ if(r.code&&(!/^[A-Z0-9_-]{1,40}$/.test(r.code)||codes[r.code]))throw new Error('Codes must be unique and contain letters, numbers, underscores or hyphens.');codes[r.code]=true;
+ ['minSubtotal','percentOff','amountOff'].forEach(function(k){r[k]=Number(r[k]||0);if(!Number.isFinite(r[k])||r[k]<0)throw new Error('Amounts must be zero or greater.');});
+ if(r.type==='percent'&&(r.percentOff<=0||r.percentOff>100))throw new Error('Percentage must be greater than zero and at most 100.');
+ if(r.type==='fixed'&&r.amountOff<=0)throw new Error('Peso discount must be greater than zero.');
+ ['startsAt','endsAt'].forEach(function(k){if(r[k]&&!Number.isFinite(Date.parse(r[k])))throw new Error('Enter valid dates.');});
+ if(r.startsAt&&r.endsAt&&Date.parse(r.startsAt)>=Date.parse(r.endsAt))throw new Error('End must be after start.');return r;});
+ }
+};

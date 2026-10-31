@@ -1251,3 +1251,7 @@ button.linkish {
   .baking-day-toggle { grid-column: 1 / -1; }
   #home-product-fields { grid-template-columns: 1fr; }
 }
+
+.promotion-editor { margin-bottom: 1rem; }
+.promotion-editor summary { cursor: pointer; font-weight: 700; padding: .4rem 0; }
+.promotion-editor[open] summary { margin-bottom: 1rem; }

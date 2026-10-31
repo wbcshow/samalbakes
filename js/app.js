@@ -52,7 +52,7 @@
     var c = code.trim().toUpperCase();
     for (var i = 0; i < promos.length; i++) {
       var p = promos[i];
-      if (p.active && p.code && p.code.toUpperCase() === c) return p;
+      if (SB.promotionRules.available(p) && p.code && p.code.toUpperCase() === c) return p;
     }
     return null;
   }
@@ -247,6 +247,7 @@
       delivery_fee_per_km: config.delivery.feePerKm || 0,
     };
     var delFee = areaState === "in" ? SB.data.calcDeliveryFee(feeSettings, after, lastDistanceKm) : 0;
+    if(appliedPromo&&SB.promotionRules.available(appliedPromo)&&sub>=Number(appliedPromo.minSubtotal||0)&&appliedPromo.type==='free_delivery')delFee=0;
     var total = after + (areaState === "in" ? delFee : 0);
 
     var subEl = $("#cart-subtotal");
@@ -380,6 +381,7 @@
       refreshCartUI();
       return;
     }
+    if(subtotal()<Number(p.minSubtotal||0)){appliedPromo=null;showPromoMsg(msg,'Minimum order: '+peso(p.minSubtotal),'warn');refreshCartUI();return;}
     appliedPromo = p;
     showPromoMsg(msg, p.code === "SAMALWELCOME"
       ? "SAMALWELCOME is for first orders only, one per customer. Eligibility is checked when you place your order."
@@ -534,15 +536,16 @@
     return (
       '<article class="card promo-card"><h3>' + escapeHtml(p.title) + "</h3><p>" +
       escapeHtml(p.description) + "</p>" +
+      (p.type !== 'info' ? '<p>' + escapeHtml((p.type==='percent'?p.percentOff+'% off':p.type==='fixed'?peso(p.amountOff)+' off':'Free delivery') + (Number(p.minSubtotal)>0?' · Minimum order '+peso(p.minSubtotal):'') + (p.code==='SAMALWELCOME'?' · First order only':'')) + '</p>' : '') +
       (p.code ? '<p class="code">Code: <code>' + escapeHtml(p.code) + "</code></p>" : "") +
       '<span class="audience">' + escapeHtml(p.audience || "") + "</span></article>"
     );
   }
 
   function renderPromos() {
-    var active = promos.filter(function (p) { return p.active; });
+    var active = promos.filter(function (p) { return SB.promotionRules.available(p); });
     var el = $("#promo-list");
-    if (el) el.innerHTML = active.map(promoCardHtml).join("");
+    if (el) el.innerHTML = active.length ? active.map(promoCardHtml).join("") : '<p class="muted">No promotions available right now. Check back soon.</p>';
     var teaser = $("#promo-teaser");
     if (teaser) teaser.innerHTML = active.slice(0, 2).map(promoCardHtml).join("");
   }

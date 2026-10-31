@@ -61,6 +61,7 @@
       <button type="button" class="btn ghost tab active" data-tab="settings">Settings</button>
       <button type="button" class="btn ghost tab" data-tab="products">Products</button>
       <button type="button" class="btn ghost tab" data-tab="orders">Orders</button>
+      <button type="button" class="btn ghost tab" data-tab="promotions">Promotions</button>
     </div>
 
     <section id="tab-settings" class="card admin-panel" style="margin-top:1rem">
@@ -112,6 +113,15 @@
       <ul id="admin-products" class="product-list"></ul>
     </section>
 
+    <section id="tab-promotions" class="card admin-panel" hidden style="margin-top:1rem">
+      <h2>Promotions</h2>
+      <p>Manage offers shown on the Promotions page and accepted at checkout. Dates use Philippine time. Delivery offers still require an address within your delivery area.</p>
+      <p>SAMALWELCOME remains first order only. Audience labels are descriptions; checkout does not verify business membership.</p>
+      <form id="promotions-form"><div id="promotion-editors"></div>
+      <button type="button" class="btn ghost" id="add-promotion">Add promotion</button>
+      <button type="submit" class="btn primary">Save promotions</button>
+      <div id="promotions-msg" class="msg" role="status" style="display:none"></div></form>
+    </section>
     <section id="tab-orders" class="card admin-panel" hidden style="margin-top:1rem">
       <h2>Incoming orders</h2>
       <div id="admin-orders"></div>
@@ -124,8 +134,10 @@
 <script src="js/products.js"></script>
 <script src="js/supabase-config.js"></script>
 <script src="js/bakery-settings.js"></script>
+<script src="js/promos.js"></script>
 <script src="js/data.js"></script>
 <script src="js/chrome.js"></script>
+<script src="js/admin-promotions.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>
