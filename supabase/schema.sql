@@ -151,6 +151,17 @@ as $$
   );
 $$;
 
+create or replace function public.normalize_customer_phone(p_phone text)
+returns text language sql immutable set search_path = public as $$
+  select case
+    when digits ~ '^09[0-9]{9}$' then '63' || substr(digits, 2)
+    when digits ~ '^9[0-9]{9}$' then '63' || digits
+    when digits ~ '^00639[0-9]{9}$' then substr(digits, 3)
+    else nullif(digits, '')
+  end
+  from (select regexp_replace(coalesce(p_phone, ''), '[^0-9]', '', 'g') as digits) n;
+$$;
+
 -- place_order: server-side totals from products + settings (prevents price tampering)
 create or replace function public.place_order(
   p_items jsonb,               -- [{"product_id":"…","qty":2},…]
@@ -181,6 +192,9 @@ declare
   v_qty int;
   v_line numeric(12,2);
   v_code text;
+  v_email text;
+  v_phone text;
+  v_auth_email text;
 begin
   if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Order must include at least one item';
@@ -195,6 +209,31 @@ begin
   -- A null distance is allowed: an in-area choice from the area list has no kilometers.
   if p_distance_km is not null and p_distance_km > v_settings.delivery_radius_km then
     raise exception 'That location is outside our delivery area';
+  end if;
+
+  -- Serialize order creation so concurrent checkouts cannot both claim a first order.
+  -- Every order takes this lock, including orders without a promotion.
+  lock table public.orders in share row exclusive mode;
+  v_code := upper(trim(coalesce(p_promo_code, '')));
+  if v_code = 'SAMALWELCOME' then
+    select lower(trim(email)) into v_auth_email from auth.users where id = auth.uid();
+    v_email := nullif(lower(trim(coalesce(p_guest_email, ''))), '');
+    v_phone := public.normalize_customer_phone(p_guest_phone);
+    if auth.uid() is null and v_email is null and v_phone is null then
+      raise exception 'Enter an email or phone number to use SAMALWELCOME on your first order.';
+    end if;
+    if exists (
+      select 1 from public.orders o
+      left join auth.users u on u.id = o.user_id
+      where (auth.uid() is not null and o.user_id = auth.uid())
+        or (v_email is not null and
+          (lower(trim(o.guest_email)) = v_email or lower(trim(u.email)) = v_email))
+        or (v_auth_email is not null and
+          (lower(trim(o.guest_email)) = v_auth_email or lower(trim(u.email)) = v_auth_email))
+        or (v_phone is not null and public.normalize_customer_phone(o.guest_phone) = v_phone)
+    ) then
+      raise exception 'SAMALWELCOME is for first orders only, one per customer. Please remove the code to continue.';
+    end if;
   end if;
 
   -- Create order shell

@@ -360,11 +360,36 @@
       if (checkedDist != null && !isNaN(checkedDist) && checkedDist > checkedRadius) {
         throw new Error("That location is outside our delivery area.");
       }
+      var session = await demo.getSession();
+      var orders = lsGet(LS.orders, []);
+      if (String(payload.promo_code || "").trim().toUpperCase() === "SAMALWELCOME") {
+        var email = String(payload.guest_email || "").trim().toLowerCase();
+        var accountEmail = session ? String(session.user.email || "").trim().toLowerCase() : "";
+        function phone(value) {
+          var digits = String(value || "").replace(/[^0-9]/g, "");
+          if (/^09[0-9]{9}$/.test(digits)) return "63" + digits.slice(1);
+          if (/^9[0-9]{9}$/.test(digits)) return "63" + digits;
+          if (/^00639[0-9]{9}$/.test(digits)) return digits.slice(2);
+          return digits;
+        }
+        var customerPhone = phone(payload.guest_phone);
+        if (!session && !email && !customerPhone) {
+          throw new Error("Enter an email or phone number to use SAMALWELCOME on your first order.");
+        }
+        var previous = orders.some(function (o) {
+          var priorEmail = String(o.guest_email || "").trim().toLowerCase();
+          return (session && o.user_id === session.user.id) ||
+            (email && priorEmail === email) || (accountEmail && priorEmail === accountEmail) ||
+            (customerPhone && phone(o.guest_phone) === customerPhone);
+        });
+        if (previous) {
+          throw new Error("SAMALWELCOME is for first orders only, one per customer. Please remove the code to continue.");
+        }
+      }
       var discount = calcDiscount(subtotal, payload.promo_code);
       var after = Math.max(0, subtotal - discount);
       var deliveryFee = calcDeliveryFee(settings, after, payload.distance_km);
       // FREESHIP1500 forces free delivery check via threshold already
-      var session = await demo.getSession();
       var order = {
         id: uid(),
         user_id: session ? session.user.id : null,
@@ -387,7 +412,6 @@
         updated_at: new Date().toISOString(),
         items: items,
       };
-      var orders = lsGet(LS.orders, []);
       orders.unshift(order);
       lsSet(LS.orders, orders);
       return order;

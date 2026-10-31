@@ -81,6 +81,16 @@ Orders go through the `place_order` Postgres function so **prices and fees are c
 
 ## Tests
 
+For existing Supabase projects, apply `supabase/welcome-code-first-order-only.sql`
+after reviewing the change. This makes SAMALWELCOME first-order-only by account,
+email (ignoring case and surrounding spaces), or normalized phone number.
+Philippine mobile formats `09…`, `9…`, `+639…`, and `00639…` match.
+All previous orders, including cancelled orders, count. Guests must supply email
+or phone to use the code. The storefront explains the rule; the database enforces
+it at checkout, including concurrent submissions. No eligibility lookup is exposed.
+Order creation is serialized while each order is saved, suitable for the current
+small-store workload. Demo history is limited to the current browser.
+
 ```bash
 node --check js/*.js
 node tests/ready-time.test.js
