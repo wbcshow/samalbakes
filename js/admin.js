@@ -180,9 +180,10 @@
     qs("#admin-app").hidden = false;
     bindTabs();
     var hash = (location.hash || "").replace("#", "");
-    if (hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
+    if (hash === "promotions" || hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
     settingsProducts = await SB.data.getProducts(true);
     fillSettingsForm(await SB.data.getSettings());
+    SB.adminPromotions.init(await SB.data.getSettings());
     await renderProducts();
     await renderOrders();
 

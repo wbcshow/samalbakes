@@ -68,6 +68,7 @@
       global_min_lead_minutes: p.globalMinLeadMinutes || 60,
       working_hours: c.workingHours || {},
       featured_product_ids: c.featuredProductIds || null,
+      promotions: SB.promos || [],
       contact: c.contact || {},
     };
   }
@@ -146,6 +147,7 @@
   }
 
   function applySettingsToConfig(s) {
+    if (s.promotions) SB.promos = s.promotions;
     if (!SB.config) SB.config = {};
     SB.config.delivery = SB.config.delivery || {};
     SB.config.delivery.center = {
@@ -195,10 +197,9 @@
 
   function calcDiscount(subtotal, promoCode) {
     var code = (promoCode || "").trim().toUpperCase();
-    if (code === "SAMALWELCOME") return Math.round(subtotal * 0.1);
-    if (code === "RESORT50" && subtotal >= 800) return 50;
-    if (code === "FREESHIP1500") return 0; // handled via free delivery threshold
-    return 0;
+    var p=(SB.promos||[]).find(function(p){return p.code&&p.code.toUpperCase()===code&&SB.promotionRules.available(p);});
+    if(!p||subtotal<Number(p.minSubtotal||0))return 0;
+    return Math.min(subtotal,Math.round((p.type==='percent'?subtotal*Number(p.percentOff)/100:p.type==='fixed'?Number(p.amountOff):0)*100)/100);
   }
 
   /* ---------- Demo backend ---------- */
@@ -388,10 +389,13 @@
           throw new Error("SAMALWELCOME is for first orders only, one per customer. Please remove the code to continue.");
         }
       }
+      var requestedCode=String(payload.promo_code||'').trim().toUpperCase();
+      var offer=(SB.promos||[]).find(function(p){return p.code===requestedCode;});
+      if(requestedCode&&(!offer||!SB.promotionRules.available(offer)||offer.type==='info'||subtotal<Number(offer.minSubtotal||0)))throw new Error('This promotion is unavailable or its minimum order has not been met.');
       var discount = calcDiscount(subtotal, payload.promo_code);
       var after = Math.max(0, subtotal - discount);
       var deliveryFee = calcDeliveryFee(settings, after, payload.distance_km);
-      // FREESHIP1500 forces free delivery check via threshold already
+      if(offer&&offer.type==='free_delivery')deliveryFee=0;
       var order = {
         id: uid(),
         user_id: session ? session.user.id : null,

@@ -162,3 +162,12 @@ samalbakes/
   tests/
   README.md
 ```
+
+
+### Manage promotions
+
+Admin → Promotions lets bakery admins add, edit, deactivate, or remove offers. Save promotions publishes the full list, including the public card title, description, audience label, code, discount, minimum order and optional dates. Keep descriptions consistent with the numerical terms. Dates are entered in Philippine time; end time is exclusive. New entries start inactive. Percentage and peso discounts apply to merchandise, capped at the subtotal; free delivery codes waive the delivery fee after meeting the minimum. One code per order. Audience labels do not verify partner membership. SAMALWELCOME retains its existing first-order-only enforcement; other codes are regular promotions.
+
+**Release dependency:** Run supabase/admin-promotions.sql in the existing Supabase project before deploying these frontend files. It preserves existing delivery/baking/home settings and seeds the five existing offers only when adding the promotions column. The migration is transactional and safe to rerun without resetting saved promotions. Do not rerun the older welcome-code migration afterward, since it replaces the checkout function with the previous static rules.
+
+Verification: node tests/admin-promotions.test.js and node tests/admin-promotions-form.test.js (temporary .review-tools dependencies @electric-sql/pglite and jsdom).

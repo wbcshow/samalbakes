@@ -4,7 +4,7 @@ const vm=require('vm');
 function setup(history=[]) {
  const store=new Map([['sb_demo_orders',JSON.stringify(history)]]);
  const ctx=vm.createContext({window:{},localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},console});
- for(const file of ['config','products','data']) vm.runInContext(fs.readFileSync('js/'+file+'.js','utf8'),ctx);
+ for(const file of ['config','products','promos','data']) vm.runInContext(fs.readFileSync('js/'+file+'.js','utf8'),ctx);
  return {api:ctx.window.SAMALBAKES.data,store};
 }
 (async()=>{
