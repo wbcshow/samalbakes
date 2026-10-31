@@ -1238,3 +1238,16 @@ button.linkish {
   background: #fff;
   resize: vertical;
 }
+.bakery-settings-group { margin: 1.5rem 0; padding: 1rem; border: 1px solid #e5d8cc; border-radius: 12px; min-width: 0; }
+.bakery-settings-group legend { font-weight: 700; padding: 0 .4rem; }
+.baking-day { display: grid; grid-template-columns: minmax(130px, 1fr) 1fr 1fr; gap: 1rem; align-items: center; }
+.baking-day-toggle { display: flex; align-items: center; gap: .5rem; }
+.baking-day-toggle input { width: auto; }
+#home-product-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+#home-product-fields img { display: block; margin-top: .6rem; }
+#home-product-fields img[hidden] { display: none; }
+@media (max-width: 600px) {
+  .baking-day { grid-template-columns: 1fr 1fr; gap: .5rem; padding-bottom: .75rem; }
+  .baking-day-toggle { grid-column: 1 / -1; }
+  #home-product-fields { grid-template-columns: 1fr; }
+}

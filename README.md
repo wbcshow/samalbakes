@@ -81,6 +81,31 @@ Orders go through the `place_order` Postgres function so **prices and fees are c
 
 ## Tests
 
+After approval, apply `supabase/baking-hours-home-products.sql` before deploying
+the new Admin Settings controls. It preserves existing baking hours and adds an
+optional ordered list of three home-page product IDs. Fresh installs include
+these fields and checks in `schema.sql`.
+
+Under **Admin → Settings → Baking hours**, set one start/finish period per day
+in Philippine time, or uncheck a day to mark it closed. At least one baking day
+is required; overnight periods are not supported. The weekly schedule is shown
+only in the admin interface. The existing estimator uses it alongside bake times,
+preparation, packing, oven batches, and minimum lead times. Remaining work moves
+to the next open period. These remain estimates rather than reservations against
+the incoming-order queue.
+
+Under **Home page: Our top sellers**, choose three different active products
+with photos in display order. The photo previews help identify each product.
+If a chosen product becomes unavailable or loses its photo, the home page fills
+the gap with another active photographed product. Leave all choices blank to use
+automatic selection. This also allows schedules to be saved before three product
+photos are available. Changes affect subsequent page loads and new estimates;
+they do not rewrite timestamps on orders already placed.
+
+New checks: `node tests/bakery-settings.test.js` and
+`node tests/bakery-settings-database.test.js` (the latter uses the local PGlite
+installation described below).
+
 Product photo uploads: after approval, apply `supabase/product-photo-storage.sql`
 once to create the public `product-photos` bucket with admin-only uploads, a 5 MB
 limit, and JPG/PNG/WebP file types. Then deploy the updated admin page and scripts.

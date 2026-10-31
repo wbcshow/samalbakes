@@ -1,0 +1,26 @@
+const assert=require('node:assert/strict');const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const model=require('../js/bakery-settings');const rt=require('../js/ready-time');
+const hours={0:null,1:{open:'09:00',close:'11:00'},2:{open:'09:00',close:'09:30'},3:{open:'09:00',close:'11:00'},4:null,5:{open:'09:00',close:'11:00'},6:null};
+assert.equal(model.validateHours(hours),hours);
+for(const h of [{},Object.fromEntries(model.days.map((_,i)=>[i,null])),{...hours,1:{open:'18:00',close:'08:00'}},{...hours,1:{open:'09:00',close:'09:00'}},{...hours,1:{open:'25:00',close:'26:00'}}])assert.throws(()=>model.validateHours(h));
+const products=[{id:'a',active:true,image:'a.jpg'},{id:'b',active:true,image:'b.jpg'},{id:'c',active:true,image:'c.jpg'},{id:'d',active:true,image:'d.jpg'},{id:'hidden',active:false,image:'h.jpg'},{id:'empty',active:true}];
+assert.deepEqual(model.selectFeatured(products,['d','a','c']).map(p=>p.id),['d','a','c']);
+assert.deepEqual(model.selectFeatured(products,['missing','hidden','b']).map(p=>p.id),['b','a','c']);
+assert.equal(model.selectFeatured(products,['b','b','b']).length,3);
+assert.deepEqual(model.selectFeatured([products[0]],null).map(p=>p.id),['a']);
+assert.deepEqual(model.selectFeatured([],null),[]);
+model.validateFeatured(['d','a','c'],products);
+for(const ids of [['a','a','c'],['a','b',''],['hidden','a','b'],['empty','a','b']])assert.throws(()=>model.validateFeatured(ids,products));
+const config={timezone:'Asia/Manila',workingHours:hours,production:{ovenBatchSlots:1,allowMixedBatches:true,packingBufferMinutes:0,deliveryBufferMinutes:30,globalMinLeadMinutes:0}};
+const lines=[{product:{id:'cake',bakeTimeMinutes:90,slots:1},qty:1}];
+let estimate=rt.estimate({config,lines,now:new Date('2026-11-03T00:30:00Z')});
+assert.equal(estimate.startAt.toISOString(),'2026-11-03T01:00:00.000Z');
+assert.equal(estimate.readyAt.toISOString(),'2026-11-04T02:00:00.000Z');
+assert.equal(estimate.deliverFrom.toISOString(),'2026-11-04T02:30:00.000Z');
+estimate=rt.estimate({config,lines,now:new Date('2026-11-06T04:00:00Z')});
+assert.equal(estimate.startAt.toISOString(),'2026-11-09T01:00:00.000Z');
+assert.equal(estimate.readyAt.toISOString(),'2026-11-09T02:30:00.000Z');
+// Integration: saved settings feed both the calculator and manual home selections.
+const store=new Map();const ctx=vm.createContext({window:{},console,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)}});
+for(const f of ['config','products','data'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../js/'+f+'.js'),'utf8'),ctx);
+(async()=>{const sb=ctx.window.SAMALBAKES;await sb.data.init();await sb.data.saveSettings({working_hours:hours,featured_product_ids:['d','a','c']});assert.equal(JSON.stringify(sb.config.workingHours),JSON.stringify(hours));assert.deepEqual(Array.from(sb.config.featuredProductIds),['d','a','c']);await sb.data.init();assert.deepEqual(Array.from(sb.config.featuredProductIds),['d','a','c']);console.log('Baking hours, closed days, spillover, Manila timezone, manual home choices, fallback, and persisted settings checks passed.');})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,6 +1,7 @@
 (function () {
   "use strict";
   var SB = window.SAMALBAKES;
+  var settingsProducts = [];
   function qs(s) { return document.querySelector(s); }
   function qsa(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
   function show(el, text, cls) {
@@ -28,6 +29,45 @@
     Object.keys(s).forEach(function (k) {
       var input = form.elements.namedItem(k);
       if (input && input.tagName) input.value = s[k] == null ? "" : s[k];
+    });
+    var escape = SB.chrome.escapeHtml;
+    var hours = s.working_hours || SB.config.workingHours;
+    qs("#baking-hours-fields").innerHTML = SB.bakerySettings.days.map(function (day, i) {
+      var h = hours[i];
+      return '<div class="baking-day"><label class="baking-day-toggle"><input type="checkbox" id="baking-day-' + i + '"' + (h ? ' checked' : '') + ' /> ' + day + '</label>' +
+        '<div class="field"><label for="baking-open-' + i + '">Start</label><input id="baking-open-' + i + '" type="time" value="' + escape(h ? h.open : '08:00') + '" /></div>' +
+        '<div class="field"><label for="baking-close-' + i + '">Finish</label><input id="baking-close-' + i + '" type="time" value="' + escape(h ? h.close : '18:00') + '" /></div></div>';
+    }).join("");
+    SB.bakerySettings.days.forEach(function (_, i) {
+      function toggle() {
+        var closed = !qs("#baking-day-" + i).checked;
+        ["open", "close"].forEach(function (part) {
+          var input = qs("#baking-" + part + "-" + i);
+          input.disabled = closed;
+          input.required = !closed;
+        });
+      }
+      qs("#baking-day-" + i).addEventListener("change", toggle);
+      toggle();
+    });
+    var picks = SB.bakerySettings.selectFeatured(settingsProducts, s.featured_product_ids).map(function (p) { return p.id; });
+    if (picks.length < 3 && !s.featured_product_ids) picks = [];
+    qs("#home-product-fields").innerHTML = [0, 1, 2].map(function (i) {
+      var options = settingsProducts.filter(function (p) { return p.active && (p.image || p.image_url); }).map(function (p) {
+        return '<option value="' + escape(p.id) + '"' + (p.id === picks[i] ? ' selected' : '') + '>' + escape(p.name) + '</option>';
+      }).join("");
+      return '<div class="field"><label for="home-product-' + i + '">Photo ' + (i + 1) + '</label><select id="home-product-' + i + '"><option value="">Choose a product</option>' + options + '</select><img id="home-photo-preview-' + i + '" class="admin-thumb lg" alt="Selected product photo" hidden /></div>';
+    }).join("");
+    [0, 1, 2].forEach(function (i) {
+      function preview() {
+        var id = qs("#home-product-" + i).value;
+        var p = settingsProducts.find(function (item) { return item.id === id; });
+        var image = qs("#home-photo-preview-" + i);
+        image.hidden = !p;
+        image.src = p ? p.image || p.image_url : "";
+      }
+      qs("#home-product-" + i).addEventListener("change", preview);
+      preview();
     });
   }
 
@@ -141,6 +181,7 @@
     bindTabs();
     var hash = (location.hash || "").replace("#", "");
     if (hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
+    settingsProducts = await SB.data.getProducts(true);
     fillSettingsForm(await SB.data.getSettings());
     await renderProducts();
     await renderOrders();
@@ -157,6 +198,17 @@
         }
       });
       try {
+        var hours = {};
+        SB.bakerySettings.days.forEach(function (_, i) {
+          hours[i] = qs("#baking-day-" + i).checked
+            ? { open: qs("#baking-open-" + i).value, close: qs("#baking-close-" + i).value }
+            : null;
+        });
+        partial.working_hours = SB.bakerySettings.validateHours(hours);
+        var ids = [0, 1, 2].map(function (i) { return qs("#home-product-" + i).value; });
+        // Stores with fewer than three photographed products can still edit hours.
+        partial.featured_product_ids = ids.every(function (id) { return !id; }) ? null
+          : SB.bakerySettings.validateFeatured(ids, await SB.data.getProducts(true));
         await SB.data.saveSettings(partial);
         show(qs("#settings-msg"), "Settings saved — storefront will use these values.", "ok");
       } catch (err) {

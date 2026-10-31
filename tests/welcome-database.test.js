@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const root = path.join(__dirname, '..');
 let checks = 0;
 const db = new PGlite();
-const sql = file => fs.readFileSync(path.join(root, file), 'utf8');
+const sql = file => fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n/g, '\n');
 async function check(name, fn) { await fn(); checks++; console.log('PASS ' + name); }
 async function identity(id = '') { await db.query("select set_config('request.jwt.claim.sub', $1, false)", [id]); }
 async function order({code='SAMALWELCOME',email=null,phone=null,items=[{product_id:'test-cake',qty:1}],distance=2}={}) {
