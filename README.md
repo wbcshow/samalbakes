@@ -81,6 +81,15 @@ Orders go through the `place_order` Postgres function so **prices and fees are c
 
 ## Tests
 
+Product photo uploads: after approval, apply `supabase/product-photo-storage.sql`
+once to create the public `product-photos` bucket with admin-only uploads, a 5 MB
+limit, and JPG/PNG/WebP file types. Then deploy the updated admin page and scripts.
+Choose a photo, check its preview, and Save to upload it and store its address on
+the product. Cancelling before Save does not upload. If uploading succeeds but
+saving the product fails, retrying reuses the uploaded address. Unused uploaded
+photos are retained; this change does not delete or overwrite existing photos.
+The standalone bucket migration is also required for fresh projects.
+
 For existing Supabase projects, apply `supabase/welcome-code-first-order-only.sql`
 after reviewing the change. This makes SAMALWELCOME first-order-only by account,
 email (ignoring case and surrounding spaces), or normalized phone number.

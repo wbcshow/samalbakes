@@ -3,6 +3,14 @@
   var SB = window.SAMALBAKES;
   var LIST = "admin.html#products";
   var existing = null;
+  var pendingPhoto = null;
+  var previewUrl = null;
+  var photoChanged = false;
+
+  function releasePreview() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+  }
 
   function qs(s) { return document.querySelector(s); }
   function show(text, cls) {
@@ -71,8 +79,8 @@
       slots: num(kept.slots, 1) || 1,
       sort_order: existing ? num(kept.sort_order, 0) : sortOrder,
       wholesale_note: kept.wholesale_note || kept.wholesaleNote || "",
-      photo_real: existing ? !!(kept.photo_real || kept.photoReal) : hasImage && image.indexOf("data:") !== 0,
-      example: existing ? !!kept.example : !(hasImage && image.indexOf("data:") !== 0),
+      photo_real: photoChanged ? hasImage : existing ? !!(kept.photo_real || kept.photoReal) : hasImage && image.indexOf("data:") !== 0,
+      example: photoChanged && hasImage ? false : existing ? !!kept.example : !(hasImage && image.indexOf("data:") !== 0),
     };
   }
 
@@ -98,6 +106,18 @@
   }
 
   async function saveAndReturn(prod) {
+    if (pendingPhoto) {
+      show("Uploading photo…", "info");
+      var uploadedUrl = await SB.data.uploadProductPhoto(pendingPhoto);
+      field("image_url").value = uploadedUrl;
+      pendingPhoto = null;
+      photoChanged = true;
+      prod.image_url = prod.image = uploadedUrl;
+      prod.photo_real = true;
+      prod.example = false;
+      releasePreview();
+      setPreview(uploadedUrl);
+    }
     await SB.data.saveProduct(prod);
     location.href = LIST;
   }
@@ -143,9 +163,19 @@
     fileInput.addEventListener("change", function () {
       var f = fileInput.files && fileInput.files[0];
       if (!f) return;
-      if (!SB.data.isDemo) {
-        show("Paste a photo path for the live site. A file from this device is only stored in demo mode.", "info");
+      try {
+        SB.productPhoto.validate(f);
+      } catch (err) {
+        show(err.message, "warn");
         fileInput.value = "";
+        return;
+      }
+      if (!SB.data.isDemo) {
+        pendingPhoto = f;
+        releasePreview();
+        previewUrl = URL.createObjectURL(f);
+        setPreview(previewUrl);
+        show("Photo selected. Save the product to upload it.", "ok");
         return;
       }
       if (f.size > 900000) {
@@ -163,19 +193,28 @@
     });
 
     field("image_url").addEventListener("input", function () {
+      pendingPhoto = null;
+      fileInput.value = "";
+      photoChanged = true;
+      releasePreview();
       setPreview(field("image_url").value.trim());
     });
 
     qs("#product-form").addEventListener("submit", async function (e) {
       e.preventDefault();
       var submit = e.target.querySelector('[type="submit"]');
+      if (submit.disabled) return;
       submit.disabled = true;
+      fileInput.disabled = true;
+      field("image_url").disabled = true;
       try {
         var id = existing ? existing.id : await uniqueId(field("name").value);
         var sort = existing ? num(existing.sort_order, 0) : await nextSort();
         await saveAndReturn(payloadFromForm(id, sort));
       } catch (err) {
         submit.disabled = false;
+        fileInput.disabled = false;
+        field("image_url").disabled = false;
         show(err.message || "Could not save.", "warn");
       }
     });
