@@ -67,6 +67,7 @@
       allow_mixed_batches: p.allowMixedBatches !== false,
       global_min_lead_minutes: p.globalMinLeadMinutes || 60,
       working_hours: c.workingHours || {},
+      featured_product_ids: c.featuredProductIds || null,
       contact: c.contact || {},
     };
   }
@@ -170,6 +171,7 @@
       });
       SB.config.workingHours = wh;
     }
+    SB.config.featuredProductIds = s.featured_product_ids || null;
     if (s.contact && Object.keys(s.contact).length) {
       SB.config.contact = Object.assign({}, SB.config.contact || {}, s.contact);
     }

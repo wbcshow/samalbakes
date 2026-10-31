@@ -88,6 +88,17 @@
           <div class="field" style="flex:1"><label>Packing buffer (min)</label><input name="packing_buffer_minutes" type="number" min="0"/></div>
           <div class="field" style="flex:1"><label>Delivery buffer (min)</label><input name="delivery_buffer_minutes" type="number" min="0"/></div>
         </div>
+        <fieldset class="bakery-settings-group">
+          <legend>Baking hours</legend>
+          <p class="muted">Philippine time (Asia/Manila). Only admins see this schedule. Ready-time estimates use these hours, product bake times, oven capacity, and packing time. Work outside these hours moves to the next baking period.</p>
+          <div id="baking-hours-fields"></div>
+        </fieldset>
+        <fieldset class="bakery-settings-group">
+          <legend>Home page: Our top sellers</legend>
+          <p class="muted">Choose three different products in the order you want their photos to appear. Products must be active and have a photo. These are your selections, rather than automatic sales rankings.</p>
+          <div id="home-product-fields"></div>
+          <p class="muted">If a selected product is later hidden, deleted, or loses its photo, another active product with a photo takes its place. If you have fewer than three photographed products, leave all three choices blank to keep automatic selection.</p>
+        </fieldset>
         <button class="btn primary" type="submit">Save settings</button>
         <div id="settings-msg" class="msg info" style="display:none"></div>
       </form>
@@ -112,6 +123,7 @@
 <script src="js/config.js"></script>
 <script src="js/products.js"></script>
 <script src="js/supabase-config.js"></script>
+<script src="js/bakery-settings.js"></script>
 <script src="js/data.js"></script>
 <script src="js/chrome.js"></script>
 <script src="js/admin.js"></script>

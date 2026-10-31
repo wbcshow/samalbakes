@@ -158,8 +158,7 @@
     renderInto($("#menu-grid"), products);
     var featured = $("#featured-grid");
     if (!featured) return;
-    var picks = products.filter(function (p) { return p.image || p.image_url; }).slice(0, 3);
-    if (!picks.length) picks = products.slice(0, 3);
+    var picks = SB.bakerySettings.selectFeatured(products, config.featuredProductIds);
     renderInto(featured, picks);
   }
 

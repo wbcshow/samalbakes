@@ -1,0 +1,22 @@
+const {PGlite}=require('../.review-tools/node_modules/@electric-sql/pglite');const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');const db=new PGlite();
+const hours={0:null,1:{open:'08:00',close:'18:00'},2:{open:'08:00',close:'18:00'},3:{open:'08:00',close:'18:00'},4:{open:'08:00',close:'18:00'},5:{open:'08:00',close:'18:00'},6:null};
+(async()=>{
+ await db.exec(`create role anon;create role authenticated;create function public.is_admin() returns boolean language sql stable as $$select current_setting('test.admin',true)='yes'$$;
+ create table public.settings(id int primary key,working_hours jsonb not null);
+ alter table public.settings enable row level security;
+ create policy settings_select_all on settings for select using(true);
+ create policy settings_admin_update on settings for update using(public.is_admin());
+ grant usage on schema public to anon,authenticated;
+ grant select,update on public.settings to anon,authenticated;`);
+ await db.query('insert into settings values (1,$1)',[JSON.stringify(hours)]);
+ const migration=fs.readFileSync(path.join(__dirname,'../supabase/baking-hours-home-products.sql'),'utf8');
+ await db.exec(migration);await db.exec(migration);
+ assert.deepEqual((await db.query('select working_hours from settings')).rows[0].working_hours,hours);
+ for(const h of [{},Object.fromEntries(Object.keys(hours).map(k=>[k,null])),{...hours,1:{open:'18:00',close:'08:00'}},{...hours,1:{open:'09:00',close:'09:00'}},{...hours,1:{open:'99:00',close:'99:30'}},{...hours,1:{open:'09:00'}}])await assert.rejects(db.query('update settings set working_hours=$1',[JSON.stringify(h)]),/settings_baking_hours_valid/);
+ for(const ids of [['a','a','c'],['a','b'],['a','b',''],['a','b',null]])await assert.rejects(db.query('update settings set featured_product_ids=$1',[ids]),/settings_featured_products_valid/);
+ await db.query('update settings set featured_product_ids=$1',[['c','a','b']]);
+ await db.exec("set role anon");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,0);await db.exec('reset role');
+ await db.exec("set role authenticated");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,0);
+ await db.exec("select set_config('test.admin','yes',false)");assert.equal((await db.query("update settings set featured_product_ids=null returning id")).rows.length,1);await db.exec('reset role');
+ console.log('Database settings checks passed: migration rerun/preservation, valid schedules, invalid times, all-closed rejection, distinct three-product choices, admin-only writes.');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>db.close());
