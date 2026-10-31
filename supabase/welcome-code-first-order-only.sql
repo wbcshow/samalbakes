@@ -137,10 +137,10 @@ begin
   elsif v_settings.delivery_fee_type = 'flat' then
     v_delivery_fee := v_settings.delivery_fee_flat;
   elsif v_settings.delivery_fee_type = 'per_km' then
-    v_delivery_fee := round(coalesce(p_distance_km, 0) * v_settings.delivery_fee_per_km, 2);
+    v_delivery_fee := round(coalesce(p_distance_km, 0)::numeric * v_settings.delivery_fee_per_km, 2);
   else -- flat_plus_per_km
     v_delivery_fee := round(
-      v_settings.delivery_fee_flat + coalesce(p_distance_km, 0) * v_settings.delivery_fee_per_km,
+      v_settings.delivery_fee_flat + coalesce(p_distance_km, 0)::numeric * v_settings.delivery_fee_per_km,
       2
     );
   end if;

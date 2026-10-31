@@ -96,7 +96,23 @@ node --check js/*.js
 node tests/ready-time.test.js
 node tests/account-menu.test.js
 node tests/menu-card.test.js
+node tests/welcome-promo.test.js
 ```
+
+Database regression tests run the actual SQL in PGlite (PostgreSQL compiled to
+WebAssembly), using synthetic users and orders without any Supabase connection:
+
+```bash
+pnpm add --dir .review-tools @electric-sql/pglite@0.5.13
+node tests/welcome-database.test.js
+```
+
+Create `.review-tools` first if needed. It is ignored by Git. Tests provide a
+minimal `auth.users` and `auth.uid()` fixture, load the previous schema, and apply
+the migration twice. They cover eligibility, old orders, decimal pricing, rollback,
+delivery fee modes, and anonymous/authenticated permissions. They do not simulate
+Supabase's full authentication service or simultaneous independent connections;
+the order-table lock has been reviewed but concurrency has not been load-tested.
 
 ## Project layout
 
