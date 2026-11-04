@@ -72,13 +72,17 @@
         </div>
         <div class="field" style="flex:1">
           <label for="product-price">Price (PHP)</label>
-          <input id="product-price" name="price" type="number" min="0" step="1" required />
+          <input id="product-price" name="price" type="number" min="0" step="0.01" required />
         </div>
         <div class="field" style="flex:1">
           <label for="product-bake">Bake time (minutes)</label>
           <input id="product-bake" name="bake_time_minutes" type="number" min="0" step="1" required />
         </div>
       </div>
+      <fieldset class="bakery-settings-group"><legend>Sizes and prices</legend>
+        <p class="muted">Add sizes when this product comes in more than one size. Each size has its own price. Leave bake minutes blank to use the product bake time above. With no sizes, the product uses its regular price.</p>
+        <div id="product-sizes"></div><button type="button" class="btn ghost" id="add-product-size">Add size</button>
+      </fieldset>
       <div class="field">
         <label for="product-description">Description</label>
         <textarea id="product-description" name="description" rows="4"></textarea>
@@ -118,8 +122,10 @@
 <script src="js/supabase-config.js"></script>
 <script src="js/product-photo.js"></script>
 <script src="js/promos.js"></script>
+<script src="js/product-sizes.js"></script>
 <script src="js/data.js"></script>
 <script src="js/chrome.js"></script>
+<script src="js/product-size-editor.js"></script>
 <script src="js/admin-product.js"></script>
 </body>
 </html>

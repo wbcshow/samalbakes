@@ -254,6 +254,34 @@ exception when others then return false;
 end;$$;
 alter table public.settings drop constraint if exists settings_promotions_valid;
 alter table public.settings add constraint settings_promotions_valid check(public.valid_promotions(promotions));
+alter table public.products add column if not exists sizes jsonb not null default '[]'::jsonb;
+alter table public.order_items add column if not exists size_id text;
+alter table public.order_items add column if not exists size_label text;
+create or replace function public.valid_product_sizes(list jsonb)
+returns boolean language plpgsql immutable set search_path = pg_catalog as $$
+declare s jsonb;ids text[]:=array[]::text[];labels text[]:=array[]::text[];b numeric;
+begin
+  if jsonb_typeof(list) <> 'array' or jsonb_array_length(list)>30 then return false;end if;
+  for s in select * from jsonb_array_elements(list) loop
+    if jsonb_typeof(s)<>'object' or coalesce(s->>'id','') !~ '^[a-zA-Z0-9_-]{1,100}$'
+      or s->>'id'=any(ids) or nullif(trim(s->>'label'),'') is null or length(s->>'label')>80
+      or lower(trim(s->>'label'))=any(labels) or jsonb_typeof(s->'price') is distinct from 'number'
+      or (s->>'price')::numeric<0 or (s->>'price')::numeric>9999999999.99
+      or round((s->>'price')::numeric,2)<>(s->>'price')::numeric then return false;end if;
+    if s->>'bake_time_minutes' is not null then
+      b:=(s->>'bake_time_minutes')::numeric;
+      if b<0 or b>10080 or b<>trunc(b) then return false;end if;
+    end if;
+    ids:=array_append(ids,s->>'id');labels:=array_append(labels,lower(trim(s->>'label')));
+  end loop;
+  return true;
+exception when others then return false;
+end;$$;
+do $$begin
+  if not exists(select 1 from pg_constraint where conrelid='public.products'::regclass and conname='products_sizes_valid') then
+    alter table public.products add constraint products_sizes_valid check(public.valid_product_sizes(sizes));
+  end if;
+end;$$;
 create or replace function public.place_order(
   p_items jsonb,               -- [{"product_id":"…","qty":2},…]
   p_promo_code text default null,
@@ -287,6 +315,11 @@ declare
   v_phone text;
   v_auth_email text;
   v_promo jsonb;
+  v_size jsonb;
+  v_size_id text;
+  v_unit_price numeric(12,2);
+  v_bake int;
+  v_name text;
 begin
   if p_items is null or jsonb_typeof(p_items) <> 'array' or jsonb_array_length(p_items) = 0 then
     raise exception 'Order must include at least one item';
@@ -358,14 +391,28 @@ begin
     if not found then
       raise exception 'Unknown or inactive product: %', v_item->>'product_id';
     end if;
-    v_line := round(v_prod.price * v_qty, 2);
+    v_size := null;
+    v_size_id := nullif(v_item->>'size_id','');
+    v_unit_price := v_prod.price;
+    v_bake := v_prod.bake_time_minutes;
+    v_name := v_prod.name;
+    if jsonb_array_length(v_prod.sizes)>0 then
+      select s into v_size from jsonb_array_elements(v_prod.sizes) s where s->>'id'=v_size_id;
+      if v_size is null then raise exception 'Choose an available size for %.',v_prod.name;end if;
+      v_unit_price := (v_size->>'price')::numeric;
+      v_bake := coalesce((v_size->>'bake_time_minutes')::int,v_prod.bake_time_minutes);
+      v_name := v_prod.name || ' — ' || (v_size->>'label');
+    elsif v_size_id is not null then
+      raise exception 'This size is no longer available.';
+    end if;
+    v_line := round(v_unit_price * v_qty, 2);
     v_subtotal := v_subtotal + v_line;
     insert into public.order_items (
       order_id, product_id, product_name, unit_price, qty, line_total,
-      bake_time_minutes, slots
+      bake_time_minutes, slots, size_id, size_label
     ) values (
-      v_order_id, v_prod.id, v_prod.name, v_prod.price, v_qty, v_line,
-      v_prod.bake_time_minutes, v_prod.slots
+      v_order_id, v_prod.id, v_name, v_unit_price, v_qty, v_line,
+      v_bake, v_prod.slots, v_size_id, v_size->>'label'
     );
   end loop;
 

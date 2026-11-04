@@ -1,0 +1,154 @@
+[
+  {
+    "id": "banana-bread-loaf",
+    "name": "Banana Cake",
+    "price": 80,
+    "bake_time_minutes": 55,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "black-forest-cake",
+    "name": "Black Forest Cake (6 inches)",
+    "price": 450,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "black-forest-cake-8-inches",
+    "name": "Black Forest Cake (8 inches)",
+    "price": 530,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "black-forest-cake-9-inches",
+    "name": "Black Forest Cake (9 inches)",
+    "price": 580,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "brazo-de-mercedes",
+    "name": "Brazo de Mercedes",
+    "price": 150,
+    "bake_time_minutes": 35,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "chiffon-cake",
+    "name": "Chiffon Cake",
+    "price": 160,
+    "bake_time_minutes": 50,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "choco-moist-9-inches",
+    "name": "Choco Moist (9-inches)",
+    "price": 550,
+    "bake_time_minutes": 45,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "chocolate-drip-cake",
+    "name": "Choco Moist (8-inches)",
+    "price": 500,
+    "bake_time_minutes": 55,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "chocolate-marshmallow-cake",
+    "name": "Rocky Road (6 inches)",
+    "price": 450,
+    "bake_time_minutes": 55,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "crinkles",
+    "name": "Crinkles",
+    "price": 30,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "ensaymada",
+    "name": "Butter Cream Cheese Ensaymada",
+    "price": 30,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "pandesal-dozen",
+    "name": "Pandesal (dozen)",
+    "price": 0,
+    "bake_time_minutes": 45,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "rocky-road-6-inches",
+    "name": "Choco Moist (6 inches)",
+    "price": 400,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "rocky-road-8-inches",
+    "name": "Rocky Road (8-inches)",
+    "price": 530,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "triple-choco-9-inches",
+    "name": "Rocky road (9 inches)",
+    "price": 600,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "white-cherry-cake",
+    "name": "White Forest (6-inch)",
+    "price": 480,
+    "bake_time_minutes": 50,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "white-forest-8-inch",
+    "name": "White Forest (8-inch)",
+    "price": 550,
+    "bake_time_minutes": 60,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "white-forest-9-inch",
+    "name": "White Forest (9-inch)",
+    "price": 600,
+    "bake_time_minutes": 56,
+    "image_url": "",
+    "active": true
+  },
+  {
+    "id": "whole-wheat-loaf",
+    "name": "Whole Wheat Loaf",
+    "price": 0,
+    "bake_time_minutes": 50,
+    "image_url": "",
+    "active": true
+  }
+]

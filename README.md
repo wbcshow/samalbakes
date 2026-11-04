@@ -171,3 +171,12 @@ Admin → Promotions lets bakery admins add, edit, deactivate, or remove offers.
 **Release dependency:** Run supabase/admin-promotions.sql in the existing Supabase project before deploying these frontend files. It preserves existing delivery/baking/home settings and seeds the five existing offers only when adding the promotions column. The migration is transactional and safe to rerun without resetting saved promotions. Do not rerun the older welcome-code migration afterward, since it replaces the checkout function with the previous static rules.
 
 Verification: node tests/admin-promotions.test.js and node tests/admin-promotions-form.test.js (temporary .review-tools dependencies @electric-sql/pglite and jsdom).
+
+
+### Product sizes
+
+Admin → Products → edit a product → Sizes and prices. Add a label and price for each size. Bake minutes are optional and otherwise inherit the product bake time. Products without sizes keep a single price. For products with sizes, the regular price field is disabled and the lowest size price is stored for listings. Keep size IDs stable when renaming labels. Removing a size makes that choice unavailable to new orders; historical orders retain their recorded name, size, unit price and bake time. When mixed batches are disabled, sizes are treated as separate production groups.
+
+Release order: run supabase/product-sizes.sql, deploy frontend, then run supabase/consolidate-cake-sizes.sql. The latter combines the four existing cake families (6/8/9 inches), preserves each price/bake time, and hides eight duplicate listings without deleting them. Original product IDs are saved as legacy mappings so existing carts resolve to the correct sizes. Cake photos are shared by the parent product; original duplicate rows remain available for reference. All current homepage selections already refer to the retained parent IDs. Do not rerun older checkout migrations afterward, which would replace size validation.
+
+Size tests: node tests/product-sizes.test.js, node tests/product-sizes-storefront.test.js, node tests/product-size-consolidation.test.js. They use the existing temporary PGlite and jsdom dependencies. No live orders are needed for these tests.
