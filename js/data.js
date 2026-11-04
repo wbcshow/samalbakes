@@ -77,6 +77,7 @@
     return (SB.products || []).map(function (p, i) {
       return {
         id: p.id,
+        sizes: p.sizes || [],
         name: p.name,
         description: p.description || "",
         price: Number(p.price),
@@ -122,6 +123,7 @@
   function mapProductRow(r) {
     var img = r.image_url || r.image || "";
     return {
+      sizes: r.sizes || [],
       id: r.id,
       name: r.name,
       description: r.description || "",
@@ -294,6 +296,7 @@
       var idx = list.findIndex(function (p) { return p.id === prod.id; });
       var row = {
         id: prod.id,
+        sizes: SB.productSizes ? SB.productSizes.validate(prod.sizes || []) : prod.sizes || [],
         name: prod.name,
         description: prod.description || "",
         price: Number(prod.price),
@@ -341,6 +344,7 @@
       (payload.items || []).forEach(function (line) {
         var p = byId[line.product_id];
         if (!p) throw new Error("Unknown product: " + line.product_id);
+        p = SB.productSizes ? SB.productSizes.select(p, line.size_id) : p;
         var qty = Number(line.qty) || 0;
         if (qty < 1) throw new Error("Invalid qty");
         var unit = Number(p.price);
@@ -349,6 +353,8 @@
         items.push({
           id: uid(),
           product_id: p.id,
+          size_id: p.size_id || null,
+          size_label: p.size_label || null,
           product_name: p.name,
           unit_price: unit,
           qty: qty,
@@ -557,6 +563,7 @@
     async saveProduct(prod) {
       var row = {
         id: prod.id,
+        sizes: SB.productSizes ? SB.productSizes.validate(prod.sizes || []) : prod.sizes || [],
         name: prod.name,
         description: prod.description || "",
         price: Number(prod.price),
@@ -617,7 +624,7 @@
       }
       var res = await remote.client.rpc("place_order", {
         p_items: (payload.items || []).map(function (i) {
-          return { product_id: i.product_id, qty: i.qty };
+          return { product_id: i.product_id, size_id: i.size_id || null, qty: i.qty };
         }),
         p_promo_code: payload.promo_code || null,
         p_guest_name: payload.guest_name || null,

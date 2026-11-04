@@ -42,8 +42,9 @@
       escapeHtml(p.description || "") +
       "</p>" +
       '<div class="meta"><span class="price">' +
-      peso(p.price) +
+      peso((p.sizes || []).length ? p.sizes[0].price : p.price) +
       "</span></div>" +
+      ((p.sizes || []).length ? '<label class="product-size-picker">Size<select class="size-select" aria-label="Size for ' + escapeHtml(p.name) + '">' + p.sizes.map(function(s){return '<option value="' + escapeHtml(s.id) + '">' + escapeHtml(s.label) + ' — ' + peso(s.price) + '</option>';}).join('') + '</select></label>' : '') +
       (p.wholesaleNote
         ? '<p class="wholesale">' + escapeHtml(p.wholesaleNote) + "</p>"
         : "") +

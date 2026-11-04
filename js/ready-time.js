@@ -198,7 +198,7 @@
       var slots = p.slots != null ? p.slots : 1;
       for (var i = 0; i < line.qty; i++) {
         units.push({
-          id: p.id,
+          id: p.size_id ? JSON.stringify([p.id, p.size_id]) : p.id,
           bake: p.bakeTimeMinutes || 0,
           slots: slots,
           prep: p.prepMinutes || 0,

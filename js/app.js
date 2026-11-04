@@ -29,7 +29,7 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
   function peso(n) {
-    return "₱" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 0 });
+    return "₱" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 2 });
   }
   function escapeHtml(s) {
     return SB.chrome ? SB.chrome.escapeHtml(s) : String(s);
@@ -41,7 +41,7 @@
   function cartLines() {
     return Object.keys(cart)
       .filter(function (id) { return cart[id] > 0; })
-      .map(function (id) { return { product: productById(id), qty: cart[id] }; })
+      .map(function (id) { var line=SB.productSizes.resolve(products,id); return line ? {product:line.product,key:line.key,qty:cart[id]} : {product:null}; })
       .filter(function (l) { return l.product; });
   }
   function subtotal() {
@@ -79,7 +79,8 @@
       if (raw && typeof raw === "object" && !Array.isArray(raw)) {
         Object.keys(raw).forEach(function (id) {
           var qty = parseInt(raw[id], 10);
-          if (qty > 0) cart[id] = qty;
+          var line=SB.productSizes.resolve(products,id);
+          if (qty > 0 && line) cart[line.key] = (cart[line.key] || 0) + qty;
         });
       }
     } catch (e) {}
@@ -130,11 +131,14 @@
   function onGridClick(e) {
     var card = e.target.closest(".product-card");
     if (!card) return;
-    var id = card.getAttribute("data-id");
+    var parent = productById(card.getAttribute("data-id"));
+    var picker = $(".size-select",card);
+    var selected = SB.productSizes.select(parent,picker ? picker.value : null);
+    var id = SB.productSizes.key(parent.id,selected.size_id);
     if (e.target.classList.contains("qty-plus") || e.target.classList.contains("add-btn")) {
       cart[id] = (cart[id] || 0) + 1;
       refreshCartUI();
-      if (card.closest("#menu-grid, #featured-grid")) showAddedToast(productById(id));
+      if (card.closest("#menu-grid, #featured-grid")) showAddedToast(selected);
     } else if (e.target.classList.contains("qty-minus")) {
       cart[id] = Math.max(0, (cart[id] || 0) - 1);
       if (!cart[id]) delete cart[id];
@@ -152,6 +156,7 @@
     if (grid.getAttribute("data-cart-bound") === "1") return;
     grid.setAttribute("data-cart-bound", "1");
     grid.addEventListener("click", onGridClick);
+    grid.addEventListener("change", function(e){if(e.target.classList.contains("size-select"))refreshCartUI();});
   }
 
   function renderMenu() {
@@ -164,7 +169,11 @@
 
   function refreshCartUI() {
     $$("[data-qty]").forEach(function (el) {
-      el.textContent = cart[el.getAttribute("data-qty")] || 0;
+      var card=el.closest(".product-card"),p=productById(el.getAttribute("data-qty")),picker=$(".size-select",card);
+      var choice=SB.productSizes.select(p,picker ? picker.value : null);
+      el.textContent = cart[SB.productSizes.key(p.id,choice.size_id)] || 0;
+      $(".price",card).textContent=peso(choice.price);
+      var photo=$(".product-media img",card);if(photo && choice.image)photo.src=choice.image;
     });
     var lines = cartLines();
     var list = $("#cart-lines");
@@ -209,11 +218,11 @@
           '<li class="cart-line"><div><strong>' + escapeHtml(l.product.name) +
           '</strong><div class="muted">' + peso(l.product.price) + " each</div>" +
           '<div class="qty-row">' +
-          '<button type="button" class="btn ghost small" data-cart-dec="' + escapeHtml(l.product.id) + '" aria-label="Decrease">−</button>' +
+          '<button type="button" class="btn ghost small" data-cart-dec="' + escapeHtml(l.key) + '" aria-label="Decrease">−</button>' +
           "<span>" + l.qty + "</span>" +
-          '<button type="button" class="btn ghost small" data-cart-inc="' + escapeHtml(l.product.id) + '" aria-label="Increase">+</button>' +
+          '<button type="button" class="btn ghost small" data-cart-inc="' + escapeHtml(l.key) + '" aria-label="Increase">+</button>' +
           '<button type="button" class="btn ghost small remove" data-remove="' +
-          escapeHtml(l.product.id) + '">Remove</button></div></div>' +
+          escapeHtml(l.key) + '">Remove</button></div></div>' +
           '<div class="line-total">' + peso(l.product.price * l.qty) + "</div></li>"
         );
       })
@@ -608,7 +617,7 @@
     try {
       var order = await SB.data.placeOrder({
         items: lines.map(function (l) {
-          return { product_id: l.product.id, qty: l.qty };
+          return { product_id: l.product.id, size_id: l.product.size_id || null, qty: l.qty };
         }),
         promo_code: appliedPromo && appliedPromo.code,
         guest_name: session ? session.user.full_name || session.user.email : guestName,

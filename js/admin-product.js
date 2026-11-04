@@ -64,11 +64,13 @@
     var active = field("active").value === "true";
     var kept = existing || {};
     var hasImage = !!image;
+    var sizes = SB.sizeEditor ? SB.sizeEditor.read() : kept.sizes || [];
     return {
+      sizes: sizes,
       id: id,
       name: String(field("name").value || "").trim(),
       category: field("category").value === "Breads" ? "Breads" : "Cakes",
-      price: num(field("price").value, 0),
+      price: sizes.length ? Math.min.apply(null, sizes.map(function(s){ return s.price; })) : num(field("price").value, 0),
       description: field("description").value || "",
       image_url: image,
       image: image,
@@ -157,6 +159,7 @@
       field("category").value = "Cakes";
     }
 
+    if (SB.sizeEditor) SB.sizeEditor.init(existing);
     field("active").addEventListener("change", visibilityLabel);
 
     var fileInput = qs("#product-image-file");

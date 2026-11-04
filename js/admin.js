@@ -10,7 +10,7 @@
     el.textContent = text;
   }
   function peso(n) {
-    return "\u20b1" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 0 });
+    return "\u20b1" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 2 });
   }
   function statusLabel(s) { return String(s || "new").replace(/_/g, " "); }
   function formatWhen(iso) {
@@ -104,7 +104,7 @@
         encodeURIComponent(p.id) + '">' + thumb +
         '<span class="product-row-main"><strong>' + SB.chrome.escapeHtml(p.name) + "</strong>" +
         '<span class="product-row-meta">' + SB.chrome.escapeHtml(categoryLabel(p.category)) +
-        " · " + peso(p.price) + "</span></span>" +
+        " · " + (p.sizes && p.sizes.length ? p.sizes.length + " sizes · from " : "") + peso(p.price) + "</span></span>" +
         '<span class="product-status ' + statusClass + '">' + status + "</span></a></li>";
     }).join("");
   }
