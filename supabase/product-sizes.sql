@@ -22,11 +22,11 @@ begin
   return true;
 exception when others then return false;
 end;$$;
-do $begin
+do $$begin
   if not exists(select 1 from pg_constraint where conrelid='public.products'::regclass and conname='products_sizes_valid') then
     alter table public.products add constraint products_sizes_valid check(public.valid_product_sizes(sizes));
   end if;
-end;$;
+end;$$;
 create or replace function public.place_order(
   p_items jsonb,               -- [{"product_id":"…","qty":2},…]
   p_promo_code text default null,
