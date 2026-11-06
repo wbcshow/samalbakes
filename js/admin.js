@@ -133,15 +133,32 @@
         '<div class="muted">' + SB.chrome.escapeHtml(o.guest_name || o.guest_email || o.user_id || "guest") +
         (o.delivery_address ? " · " + SB.chrome.escapeHtml(o.delivery_address) : "") + "</div>" +
         '<div class="row" style="margin-top:0.5rem;align-items:center">' +
-        '<label>Status</label> <select data-order-status="' + o.id + '">' + opts + "</select></div></article>";
+        '<label>Status</label> <select data-order-status="' + o.id + '" data-saved-status="' + SB.chrome.escapeHtml(o.status || "new") + '">' + opts + '</select></div>' +
+        '<p data-order-status-message class="msg info" role="status" aria-live="polite" hidden></p></article>';
     }).join("");
     el.onchange = async function (e) {
       var id = e.target.getAttribute("data-order-status");
       if (!id) return;
+      var select = e.target;
+      if (select.disabled) return;
+      var previous = select.getAttribute("data-saved-status");
+      var next = select.value;
+      var message = select.closest("article").querySelector("[data-order-status-message]");
+      select.disabled = true;
+      message.hidden = false;
+      message.className = "msg info";
+      message.textContent = "Saving status…";
       try {
-        await SB.data.updateOrderStatus(id, e.target.value);
+        await SB.data.updateOrderStatus(id, next);
+        select.setAttribute("data-saved-status", next);
+        message.className = "msg ok";
+        message.textContent = "Status changed to " + statusLabel(next) + ".";
       } catch (err) {
-        alert(err.message);
+        select.value = previous;
+        message.className = "msg warn";
+        message.textContent = "Status was not changed. " + (err.message || "Please try again.");
+      } finally {
+        select.disabled = false;
       }
     };
   }

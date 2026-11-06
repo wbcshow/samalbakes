@@ -1,0 +1,26 @@
+const fs = require('node:fs'), vm = require('node:vm'), assert = require('node:assert/strict');
+const source = fs.readFileSync(require('node:path').join(__dirname, '../js/admin.js'), 'utf8');
+const handler = source.match(/el\.onchange = (async function \(e\) \{[\s\S]*?\n    \});/)[1];
+(async () => {
+  const message = { hidden: true };
+  const attrs = { 'data-order-status': 'order-1', 'data-saved-status': 'new' };
+  const select = { value: 'baking', disabled: false, getAttribute: key => attrs[key], setAttribute: (key, value) => attrs[key] = value, closest: () => ({ querySelector: () => message }) };
+  let finish, fail;
+  const updateOrderStatus = (id, value) => { assert.equal(id, 'order-1'); assert.equal(value, select.value); return new Promise((resolve, reject) => { finish = resolve; fail = reject; }); };
+  const change = vm.runInNewContext('(' + handler + ')', { SB: { data: { updateOrderStatus } }, statusLabel: value => value.replace(/_/g, ' ') });
+  let pending = change({ target: select });
+  assert.equal(select.disabled, true);
+  assert.equal(message.hidden, false);
+  assert.match(message.textContent, /Saving/);
+  finish(); await pending;
+  assert.equal(select.disabled, false);
+  assert.equal(attrs['data-saved-status'], 'baking');
+  assert.equal(message.textContent, 'Status changed to baking.');
+  select.value = 'ready';
+  pending = change({ target: select });
+  fail(new Error('Connection lost')); await pending;
+  assert.equal(select.value, 'baking');
+  assert.equal(select.disabled, false);
+  assert.match(message.textContent, /Status was not changed\. Connection lost/);
+  console.log('Status feedback: saving, confirmed success, failed-save rollback and retry passed.');
+})().catch(error => { console.error(error); process.exitCode = 1; });
