@@ -129,7 +129,7 @@
           statusLabel(st) + "</option>";
       }).join("");
       return '<article id="order-' + SB.chrome.escapeHtml(o.id) + '" class="card" style="margin-bottom:0.75rem">' +
-        "<div class=\"totals-row\"><strong>" + formatWhen(o.created_at) +
+        "<div class=\"totals-row\"><strong>Ordered on: " + formatWhen(o.created_at) +
         "</strong><span>" + peso(o.total) + " COD</span></div>" +
         '<div class="muted">' + items + "</div>" +
         '<div class="muted">' + SB.chrome.escapeHtml(o.guest_name || o.guest_email || o.user_id || "guest") +

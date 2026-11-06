@@ -55,7 +55,7 @@
         return escape(i.product_name) + " x " + i.qty + " (" + peso(i.line_total) + ")";
       }).join("<br>");
       return '<article class="card" style="margin-bottom:0.75rem">' +
-        '<div class="totals-row"><strong>' + formatWhen(o.created_at) +
+          '<div class="totals-row"><strong>Ordered on: ' + formatWhen(o.created_at) +
         '</strong><span class="pill">' + escape(statusLabel(o.status)) + '</span></div>' +
         '<div class="muted" style="margin:0.5rem 0">' + items + '</div>' +
         '<div class="totals-row"><span>Total</span><strong>' + peso(o.total) + '</strong></div>' +
