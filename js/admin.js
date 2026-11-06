@@ -75,6 +75,7 @@
     var c = String(cat || "").toLowerCase();
     if (c.indexOf("cake") === 0) return "Cake";
     if (c.indexOf("bread") === 0) return "Bread";
+    if (c.indexOf("cookie") === 0) return "Cookie";
     return cat || "—";
   }
 
