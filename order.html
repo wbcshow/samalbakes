@@ -32,6 +32,7 @@
     />
     <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
   <body>
     <header class="site-header">
@@ -142,10 +143,22 @@
                   <div class="field" style="flex:1"><label for="guest-email">Email</label>
                     <input id="guest-email" type="email" placeholder="optional"/></div>
                 </div>
-                <div class="field"><label for="guest-address">Delivery address</label>
+                <div class="field">
+                  <h3>Where should we deliver?</h3>
+                  <p id="pin-help" class="muted">Zoom in and tap your house or entrance, or drag the pin. Then choose Deliver here. The shaded circle shows our delivery area.</p>
+                  <button type="button" class="btn ghost" id="checkout-locate">Use my location</button>
+                  <label for="checkout-search">Find a place or landmark (optional)</label>
+                  <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0" /><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
+                  <div id="checkout-map" role="region" aria-label="Choose delivery location" aria-describedby="pin-help" style="height:320px;margin:0.75rem 0;border-radius:12px;z-index:0"></div>
+                  <button type="button" class="btn ghost" id="checkout-center">Place pin at map center</button>
+                  <button type="button" class="btn secondary" id="checkout-confirm" disabled>Deliver here</button>
+                  <p id="checkout-pin-status" role="status" aria-live="polite">Choose your delivery pin to continue.</p>
+                </div>
+                <div class="field"><label for="guest-address">House / street / barangay (optional)</label>
                   <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
-                <div class="field"><label for="guest-notes">Notes</label>
-                  <input id="guest-notes" type="text" placeholder="Allergies, gate codes"/></div>
+                <div class="field"><label for="guest-notes">Landmark and delivery instructions (optional)</label>
+                  <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"/></div>
+                <p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p>
                 <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem" disabled>Place order (COD)</button>
                 <div id="place-order-msg" class="msg info" style="display:none"></div>
                 <div id="payment-step" data-phase="cod-only" hidden></div>
@@ -208,6 +221,8 @@
 <script src="js/data.js"></script>
     <script src="js/chrome.js"></script>
     <script src="js/menu-card.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/checkout-pin.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

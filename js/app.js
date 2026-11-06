@@ -122,6 +122,7 @@
   }
 
   function deliveryAreaState() {
+    if ($("#checkout-map")) return SB.checkoutPin && SB.checkoutPin.confirmed ? (SB.checkoutPin.inZone ? "in" : "out") : "none";
     if (lastDistanceKm != null && Number(lastDistanceKm) > deliveryRadiusKm()) return "out";
     if (deliveryCheck === "out") return "out";
     if (deliveryCheck === "in") return "in";
@@ -275,7 +276,7 @@
         note.innerHTML =
           'That location is outside our delivery area (Samal Island and Davao City). Please <a href="delivery.html">check a delivery address</a> or pick your area.';
       } else if (areaState !== "in") {
-        note.innerHTML = '<a href="delivery.html">Check your delivery area</a> to see the fee';
+        note.textContent = $("#checkout-map") ? "Confirm your delivery pin at checkout to see the fee." : "Check your delivery area to see the fee.";
       } else if (!delFee) {
         note.textContent = "Free delivery on this order.";
       } else if (lastDistanceKm != null) {
@@ -297,7 +298,10 @@
 
     buildOrderSummaryText(lines, sub, disc, delFee, total, est, areaState);
     var placeBtn = $("#btn-place-order");
-    if (placeBtn) placeBtn.disabled = areaState !== "in";
+    var missing = areaState === "out" ? "This pin is outside our delivery area. Move the pin or contact us about delivery." : areaState !== "in" ? "Choose a pin and select Deliver here to continue." : !session && !checkoutValue("guest-name") ? "Enter your name to continue." : !checkoutValue("guest-phone") ? "Enter a contact phone number for your driver." : "";
+    if (placeBtn) placeBtn.disabled = !!missing;
+    var requirements = $("#checkout-requirements");
+    if (requirements) requirements.textContent = missing;
   }
 
   function showAddedToast(product) {
@@ -333,7 +337,8 @@
       "Total: " + peso(total) + "\nPayment: Cash on Delivery (COD)\n\n" +
       "Estimated ready: " + SB.readyTime.formatReady(est.readyAt, tz) + "\n" +
       "Earliest delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz) +
-      "\n\nMy name / address / notes:\n";
+      "\n\nName: " + checkoutValue("guest-name") + "\nPhone: " + checkoutValue("guest-phone") +
+      "\nDelivery: " + checkoutAddress() + "\nInstructions: " + checkoutValue("guest-notes");
     var preview = $("#order-preview");
     if (preview) preview.textContent = lastOrderText;
     updateShareLinks(lastOrderText);
@@ -578,6 +583,17 @@
       " or more. Payment is cash on delivery.";
   }
 
+  function checkoutValue(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+
+  function checkoutAddress() {
+    var address = checkoutValue("guest-address");
+    var pin = SB.checkoutPin;
+    return address + (pin && pin.confirmed ? (address ? "\n" : "") + "Delivery pin: " + pin.lat.toFixed(6) + ", " + pin.lng.toFixed(6) + "\n" + pin.url : "");
+  }
+
   async function placeOrder() {
     var lines = cartLines();
     var msg = $("#place-order-msg");
@@ -603,7 +619,7 @@
     var guestName = ($("#guest-name") && $("#guest-name").value) || "";
     var guestPhone = ($("#guest-phone") && $("#guest-phone").value) || "";
     var guestEmail = ($("#guest-email") && $("#guest-email").value) || "";
-    var address = ($("#guest-address") && $("#guest-address").value) || "";
+    var address = checkoutAddress();
     var notes = ($("#guest-notes") && $("#guest-notes").value) || "";
     if (!session && !guestName.trim()) {
       if (msg) {
@@ -611,6 +627,10 @@
         msg.className = "msg warn";
         msg.textContent = "Enter your name for guest checkout, or log in to save order history.";
       }
+      return;
+    }
+    if (!guestPhone.trim()) {
+      if (msg) { msg.style.display = "block"; msg.className = "msg warn"; msg.textContent = "Enter a contact phone number for your driver."; }
       return;
     }
     var est = SB.readyTime.estimate({ lines: lines, config: config, now: new Date() });
@@ -788,6 +808,16 @@
     fillContactPlaceholders();
     bindDelivery();
     bindCheckout();
+    if ($("#checkout-map") && SB.initCheckoutPin) {
+      SB.initCheckoutPin(config.delivery, function (pin) {
+        lastDistanceKm = pin.confirmed ? pin.distanceKm : null;
+        deliveryCheck = pin.confirmed ? (pin.inZone ? "in" : "out") : null;
+        refreshCartUI();
+      });
+      ["guest-name", "guest-phone", "guest-address", "guest-notes"].forEach(function (id) {
+        document.getElementById(id).addEventListener("input", refreshCartUI);
+      });
+    }
     updateRadiusCopy();
     refreshCartUI();
     initMap();
