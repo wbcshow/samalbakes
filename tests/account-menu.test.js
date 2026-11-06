@@ -62,12 +62,11 @@ console.log("menu items");
 {
   const admin = chrome.menuItems({ is_admin: true });
   assert(
-    admin.map(function (i) { return i.label; }).join("|") === "My orders|My account|Admin|Log out",
-    "admin sees orders, account, admin, log out"
+    admin.map(function (i) { return i.label; }).join("|") === "My account|Admin|Log out",
+    "admin sees account, admin, log out"
   );
-  assert(admin[0].href === "account.html#history", "orders link is order history");
-  assert(admin[1].href === "account.html#profile", "account link is the profile section");
-  assert(admin[2].href === "admin.html", "admin link is the admin page");
+  assert(admin[0].href === "account.html#profile", "account link is the profile section");
+  assert(admin[1].href === "admin.html", "admin link is the admin page");
 
   const customer = chrome.menuItems({ is_admin: false });
   assert(
@@ -89,7 +88,7 @@ console.log("rendered menu");
   assert(html.indexOf(" hidden>") !== -1 || html.indexOf(" hidden ") !== -1, "panel is hidden until opened");
   assert(html.indexOf(">DA<") !== -1, "avatar shows initials");
   assert(html.indexOf(">Demo<") !== -1, "button shows first name");
-  assert(html.indexOf("My orders") !== -1, "menu includes My orders");
+  assert(html.indexOf("My orders") === -1, "admin menu hides My orders");
   assert(html.indexOf("My account") !== -1, "menu includes My account");
   assert(html.indexOf('href="admin.html"') !== -1, "admin item is present");
   assert(html.indexOf('id="nav-logout"') !== -1, "log out keeps the logout control");
