@@ -78,6 +78,7 @@
             </p>
           </div>
 
+          <div id="place-order-msg" class="msg info" role="status" aria-live="polite" style="display:none"></div>
           <div id="cart-empty" class="card">
             <h2>Your cart is empty</h2>
             <p>Add cakes or breads from the menu, then come back here to check out.</p>
@@ -132,7 +133,7 @@
                 <h2>Delivery and checkout</h2>
                 <p class="muted">
                   We’ll confirm your order and collect
-                  <strong>cash on delivery</strong>. You can also copy or open a chat with this summary.
+                  <strong>cash on delivery</strong>.
                 </p>
                 <p id="account-hint" class="muted"></p>
                 <div class="field"><label for="guest-name">Name (required for guests)</label>
@@ -160,18 +161,6 @@
                   <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"/></div>
                 <p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p>
                 <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem" disabled>Place order (COD)</button>
-                <div id="place-order-msg" class="msg info" style="display:none"></div>
-                <div id="payment-step" data-phase="cod-only" hidden></div>
-                <pre id="order-preview">Add items to generate an order summary.</pre>
-                <div class="share-links">
-                  <button type="button" class="btn secondary" id="btn-copy-order">Copy order text</button>
-                  <a class="btn primary" id="link-whatsapp" href="#" target="_blank" rel="noopener">WhatsApp</a>
-                  <a class="btn ghost" id="link-messenger" href="#" target="_blank" rel="noopener">Messenger</a>
-                  <a class="btn ghost" id="link-viber" href="#" target="_blank" rel="noopener">Viber</a>
-                  <a class="btn ghost" id="link-sms" href="#">SMS</a>
-                  <a class="btn ghost" id="link-email" hidden>Email</a>
-                </div>
-                <div id="copy-msg" class="msg ok" style="display: none"></div>
                 <p class="muted" style="margin-top: 0.75rem">
                   <a href="menu.html">Back to the menu</a>
                 </p>

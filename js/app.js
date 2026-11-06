@@ -660,7 +660,8 @@
           "</code>. Payment: <strong>COD</strong>. " +
           (session
             ? '<a href="account.html#history">View order history</a>.'
-            : "Log in next time to keep a history — or send the summary via chat below.");
+            : "Keep your order reference for any questions about this order.");
+        msg.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       cart = {};
       refreshCartUI();
