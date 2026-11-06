@@ -66,6 +66,21 @@
 
     <section id="tab-settings" class="card admin-panel" style="margin-top:1rem">
       <h2>Delivery &amp; fees</h2>
+      <fieldset class="bakery-settings-group" id="order-email-controls">
+        <legend>New-order email alerts</legend>
+        <p>Receive order details automatically after checkout. Email alerts are separate from customer confirmation emails.</p>
+        <form id="order-email-form">
+          <div class="field"><label for="order-email-recipient">Send alerts to</label><input id="order-email-recipient" type="email" required /></div>
+          <div class="field"><label for="order-email-sender">Verified sending address</label><input id="order-email-sender" type="email" required /><p class="muted">Use an address on the domain verified with your email service.</p></div>
+          <label><input id="order-email-enabled" type="checkbox" /> Email me when a new order is placed</label>
+          <p id="order-email-connection" role="status">Checking email connection…</p>
+          <button type="submit" class="btn primary" id="order-email-save" disabled>Save email alerts</button>
+          <div id="order-email-message" role="status" aria-live="polite" style="display:none"></div>
+          <p class="muted">Alerts normally reach the email service within two minutes. Acceptance does not guarantee inbox delivery; check spam too.</p>
+          <div id="order-email-history"></div>
+          <p class="muted">SMS, Messenger, WhatsApp, and Viber are not connected. Email is the only automatic notification channel currently supported.</p>
+        </form>
+      </fieldset>
       <form id="settings-form">
         <div class="row" style="gap:1rem;align-items:flex-start">
           <div class="field" style="flex:1"><label>Center lat</label><input name="delivery_center_lat" type="number" step="any" required/></div>
@@ -139,6 +154,7 @@
 <script src="js/data.js"></script>
 <script src="js/chrome.js"></script>
 <script src="js/admin-promotions.js"></script>
+<script src="js/admin-order-email.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

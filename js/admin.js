@@ -197,6 +197,7 @@
     qs("#admin-gate").hidden = true;
     qs("#admin-app").hidden = false;
     bindTabs();
+    if (SB.adminOrderEmail) SB.adminOrderEmail.init();
     var hash = (location.hash || "").replace("#", "");
     if (hash === "promotions" || hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
     settingsProducts = await SB.data.getProducts(true);
