@@ -49,7 +49,7 @@
 
   function fillForm(p) {
     field("name").value = p.name || "";
-    field("category").value = p.category === "Breads" ? "Breads" : "Cakes";
+    field("category").value = ["Cakes", "Breads", "Cookies"].indexOf(p.category) !== -1 ? p.category : "Cakes";
     field("price").value = p.price;
     field("description").value = p.description || "";
     field("image_url").value = p.image_url || p.image || "";
@@ -69,7 +69,7 @@
       sizes: sizes,
       id: id,
       name: String(field("name").value || "").trim(),
-      category: field("category").value === "Breads" ? "Breads" : "Cakes",
+      category: field("category").value,
       price: sizes.length ? Math.min.apply(null, sizes.map(function(s){ return s.price; })) : num(field("price").value, 0),
       description: field("description").value || "",
       image_url: image,
