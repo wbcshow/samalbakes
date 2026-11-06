@@ -1261,6 +1261,6 @@ button.linkish {
 .product-size-row { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:.7rem; align-items:end; margin-bottom:1rem; }
 .product-size-row input { width:100%; display:block; }
 @media(max-width:700px){.product-size-row { grid-template-columns:1fr 1fr; }}
-#site-nav a[hidden] {
+#site-nav a[hidden], .cart-link[hidden] {
   display: none;
 }

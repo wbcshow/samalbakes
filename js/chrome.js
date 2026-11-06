@@ -213,6 +213,9 @@
     var slot = document.querySelector("[data-auth-nav]");
     if (!slot || !SB.data) return;
     var session = await SB.data.getSession();
+    document.querySelectorAll('.cart-link').forEach(function (link) {
+      link.hidden = !!(session && session.user && session.user.is_admin);
+    });
     document.querySelectorAll('#site-nav a[href]').forEach(function (link) {
       var page = (link.getAttribute("href") || "").split(/[?#]/)[0].replace(/\.html$/, "").replace(/^.*\//, "");
       if (["menu", "delivery", "promotions", "contact"].indexOf(page) !== -1) {
