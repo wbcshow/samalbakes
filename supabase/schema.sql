@@ -507,6 +507,7 @@ create policy order_items_select on public.order_items
 
 -- No direct inserts into orders/order_items for clients (use place_order)
 revoke insert, update, delete on public.orders from anon, authenticated;
+grant update (status, updated_at) on public.orders to authenticated;
 revoke insert, update, delete on public.order_items from anon, authenticated;
 grant select on public.orders to anon, authenticated;
 grant select on public.order_items to anon, authenticated;
