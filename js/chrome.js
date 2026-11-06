@@ -288,7 +288,7 @@
       { id: "account", label: "My account", href: "account.html#profile" },
     ];
     if (!user || !user.is_admin) {
-      items.unshift({ id: "orders", label: "My orders", href: "account.html#history" });
+      items.unshift({ id: "orders", label: "My orders", href: "my-orders.html" });
     }
     if (user && user.is_admin) {
       items.push({ id: "admin", label: "Admin", href: "admin.html" });

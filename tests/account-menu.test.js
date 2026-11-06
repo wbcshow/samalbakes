@@ -69,6 +69,7 @@ console.log("menu items");
   assert(admin[1].href === "admin.html", "admin link is the admin page");
 
   const customer = chrome.menuItems({ is_admin: false });
+  assert(customer[0].href === "my-orders.html", "customer orders link opens the dedicated orders page");
   assert(
     customer.map(function (i) { return i.id; }).join("|") === "orders|account|logout",
     "customer menu has no admin item"

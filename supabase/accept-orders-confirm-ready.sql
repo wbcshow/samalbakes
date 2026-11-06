@@ -50,7 +50,7 @@ begin
   message_text:=subject_text||E'.\n\nOrder reference: '||left(new.id::text,8)||E'\nConfirmed ready: '||
     to_char(new.confirmed_ready_at at time zone 'Asia/Manila','Dy, Mon DD, YYYY HH12:MI AM')||E' (Philippine time)\n'||
     case when coalesce(new.confirmed_ready_note,'')<>'' then E'Note from the bakery: '||new.confirmed_ready_note||E'\n' else '' end||
-    E'\nThis is the ready time at the bakery, not the delivery arrival time.\nPayment: Cash on Delivery\n\nIf you have an account, view your order at https://samalbakes.com/account.html#history';
+    E'\nThis is the ready time at the bakery, not the delivery arrival time.\nPayment: Cash on Delivery\n\nIf you have an account, view your order at https://samalbakes.com/my-orders.html';
   email_body:=jsonb_build_object('from','SamalBakes <'||config.sender||'>','to',jsonb_build_array(new.guest_email),'subject',subject_text||' - '||left(new.id::text,8),'text',message_text);
   insert into public.order_email_outbox(order_id,event_key,recipient,sender,payload)
     values(new.id,'confirmation/'||gen_random_uuid()::text,new.guest_email,config.sender,email_body);

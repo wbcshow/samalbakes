@@ -659,7 +659,7 @@
           escapeHtml(String(order.id).slice(0, 8)) +
           "</code>. Payment: <strong>COD</strong>. " +
           (session
-            ? '<a href="account.html#history">View order history</a>.'
+            ? '<a href="my-orders.html">View order history</a>.'
             : "Keep your order reference for any questions about this order.");
         msg.scrollIntoView({ behavior: "smooth", block: "center" });
       }
