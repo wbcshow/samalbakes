@@ -213,6 +213,12 @@
     var slot = document.querySelector("[data-auth-nav]");
     if (!slot || !SB.data) return;
     var session = await SB.data.getSession();
+    document.querySelectorAll('#site-nav a[href]').forEach(function (link) {
+      var page = (link.getAttribute("href") || "").split(/[?#]/)[0].replace(/\.html$/, "").replace(/^.*\//, "");
+      if (["menu", "delivery", "promotions", "contact"].indexOf(page) !== -1) {
+        link.hidden = !!(session && session.user && session.user.is_admin);
+      }
+    });
     slot.innerHTML = helpers.renderAuthNav(session);
     wireMenu(slot);
   }
