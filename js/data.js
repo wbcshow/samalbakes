@@ -459,6 +459,7 @@
       if (!order) throw new Error("Order not found");
       if (order.updated_at !== expectedUpdatedAt) throw new Error("This order has changed. Refresh and try again.");
       if (["cancelled","delivered"].indexOf(order.status)>=0) throw new Error("This order is already closed.");
+      if(order.status==='ready' && Date.parse(order.confirmed_ready_at)!==Date.parse(readyAt))order.status='accepted';
       order.confirmed_ready_at=readyAt; order.confirmed_ready_note=String(note||"").trim();
       if(order.status==='new'){order.status='accepted';order.accepted_at=new Date().toISOString();}
       order.updated_at=new Date().toISOString();lsSet(LS.orders,orders);

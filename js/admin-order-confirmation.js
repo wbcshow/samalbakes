@@ -7,6 +7,7 @@
       var html='<p class="muted">Original estimate: '+escape(format(order.estimated_ready_at))+'</p>';
       if(order.confirmed_ready_at)html+='<p><strong>Confirmed ready: '+escape(format(order.confirmed_ready_at))+'</strong></p>';
       if(order.status==='delivered'||order.status==='cancelled')return html;
+      if(order.status==='ready')html+='<p class="muted">Changing the ready date or time moves this order back to accepted. Mark it ready again when it is finished.</p>';
       var suffix=escape(order.id);
       var date=SB.orderConfirmation.localInput(order.confirmed_ready_at||order.estimated_ready_at);
       return html+'<div class="field"><label for="ready-'+suffix+'">Confirmed ready date and time (Philippine time)</label>'+ 
@@ -37,6 +38,7 @@
             var message=fresh.querySelector('[data-order-status-message]');
             message.hidden=false;message.className='msg ok';
             message.textContent=order.status==='new'?'Order accepted and ready time confirmed.':'Confirmed ready time updated.';
+            if(order.status==='ready'&&result.status==='accepted')message.textContent+=' Status changed from ready to accepted.';
             if(result.customer_email_queued)message.textContent+=' Customer email queued.';
             else message.textContent+=' No customer email was queued; contact the customer directly if needed.';
           }

@@ -24,6 +24,9 @@ begin
   if new.confirmed_ready_at is distinct from old.confirmed_ready_at or (old.status='new' and new.status='accepted') then
     if old.status in ('cancelled','delivered') then raise exception 'This order is already closed'; end if;
     if new.confirmed_ready_at is null or new.confirmed_ready_at<=now() then raise exception 'The confirmed ready time must be in the future'; end if;
+    if old.status='ready' and new.status='ready' and new.confirmed_ready_at is distinct from old.confirmed_ready_at then
+      new.status:='accepted';
+    end if;
   end if;
   if length(coalesce(new.confirmed_ready_note,''))>1000 then raise exception 'Customer note must be 1000 characters or fewer'; end if;
   if old.status='new' and new.status='accepted' then new.accepted_at:=now(); end if;
