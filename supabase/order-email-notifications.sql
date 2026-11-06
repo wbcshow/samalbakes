@@ -1,6 +1,11 @@
 -- Install once in Supabase SQL Editor. Alerts remain OFF until configured.
 create extension if not exists pg_net;
 create extension if not exists pg_cron;
+-- Network queues contain authorization headers. Only the private worker may
+-- access them; clients must not read credentials or make arbitrary requests.
+revoke all on all tables in schema net from public, anon, authenticated;
+revoke all on all sequences in schema net from public, anon, authenticated;
+revoke all on all functions in schema net from public, anon, authenticated;
 create schema if not exists bakery_private;
 revoke all on schema bakery_private from public, anon, authenticated;
 
