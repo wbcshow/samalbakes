@@ -25,7 +25,10 @@ revoke all on public.order_email_settings from anon, authenticated;
 grant select, update on public.order_email_settings to authenticated;
 
 create table if not exists public.order_email_outbox (
-  order_id uuid primary key references public.orders(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
+  order_id uuid not null references public.orders(id) on delete cascade,
+  event_key text not null default 'new_order',
+  unique(order_id,event_key),
   recipient text not null,
   sender text not null,
   state text not null default 'pending' check(state in ('pending','sending','accepted','failed','cancelled')),
@@ -49,7 +52,7 @@ language plpgsql security definer set search_path='' as $$
 begin
   insert into public.order_email_outbox(order_id,recipient,sender)
     select new.id,recipient,sender from public.order_email_settings where id=1 and enabled
-    on conflict(order_id) do nothing;
+    on conflict(order_id,event_key) do nothing;
   return new;
 end $$;
 revoke all on function bakery_private.queue_order_email() from public,anon,authenticated;
@@ -83,12 +86,12 @@ begin
   for notification in select * from public.order_email_outbox where state='sending' loop
     select * into response from net._http_response where id=notification.request_id;
     if found and response.status_code between 200 and 299 then
-      update public.order_email_outbox set state='accepted',detail='Email service accepted this alert.' where order_id=notification.order_id;
+      update public.order_email_outbox set state='accepted',detail='Email service accepted this alert.' where id=notification.id;
     elsif found or notification.last_attempt_at < now()-interval '5 minutes' then
       update public.order_email_outbox set
         state=case when attempts>=3 then 'failed' else 'pending' end,
         detail=case when response.status_code is not null then 'Email service returned HTTP '||response.status_code::text else 'No confirmation received from email service.' end
-      where order_id=notification.order_id;
+      where id=notification.id;
     end if;
   end loop;
   if not exists(select 1 from public.order_email_settings where id=1 and enabled) then
@@ -102,7 +105,7 @@ begin
     order by created_at limit 20 for update skip locked loop
     -- Resend remembers idempotency keys for 24h. Never retry beyond that window.
     if notification.first_attempt_at < now()-interval '23 hours' then
-      update public.order_email_outbox set state='failed',detail='Retry window expired. Check the email service before resending manually.' where order_id=notification.order_id;
+      update public.order_email_outbox set state='failed',detail='Retry window expired. Check the email service before resending manually.' where id=notification.id;
       continue;
     end if;
     email_body:=notification.payload;
@@ -120,9 +123,9 @@ begin
         'subject','New SamalBakes order '||left(notification.order_id::text,8),'text',order_text);
     end if;
     request:=net.http_post(url:='https://api.resend.com/emails',body:=email_body,
-      headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||api_key,'Idempotency-Key','order-email/'||notification.order_id::text),timeout_milliseconds:=10000);
+      headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||api_key,'Idempotency-Key',case when notification.event_key='new_order' then 'order-email/'||notification.order_id::text else 'order-update/'||notification.id::text end),timeout_milliseconds:=10000);
     update public.order_email_outbox set state='sending',payload=email_body,request_id=request,attempts=attempts+1,
-      first_attempt_at=coalesce(first_attempt_at,now()),last_attempt_at=now(),detail='Sending to email service.' where order_id=notification.order_id;
+      first_attempt_at=coalesce(first_attempt_at,now()),last_attempt_at=now(),detail='Sending to email service.' where id=notification.id;
   end loop;
 end $$;
 revoke all on function bakery_private.send_order_emails() from public,anon,authenticated;

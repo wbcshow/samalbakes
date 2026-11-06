@@ -439,15 +439,30 @@
       return lsGet(LS.orders, []);
     },
     async updateOrderStatus(orderId, status) {
-      var allowed = ["new", "baking", "ready", "out_for_delivery", "delivered", "cancelled"];
+      var allowed = ["new", "accepted", "baking", "ready", "out_for_delivery", "delivered", "cancelled"];
       if (allowed.indexOf(status) < 0) throw new Error("Invalid status");
       var orders = lsGet(LS.orders, []);
       var o = orders.find(function (x) { return x.id === orderId; });
       if (!o) throw new Error("Order not found");
+      if (o.status === "new" && status !== "new" && status !== "cancelled") throw new Error("Accept the order and confirm its ready time first.");
       o.status = status;
       o.updated_at = new Date().toISOString();
       lsSet(LS.orders, orders);
       return o;
+    },
+    async confirmOrder(orderId, readyAt, note, expectedUpdatedAt) {
+      var session = await demo.getSession();
+      if (!session || !session.user.is_admin) throw new Error("Admin access required");
+      if (!Number.isFinite(Date.parse(readyAt)) || Date.parse(readyAt) <= Date.now()) throw new Error("The confirmed ready time must be in the future.");
+      var orders = lsGet(LS.orders, []);
+      var order = orders.find(function(o){return o.id===orderId;});
+      if (!order) throw new Error("Order not found");
+      if (order.updated_at !== expectedUpdatedAt) throw new Error("This order has changed. Refresh and try again.");
+      if (["cancelled","delivered"].indexOf(order.status)>=0) throw new Error("This order is already closed.");
+      order.confirmed_ready_at=readyAt; order.confirmed_ready_note=String(note||"").trim();
+      if(order.status==='new'){order.status='accepted';order.accepted_at=new Date().toISOString();}
+      order.updated_at=new Date().toISOString();lsSet(LS.orders,orders);
+      return Object.assign({},order,{customer_email_queued:false});
     },
   };
 
@@ -681,6 +696,12 @@
     },
   };
 
+  remote.confirmOrder = async function(orderId,readyAt,note,expectedUpdatedAt) {
+    var res=await remote.client.rpc("confirm_order_ready",{p_order_id:orderId,p_ready_at:readyAt,p_note:note||"",p_expected_updated_at:expectedUpdatedAt||null});
+    if(res.error)throw new Error(res.error.message);
+    return res.data;
+  };
+
   var api = {
     demoCredentials: { email: DEMO_ADMIN_EMAIL, password: DEMO_ADMIN_PASS },
     isDemo: false,
@@ -719,6 +740,7 @@
     getMyOrders: function () { return api.backend.getMyOrders(); },
     getAllOrders: function () { return api.backend.getAllOrders(); },
     updateOrderStatus: function (id, s) { return api.backend.updateOrderStatus(id, s); },
+    confirmOrder: function (id,readyAt,note,expectedUpdatedAt) { return api.backend.confirmOrder(id,readyAt,note,expectedUpdatedAt); },
     applySettingsToConfig: applySettingsToConfig,
   };
 

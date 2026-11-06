@@ -13,6 +13,16 @@ Prepared for `samalbakes@gmail.com`. Email sending defaults to OFF. No SMS or so
 
 ## Information sent
 
+## Acceptance and ready-time updates
+
+After installing email notifications on a new database, also apply `accept-orders-confirm-ready.sql` to enable the acceptance workflow. When upgrading the original single-email-per-order queue, apply that upgrade and the current `order-email-notifications.sql` together in one transaction (upgrade first, then email migration), so the queue shape and worker switch together.
+
+Admin > Orders provides a Philippine-time ready date/time and an optional customer note. New orders use **Accept and confirm time**; accepted/open orders use **Save revised ready time**. The original estimate is retained. Acceptance and subsequent confirmed-time/note changes queue customer emails only when the order contains a valid email address and email alerts are enabled. Guest customers without email need a phone call. Status-only changes do not queue these emails. No customer login link with an embedded token is sent.
+
+Existing orders keep their current statuses; closed orders cannot have their ready times revised. New orders must be accepted with a future confirmed ready time before moving to baking. Concurrent edits are rejected using the saved update timestamp.
+
+## Information sent
+
 The recipient email address and verified sender, order reference, order time, ordered product names and quantities, line prices, subtotal, discount, delivery fee, total, payment method, customer name/email/phone, delivery address and coordinates/map link, delivery instructions, estimated ready time, and admin-page link. Resend processes this data to send the alert to the bakery's Gmail inbox. The admin link requires normal sign-in; no login token is included.
 
 ## Behavior and limits

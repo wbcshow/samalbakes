@@ -113,7 +113,7 @@
   async function renderOrders() {
     var orders = await SB.data.getAllOrders();
     var el = qs("#admin-orders");
-    var statuses = ["new", "baking", "ready", "out_for_delivery", "delivered", "cancelled"];
+    var statuses = ["new", "accepted", "baking", "ready", "out_for_delivery", "delivered", "cancelled"];
     if (!orders.length) {
       el.innerHTML = '<p class="muted">No orders yet.</p>';
       return;
@@ -122,16 +122,19 @@
       var items = (o.items || o.order_items || []).map(function (i) {
         return SB.chrome.escapeHtml(i.product_name) + " x " + i.qty;
       }).join(", ");
-      var opts = statuses.map(function (st) {
+      var opts = statuses.filter(function(st) {
+        return o.status === "new" ? st === "new" || st === "cancelled" : st !== "new";
+      }).map(function (st) {
         return '<option value="' + st + '"' + (o.status === st ? " selected" : "") + ">" +
           statusLabel(st) + "</option>";
       }).join("");
-      return '<article class="card" style="margin-bottom:0.75rem">' +
+      return '<article id="order-' + SB.chrome.escapeHtml(o.id) + '" class="card" style="margin-bottom:0.75rem">' +
         "<div class=\"totals-row\"><strong>" + formatWhen(o.created_at) +
         "</strong><span>" + peso(o.total) + " COD</span></div>" +
         '<div class="muted">' + items + "</div>" +
         '<div class="muted">' + SB.chrome.escapeHtml(o.guest_name || o.guest_email || o.user_id || "guest") +
         (o.delivery_address ? " · " + SB.chrome.escapeHtml(o.delivery_address) : "") + "</div>" +
+        SB.adminOrderConfirmation.render(o,formatWhen) +
         '<div class="row" style="margin-top:0.5rem;align-items:center">' +
         '<label>Status</label> <select data-order-status="' + o.id + '" data-saved-status="' + SB.chrome.escapeHtml(o.status || "new") + '">' + opts + '</select></div>' +
         '<p data-order-status-message class="msg info" role="status" aria-live="polite" hidden></p></article>';
@@ -149,7 +152,8 @@
       message.className = "msg info";
       message.textContent = "Saving status…";
       try {
-        await SB.data.updateOrderStatus(id, next);
+        var saved = await SB.data.updateOrderStatus(id, next);
+        if (saved) Object.assign(orders.find(function(o){return String(o.id)===id;}),saved);
         select.setAttribute("data-saved-status", next);
         message.className = "msg ok";
         message.textContent = "Status changed to " + statusLabel(next) + ".";
@@ -161,6 +165,7 @@
         select.disabled = false;
       }
     };
+    SB.adminOrderConfirmation.bind(el,orders,renderOrders);
   }
 
   function showTab(name) {

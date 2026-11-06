@@ -177,7 +177,7 @@ create table if not exists public.orders (
   guest_email text,
   guest_phone text,
   status text not null default 'new'
-    check (status in ('new','baking','ready','out_for_delivery','delivered','cancelled')),
+    check (status in ('new','accepted','baking','ready','out_for_delivery','delivered','cancelled')),
   subtotal numeric(12,2) not null default 0,
   discount numeric(12,2) not null default 0,
   delivery_fee numeric(12,2) not null default 0,
@@ -185,6 +185,9 @@ create table if not exists public.orders (
   payment_method text not null default 'cod',
   promo_code text,
   estimated_ready_at timestamptz,
+  confirmed_ready_at timestamptz,
+  confirmed_ready_note text,
+  accepted_at timestamptz,
   estimated_delivery_at timestamptz,
   delivery_address text,
   notes text,

@@ -59,7 +59,9 @@
         '</strong><span class="pill">' + escape(statusLabel(o.status)) + '</span></div>' +
         '<div class="muted" style="margin:0.5rem 0">' + items + '</div>' +
         '<div class="totals-row"><span>Total</span><strong>' + peso(o.total) + '</strong></div>' +
-        '<div class="muted">Ready est.: ' + formatWhen(o.estimated_ready_at) + ' · COD</div></article>';
+        '<div class="muted">' + escape(SB.orderConfirmation.historyLabel(o,formatWhen)) + ' (Philippine time) · COD</div>' +
+        (o.confirmed_ready_at ? '<div class="muted">Original estimate: ' + formatWhen(o.estimated_ready_at) + '</div>' : '') +
+        (o.confirmed_ready_note ? '<p>' + escape(o.confirmed_ready_note) + '</p>' : '') + '</article>';
     }).join("");
   }
   document.addEventListener("DOMContentLoaded", async function () {

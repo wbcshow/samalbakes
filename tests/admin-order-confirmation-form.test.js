@@ -1,0 +1,30 @@
+const {JSDOM}=require('../.review-tools/ui/node_modules/jsdom');
+const fs=require('node:fs'),assert=require('node:assert/strict');
+(async()=>{
+  const dom=new JSDOM('<div id="orders"></div>',{runScripts:'outside-only'}),w=dom.window;
+  w.SAMALBAKES={chrome:{escapeHtml:s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}};
+  w.eval(fs.readFileSync('js/order-confirmation.js','utf8'));w.eval(fs.readFileSync('js/admin-order-confirmation.js','utf8'));
+  const SB=w.SAMALBAKES,container=w.document.getElementById('orders');
+  let order={id:'order1',status:'new',guest_email:'customer@example.test',updated_at:'2026-11-06T12:00:00Z',estimated_ready_at:'2099-01-01T03:15:00Z'};
+  function render(){container.innerHTML='<article id="order-order1">'+SB.adminOrderConfirmation.render(order,x=>x)+'<p data-order-status-message hidden></p></article>';}
+  render();
+  assert.equal(container.querySelector('[data-confirm-ready]').value,'2099-01-01T11:15');
+  assert.equal(container.querySelector('button').textContent,'Accept and confirm time');
+  let release,call;
+  SB.data={confirmOrder:(...args)=>{call=args;return new Promise(resolve=>{release=resolve;});}};
+  SB.adminOrderConfirmation.bind(container,[order],async()=>{order={...order,status:'accepted',confirmed_ready_at:'2099-01-01T04:00:00Z'};render();});
+  container.querySelector('[data-confirm-ready]').value='2099-01-01T12:00';
+  container.querySelector('[data-confirm-note]').value='Extra cooling';
+  let pending=container.onclick({target:container.querySelector('button')});
+  assert.equal(container.querySelector('button').disabled,true);assert.equal(call[1],'2099-01-01T04:00:00.000Z');assert.equal(call[2],'Extra cooling');assert.equal(call[3],order.updated_at);
+  release({customer_email_queued:true});await pending;
+  assert.match(container.querySelector('[data-order-status-message]').textContent,/Order accepted.*Customer email queued/);
+  assert.equal(container.querySelector('button').textContent,'Save revised ready time');
+  SB.data.confirmOrder=async()=>{throw new Error('Order changed; refresh');};
+  SB.adminOrderConfirmation.bind(container,[order],async()=>{});
+  pending=container.onclick({target:container.querySelector('button')});await pending;
+  assert.match(container.querySelector('[data-order-status-message]').textContent,/Order changed/);assert.equal(container.querySelector('button').disabled,false);
+  assert.match(SB.adminOrderConfirmation.render({...order,guest_email:null},x=>x),/Contact the customer by phone/);
+  assert.ok(!SB.adminOrderConfirmation.render({...order,status:'delivered'},x=>x).includes('data-confirm-order'));
+  dom.window.close();console.log('Acceptance form: Manila prefill, UTC submission, disabled saving state, customer-email feedback, revision, failed-save retry and closed orders pass.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
