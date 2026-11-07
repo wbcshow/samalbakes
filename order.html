@@ -80,19 +80,11 @@
 <section data-checkout-stage="2" aria-labelledby="stage-delivery-title" hidden=""><div class="card"><h2 id="stage-delivery-title" tabindex="-1">Delivery location</h2><div class="field">
                   <h3>Where should we deliver?</h3>
                   <div class="delivery-method-tabs" role="tablist" aria-label="Choose how to find your delivery location">
-                    <button type="button" role="tab" id="delivery-tab-address" aria-controls="delivery-panel-address" aria-selected="true" tabindex="0" data-delivery-method="address">Enter address</button>
-                    <button type="button" role="tab" id="delivery-tab-search" aria-controls="delivery-panel-search" aria-selected="false" tabindex="-1" data-delivery-method="search">Search address</button>
+                    <button type="button" role="tab" id="delivery-tab-search" aria-controls="delivery-panel-search" aria-selected="true" tabindex="0" data-delivery-method="search">Search address</button>
                     <button type="button" role="tab" id="delivery-tab-location" aria-controls="delivery-panel-location" aria-selected="false" tabindex="-1" data-delivery-method="location">Use my location</button>
                     <button type="button" role="tab" id="delivery-tab-pin" aria-controls="delivery-panel-pin" aria-selected="false" tabindex="-1" data-delivery-method="pin">Place a pin</button>
                   </div>
-                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-address" aria-labelledby="delivery-tab-address">
-                    <p class="muted">Enter your delivery details here. Then use one of the other tabs to locate and confirm the delivery pin for coverage and fees.</p>
-                    <div class="field"><label for="guest-address">House / street / barangay (optional)</label>
-                      <input id="guest-address" type="text" placeholder="House number, street, barangay" autocomplete="street-address"></div>
-                    <div class="field"><label for="guest-notes">Landmark and delivery instructions (optional)</label>
-                      <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"></div>
-                  </div>
-                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-search" aria-labelledby="delivery-tab-search" hidden>
+                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-search" aria-labelledby="delivery-tab-search">
                     <p class="muted">Search for an address or nearby landmark, then adjust the pin to your entrance on the map below.</p>
                     <label for="checkout-search">Address or landmark</label>
                     <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0"><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
@@ -109,6 +101,10 @@
                   <button type="button" class="btn ghost" id="checkout-center" hidden>Place pin on map</button>
                   <button type="button" class="btn secondary" id="checkout-confirm" disabled="">Deliver here</button>
                   <p id="checkout-pin-status" role="status" aria-live="polite">Choose your delivery pin to continue.</p>
+                    <div class="field"><label for="guest-address">House / street / barangay (optional)</label>
+                      <input id="guest-address" type="text" placeholder="House number, street, barangay" autocomplete="street-address"></div>
+                    <div class="field"><label for="guest-notes">Landmark and delivery instructions (optional)</label>
+                      <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"></div>
                 </div><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" data-checkout-next="">Continue to contact details</button></div></div></section>
 <section data-checkout-stage="3" aria-labelledby="stage-contact-title" hidden=""><div class="card"><h2 id="stage-contact-title" tabindex="-1">Contact details</h2><p class="muted">Give us a name and phone number for delivery. Add an email address to receive acceptance and ready-time updates.</p><p id="account-hint" class="muted"></p><div class="field"><label for="guest-name">Name (required)</label>
                   <input id="guest-name" type="text" placeholder="Your name"></div><div class="row" style="gap:0.5rem">
