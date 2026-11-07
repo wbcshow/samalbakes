@@ -20,13 +20,14 @@
     var marker;
     var candidate;
     var revision = 0;
+    var method = "search";
     function select(latlng) {
       revision++;
       candidate = { lat: latlng.lat, lng: ((latlng.lng + 180) % 360 + 360) % 360 - 180 };
       if (!marker) {
-        marker = L.marker([candidate.lat, candidate.lng], { draggable: true, alt: "Your delivery pin" }).addTo(map);
-        marker.on("dragstart", function () { state.confirmed = false; confirm.disabled = true; onChange(state); });
-        marker.on("dragend", function () { select(marker.getLatLng()); });
+        marker = L.marker([candidate.lat, candidate.lng], { draggable: method !== "location", alt: "Your delivery pin" }).addTo(map);
+        marker.on("dragstart", function () { if(method === "location")return; state.confirmed = false; confirm.disabled = true; onChange(state); });
+        marker.on("dragend", function () { if(method !== "location")select(marker.getLatLng()); });
       } else marker.setLatLng([candidate.lat, candidate.lng]);
       state.confirmed = false;
       var distance = SB.delivery.haversineKm(delivery.center, candidate);
@@ -36,8 +37,8 @@
       status.textContent = state.inZone ? "Pin selected. Adjust it to your entrance, then choose Deliver here." : "This pin is outside our delivery area. Move the pin or contact us about delivery.";
       onChange(state);
     }
-    map.on("click", function (event) { select(event.latlng); });
-    document.getElementById("checkout-center").onclick = function () { select(map.getCenter()); };
+    map.on("click", function (event) { if(method !== "location")select(event.latlng); });
+    document.getElementById("checkout-center").onclick = function () { if(method !== "location")select(map.getCenter()); };
     confirm.onclick = function () {
       if (!candidate || !state.inZone) return;
       state.lat = candidate.lat; state.lng = candidate.lng;
@@ -67,7 +68,11 @@
     };
     search.onkeydown = function (event) { if (event.key === "Enter") { event.preventDefault(); if (!searchButton.disabled) searchButton.onclick(); } };
     locate.onclick = function () {
-      if (!navigator.geolocation) { status.textContent = "Location is unavailable. Zoom and tap the map instead."; return; }
+      revision++;
+      if(method === "location"){state.confirmed=false;confirm.disabled=true;onChange(state);}
+      locate.hidden=true;
+      function failed(text){status.textContent=text;locate.hidden=false;locate.textContent="Try location again";}
+      if (!navigator.geolocation) { failed("Device location is unavailable. Use Search address or Place a pin instead."); return; }
       var startedAt = revision;
       locate.disabled = true;
       status.textContent = "Finding your location…";
@@ -77,15 +82,25 @@
         var point = { lat: position.coords.latitude, lng: position.coords.longitude };
         map.setView([point.lat, point.lng], 17);
         select(point);
+        if(method === "location"){
+          if(state.inZone){confirm.onclick();status.textContent="Current location confirmed. Continue to contact details.";}
+          else status.textContent="Your current location is outside our delivery area. Use another tab if delivery is to a different location.";
+        }
       }, function () {
         locate.disabled = false;
-        if (revision === startedAt) status.textContent = "Could not get your location. Zoom and tap the map instead.";
+        if (revision === startedAt) failed("Could not get your location. Allow location access and retry, or use another tab.");
       }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
     };
     state.resize = function () { map.invalidateSize(); };
     state.cancelLookup = function () {
       revision++;
       status.textContent = state.confirmed ? "Delivery pin confirmed. Move the pin to change your destination." : candidate ? (state.inZone ? "Pin selected. Adjust it to your entrance, then choose Deliver here." : "This pin is outside our delivery area. Move the pin or contact us about delivery.") : "Choose your delivery pin to continue.";
+    };
+    state.setMethod = function (next) {
+      state.cancelLookup();method=next;
+      if(marker&&marker.dragging){if(method === "location")marker.dragging.disable();else marker.dragging.enable();}
+      locate.hidden=true;
+      if(method === "location")locate.onclick();
     };
     if (typeof ResizeObserver !== "undefined") new ResizeObserver(state.resize).observe(document.getElementById("checkout-map"));
     onChange(state);
