@@ -418,9 +418,9 @@
       fillOpacity: 0.25,
       weight: 2,
     }).addTo(map);
-    L.marker([d.center.lat, d.center.lng])
-      .addTo(map)
-      .bindPopup("Our bakery");
+    map.on("click", function (event) { checkDeliveryPin(event.latlng); });
+    var pinButton = $("#delivery-place-pin");
+    if (pinButton) pinButton.addEventListener("click", function () { checkDeliveryPin(map.getCenter()); });
     setTimeout(function () { map.invalidateSize(); }, 200);
   }
 
@@ -432,7 +432,14 @@
     map.setView([d.center.lat, d.center.lng], map.getZoom());
   }
 
-  function showDeliveryResult(result, label) {
+  function checkDeliveryPin(point) {
+    var result = SB.delivery.inDeliveryZone(point.lat, point.lng, config.delivery);
+    result.lat = point.lat;
+    result.lng = point.lng;
+    showDeliveryResult(result, "Based on your delivery pin", true);
+  }
+
+  function showDeliveryResult(result, label, preserveView) {
     var box = $("#delivery-result");
     var d = config.delivery;
     deliveryCheck = result.inZone ? "in" : "out";
@@ -460,8 +467,12 @@
     }
     if (map && result.lat != null) {
       if (mapMarker) map.removeLayer(mapMarker);
-      mapMarker = L.marker([result.lat, result.lng]).addTo(map);
-      map.setView([result.lat, result.lng], 11);
+      mapMarker = L.marker([result.lat, result.lng], { draggable: true, alt: "Your delivery pin" }).addTo(map);
+      mapMarker.on("dragend", function (event) { checkDeliveryPin(event.target.getLatLng()); });
+      if (!preserveView) map.setView([result.lat, result.lng], 11);
+    } else if (map && mapMarker) {
+      map.removeLayer(mapMarker);
+      mapMarker = null;
     }
     refreshCartUI();
   }

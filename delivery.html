@@ -122,7 +122,9 @@
               </div>
             </div>
             <div>
-              <div id="delivery-map" role="img" aria-label="Delivery zone map"></div>
+              <div id="delivery-map" role="region" aria-label="Choose a delivery pin to check coverage" aria-describedby="delivery-map-help"></div>
+              <button type="button" class="btn ghost block" id="delivery-place-pin" style="margin-top:.75rem">Place pin on map</button>
+              <p id="delivery-map-help" class="muted">Zoom and tap your delivery location, or place a pin at the map center. Drag the pin to adjust it. Coverage is checked automatically.</p>
               <p class="muted" style="margin-top: 0.5rem">
                 The orange circle shows our approximate delivery area.
               </p>
