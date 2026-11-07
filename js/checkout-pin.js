@@ -17,7 +17,6 @@
     }).addTo(map);
     tiles.on("tileerror", function () { status.textContent = "Some map tiles could not load. Check your connection before confirming the pin."; });
     L.circle([delivery.center.lat, delivery.center.lng], { radius: delivery.radiusKm * 1000, color: "#c45c26", fillOpacity: 0.08 }).addTo(map);
-    L.marker([delivery.center.lat, delivery.center.lng]).addTo(map).bindPopup("SamalBakes bakery");
     var marker;
     var candidate;
     var revision = 0;
