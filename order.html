@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   </head>
-  <body>
+  <body class="checkout-page">
     <header class="site-header">
       <div class="container header-inner">
         <a class="logo" href="index.html">
@@ -76,7 +76,7 @@
 <li aria-current="step"><span aria-hidden="true">1</span> Bag</li><li><span aria-hidden="true">2</span> Delivery</li><li><span aria-hidden="true">3</span> Contact</li><li><span aria-hidden="true">4</span> Review</li></ol>
 <div class="checkout-mobile-progress" role="status" aria-live="polite"><p id="checkout-step-caption">Step 1 of 4 — Bag</p><progress id="checkout-progress" max="4" value="1" aria-label="Checkout progress"></progress></div>
 <div id="checkout-stage-message" class="msg warn" role="alert" hidden=""></div>
-<section data-checkout-stage="1" aria-labelledby="stage-bag-title"><div class="card" id="cart-card"><h2 id="stage-bag-title" tabindex="-1">Your bag</h2><p class="muted">Check your items and quantities before continuing.</p><ul id="cart-lines" class="cart-lines"></ul><div class="checkout-actions"><a class="btn ghost" href="menu.html">Back to menu</a><button type="button" class="btn primary" data-checkout-next="">Continue to delivery</button></div></div></section>
+<section data-checkout-stage="1" aria-labelledby="stage-bag-title"><div class="card" id="cart-card"><div class="bag-heading"><h2 id="stage-bag-title" tabindex="-1">Your bag</h2><span id="bag-item-count" class="bag-item-count">0 items</span></div><p class="muted bag-intro">Review your items before choosing delivery.</p><ul id="cart-lines" class="cart-lines"></ul><div class="bag-subtotal"><div><strong>Bag subtotal</strong><p class="muted">Delivery fees and discounts are shown at review.</p></div><strong id="bag-subtotal">₱0</strong></div><div class="checkout-actions"><a class="btn ghost" href="menu.html">Back to menu</a><button type="button" class="btn primary" data-checkout-next="">Continue to delivery</button></div></div></section>
 <section data-checkout-stage="2" aria-labelledby="stage-delivery-title" hidden=""><div class="card"><h2 id="stage-delivery-title" tabindex="-1">Delivery location</h2><div class="field">
                   <h3>Where should we deliver?</h3>
                   <div class="delivery-method-tabs" role="tablist" aria-label="Choose how to find your delivery location">

@@ -210,18 +210,25 @@
     list.innerHTML = lines
       .map(function (l) {
         return (
-          '<li class="cart-line"><div><strong>' + escapeHtml(l.product.name) +
-          '</strong><div class="muted">' + peso(l.product.price) + " each</div>" +
-          '<div class="qty-row">' +
-          '<button type="button" class="btn ghost small" data-cart-dec="' + escapeHtml(l.key) + '" aria-label="Decrease">−</button>' +
-          "<span>" + l.qty + "</span>" +
-          '<button type="button" class="btn ghost small" data-cart-inc="' + escapeHtml(l.key) + '" aria-label="Increase">+</button>' +
-          '<button type="button" class="btn ghost small remove" data-remove="' +
-          escapeHtml(l.key) + '">Remove</button></div></div>' +
-          '<div class="line-total">' + peso(l.product.price * l.qty) + "</div></li>"
+          '<li class="cart-line bag-product"><div class="bag-product-photo" aria-hidden="true">' +
+          '<svg viewBox="0 0 48 48" fill="none"><path d="M12 19h24l2 23H10l2-23Z" stroke="currentColor" stroke-width="2"/><path d="M18 20v-7a6 6 0 0 1 12 0v7" stroke="currentColor" stroke-width="2"/></svg>' +
+          (l.product.image ? '<img src="' + escapeHtml(l.product.image) + '" alt="" loading="lazy">' : '') + '</div>' +
+          '<div class="bag-product-info"><strong>' + escapeHtml(l.product.name) +
+          '</strong><span class="muted">' + peso(l.product.price) + ' each</span>' +
+          '<div class="bag-product-actions"><div class="bag-quantity" role="group" aria-label="Quantity for ' + escapeHtml(l.product.name) + '">' +
+          '<button type="button" data-cart-dec="' + escapeHtml(l.key) + '" aria-label="Decrease quantity of ' + escapeHtml(l.product.name) + '">−</button>' +
+          '<span aria-label="Quantity">' + l.qty + '</span>' +
+          '<button type="button" data-cart-inc="' + escapeHtml(l.key) + '" aria-label="Increase quantity of ' + escapeHtml(l.product.name) + '">+</button></div>' +
+          '<button type="button" class="bag-remove" data-remove="' + escapeHtml(l.key) + '" aria-label="Remove ' + escapeHtml(l.product.name) + '">Remove</button></div></div>' +
+          '<div class="bag-line-price"><span>Item total</span><strong>' + peso(l.product.price * l.qty) + '</strong></div></li>'
         );
       })
       .join("");
+    $$(".bag-product-photo img", list).forEach(function(photo){photo.addEventListener("error",function(){photo.hidden=true;},{once:true});});
+    var bagCount = $("#bag-item-count");
+    if (bagCount) bagCount.textContent = n + (n === 1 ? " item" : " items");
+    var bagSubtotal = $("#bag-subtotal");
+    if (bagSubtotal) bagSubtotal.textContent = peso(subtotal());
     list.onclick = function (e) {
       var t = e.target;
       var dec = t.getAttribute("data-cart-dec");

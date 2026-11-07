@@ -18,6 +18,8 @@ const tick=()=>new Promise(setImmediate);
   const next=n=>stage(n).querySelector('[data-checkout-next]').click();
   assert.equal(stage(1).hidden,false);assert.equal(stage(2).hidden,true);
   d.querySelector('[data-cart-inc]').click();assert.match(d.getElementById('cart-lines').textContent,/2/);
+  assert.equal(d.getElementById('bag-item-count').textContent,'2 items');
+  assert.equal(d.getElementById('bag-subtotal').textContent,'₱900');
   next(1);assert.equal(stage(2).hidden,false);
   assert.equal(d.querySelector('.checkout-steps li span').textContent,'✓');
   assert.equal(d.querySelector('.checkout-steps li[aria-current="step"]').getAttribute('aria-label'),'Delivery, current step');
