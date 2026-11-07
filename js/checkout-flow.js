@@ -19,8 +19,12 @@
       root.querySelectorAll('[data-checkout-stage]').forEach(function(panel){panel.hidden=Number(panel.getAttribute('data-checkout-stage'))!==stage;});
       root.querySelectorAll('.checkout-steps li').forEach(function(item,index){
         item.classList.toggle('is-complete',index+1<stage);
+        item.querySelector('span').textContent=index+1<stage?'\u2713':String(index+1);
+        item.setAttribute('aria-label',['Bag','Delivery','Contact','Review'][index]+(index+1<stage?', completed':index+1===stage?', current step':', upcoming'));
         if(index+1===stage)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');
       });
+      document.getElementById('checkout-step-caption').textContent='Step '+stage+' of 4 — '+['Bag','Delivery','Contact','Review'][stage-1];
+      document.getElementById('checkout-progress').value=stage;
       if(stage===2&&SB.checkoutPin&&SB.checkoutPin.resize)requestAnimationFrame(SB.checkoutPin.resize);
       if(focus){var title=root.querySelector('[data-checkout-stage="'+stage+'"] h2');title.focus();title.scrollIntoView({behavior:'smooth',block:'start'});}
     }

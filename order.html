@@ -73,7 +73,8 @@
 
           <div id="order-filled" hidden="">
 <ol class="checkout-steps" id="checkout-steps" aria-label="Checkout progress">
-<li aria-current="step"><span>1</span> Bag</li><li><span>2</span> Delivery</li><li><span>3</span> Contact</li><li><span>4</span> Review</li></ol>
+<li aria-current="step"><span aria-hidden="true">1</span> Bag</li><li><span aria-hidden="true">2</span> Delivery</li><li><span aria-hidden="true">3</span> Contact</li><li><span aria-hidden="true">4</span> Review</li></ol>
+<div class="checkout-mobile-progress" role="status" aria-live="polite"><p id="checkout-step-caption">Step 1 of 4 — Bag</p><progress id="checkout-progress" max="4" value="1" aria-label="Checkout progress"></progress></div>
 <div id="checkout-stage-message" class="msg warn" role="alert" hidden=""></div>
 <section data-checkout-stage="1" aria-labelledby="stage-bag-title"><div class="card" id="cart-card"><h2 id="stage-bag-title" tabindex="-1">Your bag</h2><p class="muted">Check your items and quantities before continuing.</p><ul id="cart-lines" class="cart-lines"></ul><div class="checkout-actions"><a class="btn ghost" href="menu.html">Back to menu</a><button type="button" class="btn primary" data-checkout-next="">Continue to delivery</button></div></div></section>
 <section data-checkout-stage="2" aria-labelledby="stage-delivery-title" hidden=""><div class="card"><h2 id="stage-delivery-title" tabindex="-1">Delivery location</h2><div class="field">
