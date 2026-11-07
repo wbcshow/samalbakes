@@ -38,7 +38,6 @@
       onChange(state);
     }
     map.on("click", function (event) { if(method !== "location")select(event.latlng); });
-    document.getElementById("checkout-center").onclick = function () { if(method !== "location")select(map.getCenter()); };
     confirm.onclick = function () {
       if (!candidate || !state.inZone) return;
       state.lat = candidate.lat; state.lng = candidate.lng;

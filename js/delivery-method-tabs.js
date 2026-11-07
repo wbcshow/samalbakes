@@ -11,7 +11,6 @@
         document.getElementById(item.getAttribute('aria-controls')).hidden=!active;
       });
       var method=tab.getAttribute('data-delivery-method');
-      document.getElementById('checkout-center').hidden=method!=='pin';
       document.getElementById('checkout-confirm').hidden=method==='location';
       document.getElementById('pin-help').textContent=method==='location'?'Your device location is used automatically. The pin is locked on this tab. To choose a different delivery spot, use Search address or Place a pin.':'Check your delivery pin and select Deliver here to confirm it. You can drag the pin to adjust it. The shaded circle shows our delivery area.';
       if(SB.checkoutPin){
