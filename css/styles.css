@@ -1280,9 +1280,11 @@ button.linkish {
 .checkout-mobile-progress progress::-webkit-progress-bar { background:#e5d8c9; border-radius:8px; }
 .checkout-mobile-progress progress::-webkit-progress-value { background:#edb334; border-radius:8px; }
 .checkout-mobile-progress progress::-moz-progress-bar { background:#edb334; border-radius:8px; }
+.checkout-progress-sticky { position:sticky; top:var(--checkout-header-height,80px); z-index:40; padding:1rem 0; margin-bottom:1.5rem; background:var(--cream); border-bottom:1px solid #eadfD4; box-shadow:0 5px 10px -9px rgba(90,50,32,.3); }
+.checkout-progress-sticky .checkout-steps, .checkout-progress-sticky .checkout-mobile-progress { margin-bottom:0; }
 .checkout-actions { display:flex; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-top:1.5rem; }
 .checkout-review-details { border-top:1px solid #eadfD4; border-bottom:1px solid #eadfD4; padding:1rem 0; margin-bottom:1rem; overflow-wrap:anywhere; }
-[data-checkout-stage] h2, #checkout-success h2 { scroll-margin-top:110px; }
+[data-checkout-stage] h2, #checkout-success h2, #checkout-stage-message { scroll-margin-top:calc(var(--checkout-header-height,80px) + var(--checkout-progress-height,100px) + 16px); }
 [data-checkout-stage][hidden], #checkout-success[hidden], #checkout-stage-message[hidden] { display:none; }
 @media(max-width:500px) { .checkout-steps { display:none; } .checkout-mobile-progress { display:block; } .checkout-actions .btn { flex:1; } }
 .delivery-method-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-bottom:1px solid #dfd0bf; gap:.25rem; margin:1rem 0 0; }

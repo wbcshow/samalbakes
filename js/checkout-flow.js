@@ -6,6 +6,19 @@
     var current=1, complete=false;
     var root=document.getElementById('order-filled');
     var message=document.getElementById('checkout-stage-message');
+    var header=document.querySelector('.site-header');
+    var progress=document.getElementById('checkout-progress-sticky');
+    function measureProgress(){
+      if(header&&header.getBoundingClientRect().height)document.documentElement.style.setProperty('--checkout-header-height',header.getBoundingClientRect().height+'px');
+      if(progress&&progress.getBoundingClientRect().height)document.documentElement.style.setProperty('--checkout-progress-height',progress.getBoundingClientRect().height+'px');
+    }
+    if(typeof ResizeObserver!=='undefined'){
+      var progressObserver=new ResizeObserver(measureProgress);
+      if(header)progressObserver.observe(header);
+      if(progress)progressObserver.observe(progress);
+    }
+    window.addEventListener('resize',measureProgress);
+    measureProgress();
     function value(id){var field=document.getElementById(id);return field?field.value.trim():'';}
     function contactError(){
       if(!value('guest-name'))return 'Enter your name to continue.';
