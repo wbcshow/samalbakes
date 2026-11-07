@@ -79,12 +79,26 @@
 <section data-checkout-stage="1" aria-labelledby="stage-bag-title"><div class="card" id="cart-card"><h2 id="stage-bag-title" tabindex="-1">Your bag</h2><p class="muted">Check your items and quantities before continuing.</p><ul id="cart-lines" class="cart-lines"></ul><div class="checkout-actions"><a class="btn ghost" href="menu.html">Back to menu</a><button type="button" class="btn primary" data-checkout-next="">Continue to delivery</button></div></div></section>
 <section data-checkout-stage="2" aria-labelledby="stage-delivery-title" hidden=""><div class="card"><h2 id="stage-delivery-title" tabindex="-1">Delivery location</h2><div class="field">
                   <h3>Where should we deliver?</h3>
-                  <p id="pin-help" class="muted">Zoom in and tap your house or entrance, or drag the pin. Then choose Deliver here. The shaded circle shows our delivery area.</p>
-                  <button type="button" class="btn ghost" id="checkout-locate">Use my location</button>
-                  <label for="checkout-search">Find a place or landmark (optional)</label>
-                  <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0"><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
+                  <div class="delivery-method-tabs" role="tablist" aria-label="Choose how to find your delivery location">
+                    <button type="button" role="tab" id="delivery-tab-search" aria-controls="delivery-panel-search" aria-selected="true" tabindex="0" data-delivery-method="search">Search address</button>
+                    <button type="button" role="tab" id="delivery-tab-location" aria-controls="delivery-panel-location" aria-selected="false" tabindex="-1" data-delivery-method="location">Use my location</button>
+                    <button type="button" role="tab" id="delivery-tab-pin" aria-controls="delivery-panel-pin" aria-selected="false" tabindex="-1" data-delivery-method="pin">Place a pin</button>
+                  </div>
+                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-search" aria-labelledby="delivery-tab-search">
+                    <p class="muted">Search for an address or nearby landmark, then adjust the pin to your entrance on the map below.</p>
+                    <label for="checkout-search">Address or landmark</label>
+                    <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0"><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
+                  </div>
+                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-location" aria-labelledby="delivery-tab-location" hidden>
+                    <p class="muted">If you are at the delivery address, use your device location. Allow location access when asked, then check the pin below.</p>
+                    <button type="button" class="btn ghost" id="checkout-locate">Find my current location</button>
+                  </div>
+                  <div class="delivery-method-panel" role="tabpanel" id="delivery-panel-pin" aria-labelledby="delivery-tab-pin" hidden>
+                    <p class="muted">Zoom and tap your house or entrance to drop a pin. You can also move the map and use Place pin on map to put the pin in the center.</p>
+                  </div>
+                  <p id="pin-help" class="muted">Check your delivery pin and select Deliver here to confirm it. You can drag the pin to adjust it. The shaded circle shows our delivery area.</p>
                   <div id="checkout-map" role="region" aria-label="Choose delivery location" aria-describedby="pin-help" style="height:320px;margin:0.75rem 0;border-radius:12px;z-index:0"></div>
-                  <button type="button" class="btn ghost" id="checkout-center">Place pin on map</button>
+                  <button type="button" class="btn ghost" id="checkout-center" hidden>Place pin on map</button>
                   <button type="button" class="btn secondary" id="checkout-confirm" disabled="">Deliver here</button>
                   <p id="checkout-pin-status" role="status" aria-live="polite">Choose your delivery pin to continue.</p>
                 </div><div class="field"><label for="guest-address">House / street / barangay (optional)</label>
@@ -179,7 +193,7 @@
     <script src="js/menu-card.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/checkout-pin.js"></script>
-    <script src="js/checkout-flow.js"></script><script src="js/app.js"></script>
+    <script src="js/delivery-method-tabs.js"></script><script src="js/checkout-flow.js"></script><script src="js/app.js"></script>
 
 
 </body></html>

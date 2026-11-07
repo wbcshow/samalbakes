@@ -83,6 +83,10 @@
       }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 });
     };
     state.resize = function () { map.invalidateSize(); };
+    state.cancelLookup = function () {
+      revision++;
+      status.textContent = state.confirmed ? "Delivery pin confirmed. Move the pin to change your destination." : candidate ? (state.inZone ? "Pin selected. Adjust it to your entrance, then choose Deliver here." : "This pin is outside our delivery area. Move the pin or contact us about delivery.") : "Choose your delivery pin to continue.";
+    };
     if (typeof ResizeObserver !== "undefined") new ResizeObserver(state.resize).observe(document.getElementById("checkout-map"));
     onChange(state);
   };

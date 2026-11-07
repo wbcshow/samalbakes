@@ -36,5 +36,10 @@ elements['checkout-confirm'].onclick();
 geoSuccess({coords:{latitude:40,longitude:125}});
 assert.equal(SB.checkoutPin.confirmed,true); // Late GPS cannot overwrite manual selection.
 assert.equal(SB.checkoutPin.lat,7.02);
+elements['checkout-locate'].onclick();
+SB.checkoutPin.cancelLookup();
+geoSuccess({coords:{latitude:40,longitude:125}});
+assert.equal(SB.checkoutPin.lat,7.02);
+assert.equal(SB.checkoutPin.confirmed,true);
 assert.ok(updates>=5);
 console.log('Checkout pin coverage, confirmation, edits and GPS race tests passed');

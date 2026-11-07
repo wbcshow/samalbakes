@@ -2,6 +2,7 @@
   "use strict";
   var SB=window.SAMALBAKES;
   SB.initCheckoutFlow=function(refresh){
+    if(SB.initDeliveryMethodTabs)SB.initDeliveryMethodTabs();
     var current=1, complete=false;
     var root=document.getElementById('order-filled');
     var message=document.getElementById('checkout-stage-message');
