@@ -1,46 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Your order — SamalBakes</title>
-    <meta
-      name="description"
-      content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order."
-    />
-    <link rel="icon" href="favicon.ico" sizes="any" />
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="SamalBakes" />
-    <meta property="og:title" content="Your order — SamalBakes" />
-    <meta
-      property="og:description"
-      content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order."
-    />
-    <meta property="og:url" content="https://samalbakes.com/order.html" />
-    <meta property="og:image" content="https://samalbakes.com/assets/og-image.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Your order — SamalBakes" />
-    <meta
-      name="twitter:description"
-      content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order."
-    />
-    <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png" />
-    <link rel="stylesheet" href="css/styles.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="description" content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order.">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SamalBakes">
+    <meta property="og:title" content="Your order — SamalBakes">
+    <meta property="og:description" content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order.">
+    <meta property="og:url" content="https://samalbakes.com/order.html">
+    <meta property="og:image" content="https://samalbakes.com/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Samal Bakes logo: cakes and breads, Samal Island">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Your order — SamalBakes">
+    <meta name="twitter:description" content="Review your SamalBakes bag, delivery, and ready time, then place a cash-on-delivery order.">
+    <meta name="twitter:image" content="https://samalbakes.com/assets/og-image.png">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   </head>
   <body>
     <header class="site-header">
       <div class="container header-inner">
         <a class="logo" href="index.html">
           <picture>
-            <source srcset="assets/logo-header.webp" type="image/webp" />
-            <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192" />
+            <source srcset="assets/logo-header.webp" type="image/webp">
+            <img src="assets/logo-header.png" alt="Samal Bakes" width="671" height="192">
           </picture>
         </a>
         <nav class="nav" id="site-nav" aria-label="Primary">
@@ -53,12 +42,12 @@
         <div class="header-tools">
           <a class="cart-link" href="order.html" aria-label="Order / bag" title="Your order">
             <svg class="cart-icon" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
-              <path d="M6.4 10.2h11.2l1.05 10.2H5.35L6.4 10.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
-              <path d="M8.3 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1M12.6 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              <path d="M6.4 10.2h11.2l1.05 10.2H5.35L6.4 10.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path>
+              <path d="M8.3 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1M12.6 10.2V8.1a1.55 1.55 0 0 1 3.1 0v2.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
             </svg>
-            <span id="cart-count" hidden>0</span>
+            <span id="cart-count" hidden="">0</span>
           </a>
-          <span data-auth-nav></span>
+          <span data-auth-nav=""></span>
           <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
             <span class="nav-toggle-bars" aria-hidden="true"></span>
             <span class="visually-hidden">Open menu</span>
@@ -72,10 +61,7 @@
         <div class="container">
           <div class="section-head">
             <h1>Your order</h1>
-            <p>
-              Review your bag, delivery, and ready time. Payment is
-              <strong>cash on delivery</strong>.
-            </p>
+            <p>Check your bag, choose delivery, enter your contact details, and review your order. Payment is <strong>cash on delivery</strong>.</p>
           </div>
 
           <div id="place-order-msg" class="msg info" role="status" aria-live="polite" style="display:none"></div>
@@ -85,20 +71,40 @@
             <a class="btn primary" href="menu.html">Back to the menu</a>
           </div>
 
-          <div id="order-filled" hidden>
-            <div class="order-layout">
-              <div class="card" id="cart-card">
-                <h2>Bag</h2>
-                <ul id="cart-lines" class="cart-lines"></ul>
-                <div id="cart-summary">
+          <div id="order-filled" hidden="">
+<ol class="checkout-steps" id="checkout-steps" aria-label="Checkout progress">
+<li aria-current="step"><span>1</span> Bag</li><li><span>2</span> Delivery</li><li><span>3</span> Contact</li><li><span>4</span> Review</li></ol>
+<div id="checkout-stage-message" class="msg warn" role="alert" hidden=""></div>
+<section data-checkout-stage="1" aria-labelledby="stage-bag-title"><div class="card" id="cart-card"><h2 id="stage-bag-title" tabindex="-1">Your bag</h2><p class="muted">Check your items and quantities before continuing.</p><ul id="cart-lines" class="cart-lines"></ul><div class="checkout-actions"><a class="btn ghost" href="menu.html">Back to menu</a><button type="button" class="btn primary" data-checkout-next="">Continue to delivery</button></div></div></section>
+<section data-checkout-stage="2" aria-labelledby="stage-delivery-title" hidden=""><div class="card"><h2 id="stage-delivery-title" tabindex="-1">Delivery location</h2><div class="field">
+                  <h3>Where should we deliver?</h3>
+                  <p id="pin-help" class="muted">Zoom in and tap your house or entrance, or drag the pin. Then choose Deliver here. The shaded circle shows our delivery area.</p>
+                  <button type="button" class="btn ghost" id="checkout-locate">Use my location</button>
+                  <label for="checkout-search">Find a place or landmark (optional)</label>
+                  <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0"><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
+                  <div id="checkout-map" role="region" aria-label="Choose delivery location" aria-describedby="pin-help" style="height:320px;margin:0.75rem 0;border-radius:12px;z-index:0"></div>
+                  <button type="button" class="btn ghost" id="checkout-center">Place pin on map</button>
+                  <button type="button" class="btn secondary" id="checkout-confirm" disabled="">Deliver here</button>
+                  <p id="checkout-pin-status" role="status" aria-live="polite">Choose your delivery pin to continue.</p>
+                </div><div class="field"><label for="guest-address">House / street / barangay (optional)</label>
+                  <input id="guest-address" type="text" placeholder="Barangay / landmark"></div><div class="field"><label for="guest-notes">Landmark and delivery instructions (optional)</label>
+                  <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"></div><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" data-checkout-next="">Continue to contact details</button></div></div></section>
+<section data-checkout-stage="3" aria-labelledby="stage-contact-title" hidden=""><div class="card"><h2 id="stage-contact-title" tabindex="-1">Contact details</h2><p class="muted">Give us a name and phone number for delivery. Add an email address to receive acceptance and ready-time updates.</p><p id="account-hint" class="muted"></p><div class="field"><label for="guest-name">Name (required)</label>
+                  <input id="guest-name" type="text" placeholder="Your name"></div><div class="row" style="gap:0.5rem">
+                  <div class="field" style="flex:1"><label for="guest-phone">Phone (required)</label>
+                    <input id="guest-phone" type="tel" placeholder="09xx"></div>
+                  <div class="field" style="flex:1"><label for="guest-email">Email (optional)</label>
+                    <input id="guest-email" type="email" placeholder="optional"></div>
+                </div><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" data-checkout-next="">Review order</button></div></div></section>
+<section data-checkout-stage="4" aria-labelledby="stage-review-title" hidden=""><div class="card"><h2 id="stage-review-title" tabindex="-1">Review your order</h2><ul id="checkout-review-items" class="cart-lines"></ul><div class="checkout-review-details"><h3>Deliver to</h3><p id="checkout-review-contact"></p><p id="checkout-review-address"></p><p id="checkout-review-notes"></p><a id="checkout-review-map" target="_blank" rel="noopener">View delivery pin</a></div><div id="cart-summary">
                   <div class="field">
                     <label for="promo-code">Promo code</label>
-                    <p class="muted">SAMALWELCOME: 10% off first orders only, one per customer. Enter an email or phone number so we can check eligibility.</p>
+                    <p class="muted">SAMALWELCOME: 10% off first orders only, one per customer. Eligibility is checked using your contact details.</p>
                     <div class="row">
-                      <input id="promo-code" type="text" placeholder="e.g. SAMALWELCOME" style="flex: 1" />
+                      <input id="promo-code" type="text" placeholder="e.g. SAMALWELCOME" style="flex: 1">
                       <button type="button" class="btn ghost" id="btn-apply-promo">Apply</button>
                     </div>
-                    <div id="promo-msg" class="msg info" hidden style="display: none"></div>
+                    <div id="promo-msg" class="msg info" hidden="" style="display: none"></div>
                   </div>
                   <div class="totals">
                     <div class="totals-row">
@@ -126,47 +132,7 @@
                     <span id="delivery-estimate">Earliest delivery: —</span>
                     <p id="ready-assumptions"></p>
                   </div>
-                </div>
-              </div>
-
-              <div class="card">
-                <h2>Delivery and checkout</h2>
-                <p class="muted">
-                  We’ll confirm your order and collect
-                  <strong>cash on delivery</strong>.
-                </p>
-                <p id="account-hint" class="muted"></p>
-                <div class="field"><label for="guest-name">Name (required for guests)</label>
-                  <input id="guest-name" type="text" placeholder="Your name"/></div>
-                <div class="row" style="gap:0.5rem">
-                  <div class="field" style="flex:1"><label for="guest-phone">Phone</label>
-                    <input id="guest-phone" type="tel" placeholder="09xx"/></div>
-                  <div class="field" style="flex:1"><label for="guest-email">Email</label>
-                    <input id="guest-email" type="email" placeholder="optional"/></div>
-                </div>
-                <div class="field">
-                  <h3>Where should we deliver?</h3>
-                  <p id="pin-help" class="muted">Zoom in and tap your house or entrance, or drag the pin. Then choose Deliver here. The shaded circle shows our delivery area.</p>
-                  <button type="button" class="btn ghost" id="checkout-locate">Use my location</button>
-                  <label for="checkout-search">Find a place or landmark (optional)</label>
-                  <div class="row"><input id="checkout-search" type="search" placeholder="e.g. Babak, Samal" style="flex:1;min-width:0" /><button type="button" class="btn ghost" id="checkout-search-button">Find</button></div>
-                  <div id="checkout-map" role="region" aria-label="Choose delivery location" aria-describedby="pin-help" style="height:320px;margin:0.75rem 0;border-radius:12px;z-index:0"></div>
-                  <button type="button" class="btn ghost" id="checkout-center">Place pin on map</button>
-                  <button type="button" class="btn secondary" id="checkout-confirm" disabled>Deliver here</button>
-                  <p id="checkout-pin-status" role="status" aria-live="polite">Choose your delivery pin to continue.</p>
-                </div>
-                <div class="field"><label for="guest-address">House / street / barangay (optional)</label>
-                  <input id="guest-address" type="text" placeholder="Barangay / landmark"/></div>
-                <div class="field"><label for="guest-notes">Landmark and delivery instructions (optional)</label>
-                  <input id="guest-notes" type="text" placeholder="e.g. Blue gate beside the barangay hall"/></div>
-                <p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p>
-                <button type="button" class="btn primary block" id="btn-place-order" style="margin:0.5rem 0 0.75rem" disabled>Place order (COD)</button>
-                <p class="muted" style="margin-top: 0.75rem">
-                  <a href="menu.html">Back to the menu</a>
-                </p>
-              </div>
-            </div>
-          </div>
+                </div><p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" id="btn-place-order" disabled="">Place order (COD)</button></div></div></section></div><section id="checkout-success" class="card" hidden=""><h2 tabindex="-1">Your order has been placed</h2><div id="checkout-receipt"></div><p>Your bag is now empty and ready for your next order.</p><a class="btn primary" href="menu.html">Back to menu</a></section>
         </div>
       </section>
     </main>
@@ -193,7 +159,7 @@
         <div>
           <h3>Contact</h3>
           <p>Phone: <a data-contact="phone" data-contact-href="phoneTel" href="tel:+639152943883">0915 294 3883</a></p>
-          <p data-contact-email-line hidden>Email: <a href="mailto:orders@samalbakes.example" data-contact="email" data-contact-href="email">orders@samalbakes.example</a></p>
+          <p data-contact-email-line="" hidden="">Email: <a href="mailto:orders@samalbakes.example" data-contact="email" data-contact-href="email">orders@samalbakes.example</a></p>
           <p>Payment: Cash on Delivery (COD)</p>
         </div>
       </div>
@@ -212,6 +178,7 @@
     <script src="js/menu-card.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/checkout-pin.js"></script>
-    <script src="js/app.js"></script>
-  </body>
-</html>
+    <script src="js/checkout-flow.js"></script><script src="js/app.js"></script>
+
+
+</body></html>

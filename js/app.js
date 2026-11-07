@@ -21,6 +21,7 @@
   var deliveryCheck = null;
   var session = null;
   var settings = null;
+  var isPlacingOrder = false;
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -196,15 +197,8 @@
     if (!lines.length) {
       list.innerHTML = "";
       if (summary) summary.hidden = true;
-      if (justPlaced) {
-        if (empty) empty.hidden = true;
-        if (filled) filled.hidden = false;
-        var cartCard = $("#cart-card");
-        if (cartCard) cartCard.hidden = true;
-      } else {
-        if (empty) empty.hidden = false;
-        if (filled) filled.hidden = true;
-      }
+      if (empty) empty.hidden = !!justPlaced;
+      if (filled) filled.hidden = true;
       return;
     }
     if (empty) empty.hidden = true;
@@ -292,16 +286,18 @@
     $("#ready-estimate").textContent =
       "Estimated ready: " + SB.readyTime.formatReady(est.readyAt, tz);
     $("#delivery-estimate").textContent =
-      "Earliest delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz);
+      "Estimated delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz);
     $("#ready-assumptions").textContent =
       "This is an estimate from our baking hours. We’ll confirm the time when we accept your order.";
 
     buildOrderSummaryText(lines, sub, disc, delFee, total, est, areaState);
     var placeBtn = $("#btn-place-order");
-    var missing = areaState === "out" ? "This pin is outside our delivery area. Move the pin or contact us about delivery." : areaState !== "in" ? "Choose a pin and select Deliver here to continue." : !session && !checkoutValue("guest-name") ? "Enter your name to continue." : !checkoutValue("guest-phone") ? "Enter a contact phone number for your driver." : "";
-    if (placeBtn) placeBtn.disabled = !!missing;
+    var missing = areaState === "out" ? "This pin is outside our delivery area. Move the pin or contact us about delivery." : areaState !== "in" ? "Choose a pin and select Deliver here to continue." : !checkoutValue("guest-name") ? "Enter your name to continue." : !checkoutValue("guest-phone") ? "Enter a contact phone number for your driver." : "";
+    if (SB.checkoutFlow) missing = missing || SB.checkoutFlow.contactError();
+    if (placeBtn) { placeBtn.disabled = isPlacingOrder || !!missing; placeBtn.textContent = isPlacingOrder ? "Placing order…" : "Place order (COD)"; }
     var requirements = $("#checkout-requirements");
     if (requirements) requirements.textContent = missing;
+    if (SB.checkoutFlow) SB.checkoutFlow.update(lines,peso);
   }
 
   function showAddedToast(product) {
@@ -595,6 +591,8 @@
   }
 
   async function placeOrder() {
+    if (isPlacingOrder) return;
+    if (SB.checkoutFlow && !SB.checkoutFlow.validate()) return;
     var lines = cartLines();
     var msg = $("#place-order-msg");
     if (!lines.length) {
@@ -621,7 +619,7 @@
     var guestEmail = ($("#guest-email") && $("#guest-email").value) || "";
     var address = checkoutAddress();
     var notes = ($("#guest-notes") && $("#guest-notes").value) || "";
-    if (!session && !guestName.trim()) {
+    if (!guestName.trim()) {
       if (msg) {
         msg.style.display = "block";
         msg.className = "msg warn";
@@ -634,14 +632,18 @@
       return;
     }
     var est = SB.readyTime.estimate({ lines: lines, config: config, now: new Date() });
+    isPlacingOrder = true;
+    if (msg) msg.style.display = "none";
+    if (SB.checkoutFlow) SB.checkoutFlow.setSubmitting(true);
+    refreshCartUI();
     try {
       var order = await SB.data.placeOrder({
         items: lines.map(function (l) {
           return { product_id: l.product.id, size_id: l.product.size_id || null, qty: l.qty };
         }),
         promo_code: appliedPromo && appliedPromo.code,
-        guest_name: session ? session.user.full_name || session.user.email : guestName,
-        guest_email: session ? session.user.email : guestEmail,
+        guest_name: guestName.trim(),
+        guest_email: guestEmail.trim(),
         guest_phone: guestPhone,
         delivery_address: address,
         notes: notes,
@@ -664,13 +666,23 @@
         msg.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       cart = {};
+      appliedPromo = null;
+      lastDistanceKm = null;
+      deliveryCheck = null;
       refreshCartUI();
+      if (SB.checkoutFlow) SB.checkoutFlow.complete();
     } catch (err) {
       if (msg) {
         msg.style.display = "block";
         msg.className = "msg warn";
         msg.textContent = err.message || "Could not place order.";
+        msg.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    } finally {
+      isPlacingOrder = false;
+      if (SB.checkoutFlow) SB.checkoutFlow.setSubmitting(false);
+      var button = $("#btn-place-order");
+      if (button) { button.disabled = !cartLines().length; button.textContent = "Place order (COD)"; }
     }
   }
 
@@ -809,13 +821,14 @@
     fillContactPlaceholders();
     bindDelivery();
     bindCheckout();
+    if ($("#checkout-steps") && SB.initCheckoutFlow) SB.initCheckoutFlow(refreshCartUI);
     if ($("#checkout-map") && SB.initCheckoutPin) {
       SB.initCheckoutPin(config.delivery, function (pin) {
         lastDistanceKm = pin.confirmed ? pin.distanceKm : null;
         deliveryCheck = pin.confirmed ? (pin.inZone ? "in" : "out") : null;
         refreshCartUI();
       });
-      ["guest-name", "guest-phone", "guest-address", "guest-notes"].forEach(function (id) {
+      ["guest-name", "guest-phone", "guest-email", "guest-address", "guest-notes"].forEach(function (id) {
         document.getElementById(id).addEventListener("input", refreshCartUI);
       });
     }
