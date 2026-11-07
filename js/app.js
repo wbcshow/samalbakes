@@ -828,7 +828,7 @@
         deliveryCheck = pin.confirmed ? (pin.inZone ? "in" : "out") : null;
         refreshCartUI();
       });
-      ["guest-name", "guest-phone", "guest-email", "guest-address", "guest-notes"].forEach(function (id) {
+      ["guest-name", "guest-phone", "guest-email", "guest-notes"].forEach(function (id) {
         document.getElementById(id).addEventListener("input", refreshCartUI);
       });
     }

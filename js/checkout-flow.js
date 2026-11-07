@@ -6,7 +6,7 @@
     var current=1, complete=false;
     var root=document.getElementById('order-filled');
     var message=document.getElementById('checkout-stage-message');
-    function value(id){return document.getElementById(id).value.trim();}
+    function value(id){var field=document.getElementById(id);return field?field.value.trim():'';}
     function contactError(){
       if(!value('guest-name'))return 'Enter your name to continue.';
       if(!value('guest-phone'))return 'Enter a phone number so we can contact you about delivery.';
