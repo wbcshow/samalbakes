@@ -166,7 +166,15 @@ samalbakes/
 
 ### Manage promotions
 
-Admin → Promotions lets bakery admins add, edit, deactivate, or remove offers. Save promotions publishes the full list, including the public card title, description, audience label, code, discount, minimum order and optional dates. Keep descriptions consistent with the numerical terms. Dates are entered in Philippine time; end time is exclusive. New entries start inactive. Percentage and peso discounts apply to merchandise, capped at the subtotal; free delivery codes waive the delivery fee after meeting the minimum. One code per order. Audience labels do not verify partner membership. SAMALWELCOME retains its existing first-order-only enforcement; other codes are regular promotions.
+Admin → Promotions lets bakery admins add, edit, deactivate, or remove offers. Save promotions publishes the full list, including the public card title, description, audience label, code, discount, minimum order and optional dates. Keep descriptions consistent with the numerical terms. Dates are entered in Philippine time; end time is exclusive. New entries start inactive. Percentage and peso discounts apply to merchandise, capped at the subtotal; free delivery codes waive the delivery fee after meeting the minimum. One code per order. Audience labels are descriptive. SAMALWELCOME retains first-order-only enforcement; RESORT50 requires an approved resort partner account.
+
+### Approved resort partners
+
+Run `supabase/resort-partners.sql` after the existing promotions and product-size migrations, before deploying the partner UI. It adds a private approval table, admin-gated management functions, and an order trigger that enforces RESORT50 approval without replacing checkout pricing. Rerunning preserves approvals and the configured minimum.
+
+Under Admin → Promotions → Approved resort partners, enter a partner's registered, verified email and resort name. Partners must sign in with that account. They can use RESORT50 repeatedly whenever the current minimum is met. Change that minimum under Resort partner intro → Minimum order (PHP) → Save promotions. Deactivate/reactivate approvals from the partner list. Existing orders keep their recorded prices. Checkout contact email does not grant approval; customers cannot edit approval records. The initial list is empty; administrators must approve each partner.
+
+Partner tests: `node tests/resort-partners.test.js` and `node tests/admin-partners.test.js` (PGlite and jsdom test dependencies).
 
 **Release dependency:** Run supabase/admin-promotions.sql in the existing Supabase project before deploying these frontend files. It preserves existing delivery/baking/home settings and seeds the five existing offers only when adding the promotions column. The migration is transactional and safe to rerun without resetting saved promotions. Do not rerun the older welcome-code migration afterward, since it replaces the checkout function with the previous static rules.
 

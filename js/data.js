@@ -371,6 +371,12 @@
       }
       var session = await demo.getSession();
       var orders = lsGet(LS.orders, []);
+      if (String(payload.promo_code || '').trim().toUpperCase() === 'RESORT50') {
+        var approved = lsGet('sb_demo_partners', []).some(function(p) {
+          return session && p.user_id === session.user.id && p.active;
+        });
+        if (!approved) throw new Error('Sign in to your approved resort partner account to use RESORT50.');
+      }
       if (String(payload.promo_code || "").trim().toUpperCase() === "SAMALWELCOME") {
         var email = String(payload.guest_email || "").trim().toLowerCase();
         var accountEmail = session ? String(session.user.email || "").trim().toLowerCase() : "";
@@ -703,6 +709,31 @@
     return res.data;
   };
 
+  demo.getResortPartners = async function () {
+    var session = await demo.getSession();
+    if (!session || !session.user.is_admin) throw new Error('Admin access required.');
+    return lsGet('sb_demo_partners', []);
+  };
+  demo.saveResortPartner = async function (email, name, active) {
+    var rows = await demo.getResortPartners();
+    var user = lsGet(LS.users, []).find(function(u) { return u.email.toLowerCase() === email.trim().toLowerCase(); });
+    if (!user) throw new Error('No account found. Ask the partner to register on the Account page first.');
+    if (!name.trim() || name.trim().length > 200) throw new Error('Enter a resort name (up to 200 characters).');
+    var row = rows.find(function(p) { return p.user_id === user.id; });
+    if (!row) { row = {user_id:user.id, email:user.email}; rows.push(row); }
+    row.resort_name = name.trim(); row.active = !!active;
+    lsSet('sb_demo_partners', rows);
+  };
+  remote.getResortPartners = async function () {
+    var res = await remote.client.rpc('list_resort_partners');
+    if (res.error) throw new Error(res.error.message);
+    return res.data || [];
+  };
+  remote.saveResortPartner = async function (email, name, active) {
+    var res = await remote.client.rpc('save_resort_partner', {p_email:email.trim(),p_resort_name:name.trim(),p_active:active});
+    if (res.error) throw new Error(res.error.message);
+  };
+
   var api = {
     demoCredentials: { email: DEMO_ADMIN_EMAIL, password: DEMO_ADMIN_PASS },
     isDemo: false,
@@ -720,6 +751,8 @@
       SB.products = products;
       return { demo: api.isDemo, settings: settings, products: products };
     },
+    getResortPartners: function () { return api.backend.getResortPartners(); },
+    saveResortPartner: function (email,name,active) { return api.backend.saveResortPartner(email,name,active); },
     getSession: function () { return api.backend.getSession(); },
     register: function (e, p, n) { return api.backend.register(e, p, n); },
     login: function (e, p) { return api.backend.login(e, p); },

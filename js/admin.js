@@ -208,6 +208,7 @@
     settingsProducts = await SB.data.getProducts(true);
     fillSettingsForm(await SB.data.getSettings());
     SB.adminPromotions.init(await SB.data.getSettings());
+    SB.adminPartners.init();
     await renderProducts();
     await renderOrders();
 

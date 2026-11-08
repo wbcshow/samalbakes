@@ -402,7 +402,7 @@
     appliedPromo = p;
     showPromoMsg(msg, p.code === "SAMALWELCOME"
       ? "SAMALWELCOME is for first orders only, one per customer. Eligibility is checked when you place your order."
-      : "Applied: " + p.title, p.code === "SAMALWELCOME" ? "info" : "ok");
+      : p.code === "RESORT50" ? "RESORT50 requires signing in to an approved resort partner account. Approval is checked when you place your order." : "Applied: " + p.title, p.code === "SAMALWELCOME" || p.code === "RESORT50" ? "info" : "ok");
     refreshCartUI();
   }
 

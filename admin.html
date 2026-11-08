@@ -131,7 +131,19 @@
     <section id="tab-promotions" class="card admin-panel" hidden style="margin-top:1rem">
       <h2>Promotions</h2>
       <p>Manage offers shown on the Promotions page and accepted at checkout. Dates use Philippine time. Delivery offers still require an address within your delivery area.</p>
-      <p>SAMALWELCOME remains first order only. Audience labels are descriptions; checkout does not verify business membership.</p>
+      <p>SAMALWELCOME remains first order only. RESORT50 requires an approved resort partner account. Other audience labels are descriptions.</p>
+      <fieldset class="bakery-settings-group">
+      <legend>Approved resort partners</legend>
+      <p>Ask each partner to register on the Account page and verify their email first. Approve that email below. Partners must sign in with that account to use RESORT50 on every qualifying order.</p>
+      <form id="partner-form">
+        <div class="field"><label for="partner-email">Registered account email</label><input id="partner-email" name="partner_email" type="email" required /></div>
+        <div class="field"><label for="resort-name">Resort / hotel name</label><input id="resort-name" name="resort_name" maxlength="200" required /></div>
+        <button class="btn primary" type="submit">Approve partner</button>
+      </form>
+      <p id="partner-message" role="status" aria-live="polite" hidden></p>
+      <div id="partner-list"></div>
+      <p>To change the qualifying amount, open Resort partner intro below, edit Minimum order (PHP), then Save promotions. Deactivation blocks future uses; existing orders keep their prices.</p>
+      </fieldset>
       <form id="promotions-form"><div id="promotion-editors"></div>
       <button type="button" class="btn ghost" id="add-promotion">Add promotion</button>
       <button type="submit" class="btn primary">Save promotions</button>
@@ -154,6 +166,7 @@
 <script src="js/data.js"></script>
 <script src="js/chrome.js"></script>
 <script src="js/admin-promotions.js"></script>
+<script src="js/admin-partners.js"></script>
 <script src="js/admin-order-email.js"></script>
 <script src="js/order-confirmation.js"></script>
 <script src="js/admin-order-confirmation.js"></script>

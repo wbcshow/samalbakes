@@ -45,7 +45,7 @@ window.SAMALBAKES.promos = [
     id: "resort50",
     code: "RESORT50",
     title: "Resort partner intro",
-    description: "₱50 off orders ₱800+ for verified resort / hotel partners. Use code RESORT50.",
+    description: "₱50 off for approved resort / hotel partner accounts. Sign in to use RESORT50 on every qualifying order.",
     type: "fixed",
     amountOff: 50,           // PLACEHOLDER
     minSubtotal: 800,        // PLACEHOLDER

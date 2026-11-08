@@ -1,0 +1,38 @@
+const {JSDOM}=require('../.review-tools/ui/node_modules/jsdom');
+const fs=require('fs'),assert=require('node:assert/strict');
+(async()=>{
+ const dom=new JSDOM(fs.readFileSync('admin.html','utf8'),{runScripts:'outside-only'}),w=dom.window;
+ let rows=[],fail=false,calls=[];
+ w.SAMALBAKES={data:{getResortPartners:async()=>rows,saveResortPartner:async(email,name,active)=>{
+   calls.push({email,name,active});if(fail)throw new Error('Save failed');
+   rows=[{email,resort_name:name,active}];
+ }}};
+ w.eval(fs.readFileSync('js/admin-partners.js','utf8'));await w.SAMALBAKES.adminPartners.init();
+ const form=w.document.querySelector('#partner-form'),msg=w.document.querySelector('#partner-message');
+ form.elements.partner_email.value='partner@example.test';form.elements.resort_name.value='<Test Resort>';
+ await form.onsubmit({preventDefault(){}});assert.match(msg.textContent,/Partner approved/);
+ assert.equal(w.document.querySelector('#partner-list p').textContent,'<Test Resort> · partner@example.test · Approved');
+ assert.equal(w.document.querySelector('#partner-list Test'),null);
+ await w.document.querySelector('#partner-list button').onclick();assert.equal(calls.at(-1).active,false);
+ assert.match(w.document.querySelector('#partner-list').textContent,/Inactive/);
+ await w.document.querySelector('#partner-list button').onclick();assert.equal(calls.at(-1).active,true);
+ fail=true;await w.document.querySelector('#partner-list button').onclick();assert.equal(msg.textContent,'Save failed');
+ assert.equal(w.document.querySelector('#partner-list button').disabled,false);
+ const store=new Map(),vm=require('vm');
+ const ctx=vm.createContext({window:{},console,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)}});
+ for(const f of ['config','products','promos','data'])vm.runInContext(fs.readFileSync('js/'+f+'.js','utf8'),ctx);
+ const api=ctx.window.SAMALBAKES.data;await api.init();
+ await api.register('partner@example.test','abcdef','Partner');
+ const product=(await api.getProducts(false))[0];const payload={items:[{product_id:product.id,qty:20}],promo_code:'RESORT50'};
+ await assert.rejects(api.placeOrder(payload),/approved resort/);
+ await assert.rejects(api.saveResortPartner('partner@example.test','Test Resort',true),/Admin/);
+ await api.login(api.demoCredentials.email,api.demoCredentials.password);
+ await api.saveResortPartner('partner@example.test','Test Resort',true);
+ await api.login('partner@example.test','abcdef');
+ assert.equal((await api.placeOrder(payload)).discount,50);assert.equal((await api.placeOrder(payload)).discount,50);
+ await api.login(api.demoCredentials.email,api.demoCredentials.password);
+ await api.saveResortPartner('partner@example.test','Test Resort',false);
+ await api.login('partner@example.test','abcdef');await assert.rejects(api.placeOrder(payload),/approved resort/);
+ console.log('Partner admin form, errors, escaping and demo checkout approval checks passed');
+ dom.window.close();
+})().catch(e=>{console.error(e);process.exitCode=1;});
