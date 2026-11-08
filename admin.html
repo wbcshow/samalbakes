@@ -62,17 +62,18 @@
       <button type="button" class="btn ghost tab" data-tab="products">Products</button>
       <button type="button" class="btn ghost tab" data-tab="orders">Orders</button>
       <button type="button" class="btn ghost tab" data-tab="promotions">Promotions</button>
+      <button type="button" class="btn ghost tab" data-tab="tastings">Tasting requests</button>
     </div>
 
     <section id="tab-settings" class="card admin-panel" style="margin-top:1rem">
       <h2>Delivery &amp; fees</h2>
       <fieldset class="bakery-settings-group" id="order-email-controls">
-        <legend>New-order email alerts</legend>
-        <p>Receive order details automatically after checkout. Email alerts are separate from customer confirmation emails.</p>
+        <legend>New-order and tasting-request email alerts</legend>
+        <p>Receive order details after checkout and business contact details when a tasting box is requested. Email alerts are separate from customer confirmation emails.</p>
         <form id="order-email-form">
           <div class="field"><label for="order-email-recipient">Send alerts to</label><input id="order-email-recipient" type="email" required /></div>
           <div class="field"><label for="order-email-sender">Verified sending address</label><input id="order-email-sender" type="email" required /><p class="muted">Use an address on the domain verified with your email service.</p></div>
-          <label><input id="order-email-enabled" type="checkbox" /> Email me when a new order is placed</label>
+          <label><input id="order-email-enabled" type="checkbox" /> Email me about new orders and tasting box requests</label>
           <p id="order-email-connection" role="status">Checking email connection…</p>
           <button type="submit" class="btn primary" id="order-email-save" disabled>Save email alerts</button>
           <div id="order-email-message" role="status" aria-live="polite" style="display:none"></div>
@@ -97,7 +98,7 @@
         <div class="row" style="gap:1rem">
           <div class="field" style="flex:1"><label>Flat fee (PHP)</label><input name="delivery_fee_flat" type="number" step="1" min="0"/></div>
           <div class="field" style="flex:1"><label>Per-km fee (PHP)</label><input name="delivery_fee_per_km" type="number" step="1" min="0"/></div>
-          <div class="field" style="flex:1"><label>Free delivery min order (PHP)</label><input name="free_delivery_min_order" type="number" step="1" min="0"/></div>
+          <div class="field" style="flex:1"><label>Automatic free delivery minimum (PHP, after discounts)</label><input name="free_delivery_min_order" type="number" step="1" min="0"/></div>
         </div>
         <div class="row" style="gap:1rem">
           <div class="field" style="flex:1"><label>Oven batch slots</label><input name="oven_batch_slots" type="number" min="1"/></div>
@@ -144,10 +145,20 @@
       <div id="partner-list"></div>
       <p>To change the qualifying amount, open Resort partner intro below, edit Minimum order (PHP), then Save promotions. Deactivation blocks future uses; existing orders keep their prices.</p>
       </fieldset>
+      <p>Automatic free delivery needs no code. Change its amount under Settings → Delivery &amp; fees → Automatic free delivery minimum. The Promotions page displays that saved amount.</p>
       <form id="promotions-form"><div id="promotion-editors"></div>
       <button type="button" class="btn ghost" id="add-promotion">Add promotion</button>
       <button type="submit" class="btn primary">Save promotions</button>
       <div id="promotions-msg" class="msg" role="status" style="display:none"></div></form>
+    </section>
+    <section id="tab-tastings" class="card admin-panel" hidden style="margin-top:1rem">
+      <h2>Tasting box requests</h2>
+      <p>Review business requests and contact the business to arrange a tasting box. Approval here does not create an order or approve a resort partner account.</p>
+      <p>Email notifications use Settings → New-order and tasting-request email alerts. Requests remain here if email is disabled or fails.</p>
+      <button type="button" class="btn ghost" id="refresh-tastings">Refresh requests</button>
+      <p id="tasting-admin-message" role="status" hidden></p>
+      <div id="tasting-requests"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="previous-tastings" disabled>Previous 50</button><button type="button" class="btn ghost" id="next-tastings" disabled>Next 50</button></div>
     </section>
     <section id="tab-orders" class="card admin-panel" hidden style="margin-top:1rem">
       <h2>Incoming orders</h2>
@@ -167,6 +178,7 @@
 <script src="js/chrome.js"></script>
 <script src="js/admin-promotions.js"></script>
 <script src="js/admin-partners.js"></script>
+<script src="js/admin-tastings.js"></script>
 <script src="js/admin-order-email.js"></script>
 <script src="js/order-confirmation.js"></script>
 <script src="js/admin-order-confirmation.js"></script>

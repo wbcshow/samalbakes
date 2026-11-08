@@ -560,22 +560,27 @@
     });
   }
 
-  function promoCardHtml(p) {
+  function promoCardHtml(p, full) {
+    if (p.id === 'free-del') p = Object.assign({},p,{type:'info',code:null,
+      title:'Free delivery on '+peso(settings.free_delivery_min_order)+' or more',
+      description:'Automatically applied to your merchandise total after discounts, within our delivery area. No code needed.'});
+    if (p.id === 'tasting-box') p = Object.assign({},p,{type:'info',code:null});
+    var request = p.id === 'tasting-box' ? (full && SB.tastingRequests ? SB.tastingRequests.formHtml() : '<p><a class="btn ghost" href="promotions.html#tasting-request-form">Request a tasting box</a></p>') : '';
     return (
       '<article class="card promo-card"><h3>' + escapeHtml(p.title) + "</h3><p>" +
       escapeHtml(p.description) + "</p>" +
       (p.type !== 'info' ? '<p>' + escapeHtml((p.type==='percent'?p.percentOff+'% off':p.type==='fixed'?peso(p.amountOff)+' off':'Free delivery') + (Number(p.minSubtotal)>0?' · Minimum order '+peso(p.minSubtotal):'') + (p.code==='SAMALWELCOME'?' · First order only':'')) + '</p>' : '') +
       (p.code ? '<p class="code">Code: <code>' + escapeHtml(p.code) + "</code></p>" : "") +
-      '<span class="audience">' + escapeHtml(p.audience || "") + "</span></article>"
+      '<span class="audience">' + escapeHtml(p.audience || "") + "</span>" + request + "</article>"
     );
   }
 
   function renderPromos() {
     var active = promos.filter(function (p) { return SB.promotionRules.available(p); });
     var el = $("#promo-list");
-    if (el) el.innerHTML = active.length ? active.map(promoCardHtml).join("") : '<p class="muted">No promotions available right now. Check back soon.</p>';
+    if (el) el.innerHTML = active.length ? active.map(function(p){return promoCardHtml(p,true);}).join("") : '<p class="muted">No promotions available right now. Check back soon.</p>';
     var teaser = $("#promo-teaser");
-    if (teaser) teaser.innerHTML = active.slice(0, 2).map(promoCardHtml).join("");
+    if (teaser) teaser.innerHTML = active.slice(0, 2).map(function(p){return promoCardHtml(p,false);}).join("");
   }
 
   function renderDeliveryFees() {
@@ -834,6 +839,7 @@
 
     renderMenu();
     renderPromos();
+    if (SB.tastingRequests) SB.tastingRequests.bind();
     renderDeliveryFees();
     fillAreaDropdown();
     fillContactPlaceholders();

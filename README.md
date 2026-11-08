@@ -176,6 +176,16 @@ Under Admin → Promotions → Approved resort partners, enter a partner's regis
 
 Partner tests: `node tests/resort-partners.test.js` and `node tests/admin-partners.test.js` (PGlite and jsdom test dependencies).
 
+### Automatic free delivery and tasting requests
+
+Apply `supabase/tasting-box-requests.sql` after the email-notification and promotions setup, before deploying these frontend files. It preserves the saved automatic-delivery threshold and other offers. The `FREESHIP1500` offer becomes an informational card, with its displayed amount read from `settings.free_delivery_min_order`. Admin → Settings → Delivery & fees → Automatic free delivery minimum controls the qualifying merchandise total after discounts. The automatic card is preserved by the Promotions editor; it has no separate editable threshold or checkout code.
+
+The tasting-box card contains a business name/email/phone form instead of `TASTEBOX`. No login is required. Submission stores a private request and, when bakery email alerts are enabled, queues a notification to the configured bakery recipient. Admin → Tasting requests shows requests in pages of 50 with New, Contacted, Approved and Declined statuses and email-service acceptance state. Status changes do not email the customer, create orders, or approve resort accounts. Contact the business to arrange delivery/availability.
+
+The existing email worker handles request payloads with its normal retry and duplicate protection. The outbox can reference either an order or a tasting request, never both. Requests remain available when alerts are disabled, credentials are missing, or email delivery fails. Email-service acceptance is not proof of inbox delivery. Submission validates fields on the server, has a bot-trap field, reuses an identifier for retries, and limits each email to one new request in 24 hours. These are basic abuse controls, not a CAPTCHA service. Only admins may read requests or update their status; customers cannot write directly to the request table.
+
+Verification: `tests/tasting-requests-database.test.js` exercises delivery thresholds after discounts, admin minimum changes, code removal, request permissions/validation/deduplication, status updates and mocked email retries. `tests/tasting-requests-ui.test.js` verifies dynamic card amounts, form retry/double-submit behavior, admin feedback, and saving other offers while preserving the automatic card. No real test emails are sent.
+
 **Release dependency:** Run supabase/admin-promotions.sql in the existing Supabase project before deploying these frontend files. It preserves existing delivery/baking/home settings and seeds the five existing offers only when adding the promotions column. The migration is transactional and safe to rerun without resetting saved promotions. Do not rerun the older welcome-code migration afterward, since it replaces the checkout function with the previous static rules.
 
 Verification: node tests/admin-promotions.test.js and node tests/admin-promotions-form.test.js (temporary .review-tools dependencies @electric-sql/pglite and jsdom).

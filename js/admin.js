@@ -204,11 +204,12 @@
     bindTabs();
     if (SB.adminOrderEmail) SB.adminOrderEmail.init();
     var hash = (location.hash || "").replace("#", "");
-    if (hash === "promotions" || hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
+    if (hash === "tastings" || hash === "promotions" || hash === "products" || hash === "orders" || hash === "settings") showTab(hash);
     settingsProducts = await SB.data.getProducts(true);
     fillSettingsForm(await SB.data.getSettings());
     SB.adminPromotions.init(await SB.data.getSettings());
     SB.adminPartners.init();
+    SB.adminTastings.init();
     await renderProducts();
     await renderOrders();
 

@@ -709,6 +709,57 @@
     return res.data;
   };
 
+  demo.requestTastingBox = async function (fields) {
+    var business = String(fields.business_name || '').trim();
+    var email = String(fields.email || '').trim().toLowerCase();
+    var phone = String(fields.phone || '').trim();
+    if (!business || business.length > 200) throw new Error('Enter your business name (up to 200 characters).');
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Enter a valid email address.');
+    if (phone.length > 40 || !/^\d{7,15}$/.test(phone.replace(/[^0-9]/g,''))) throw new Error('Enter a valid phone number.');
+    if (!fields.id || fields.website) throw new Error('Invalid request. Please refresh and try again.');
+    var settings = await demo.getSettings();
+    if (!(settings.promotions || []).some(function(p){return p.id === 'tasting-box' && SB.promotionRules.available(p);})) throw new Error('Tasting box requests are currently unavailable. Please contact the bakery.');
+    var rows = lsGet('sb_demo_tasting_requests', []);
+    var prior = rows.find(function(r){return r.id === fields.id;});
+    if (prior) {
+      if (prior.email === email && prior.business_name === business && prior.phone === phone) return fields.id;
+      throw new Error('Request details changed. Please refresh and try again.');
+    }
+    if (rows.some(function(r){return r.email === email && Date.parse(r.created_at)>Date.now()-86400000;})) throw new Error('A tasting box request was already received for this email in the past 24 hours. Please contact the bakery for updates.');
+    rows.push({id:fields.id,business_name:business,email:email,phone:phone,status:'new',created_at:new Date().toISOString(),order_email_outbox:[]});
+    lsSet('sb_demo_tasting_requests', rows);
+    return fields.id;
+  };
+  demo.getTastingRequests = async function (offset) {
+    var session = await demo.getSession();
+    if (!session || !session.user.is_admin) throw new Error('Admin access required.');
+    return lsGet('sb_demo_tasting_requests', []).sort(function(a,b){return b.created_at.localeCompare(a.created_at);}).slice(offset || 0,(offset || 0)+50);
+  };
+  demo.updateTastingStatus = async function (id, status) {
+    await demo.getTastingRequests(0);
+    if (['new','contacted','approved','declined'].indexOf(status)<0) throw new Error('Invalid request status.');
+    var rows = lsGet('sb_demo_tasting_requests', []),row = rows.find(function(r){return r.id === id;});
+    if (!row) throw new Error('Request not found. Refresh and try again.');
+    row.status = status; lsSet('sb_demo_tasting_requests', rows); return row;
+  };
+  remote.requestTastingBox = async function (fields) {
+    var res = await remote.client.rpc('request_tasting_box',{p_id:fields.id,p_business_name:fields.business_name,p_email:fields.email,p_phone:fields.phone,p_website:fields.website || ''});
+    if (res.error) throw new Error(res.error.message);
+    return res.data;
+  };
+  remote.getTastingRequests = async function (offset) {
+    offset = offset || 0;
+    var res = await remote.client.from('tasting_box_requests').select('*,order_email_outbox(state,detail)').order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+49);
+    if (res.error) throw new Error(res.error.message);
+    return res.data || [];
+  };
+  remote.updateTastingStatus = async function (id, status) {
+    var res = await remote.client.from('tasting_box_requests').update({status:status}).eq('id',id).select().maybeSingle();
+    if (res.error) throw new Error(res.error.message);
+    if (!res.data) throw new Error('Request could not be updated. Check your admin login and refresh.');
+    return res.data;
+  };
+
   demo.getResortPartners = async function () {
     var session = await demo.getSession();
     if (!session || !session.user.is_admin) throw new Error('Admin access required.');
@@ -752,6 +803,9 @@
       return { demo: api.isDemo, settings: settings, products: products };
     },
     getResortPartners: function () { return api.backend.getResortPartners(); },
+    requestTastingBox: function (fields) { return api.backend.requestTastingBox(fields); },
+    getTastingRequests: function (offset) { return api.backend.getTastingRequests(offset); },
+    updateTastingStatus: function (id,status) { return api.backend.updateTastingStatus(id,status); },
     saveResortPartner: function (email,name,active) { return api.backend.saveResortPartner(email,name,active); },
     getSession: function () { return api.backend.getSession(); },
     register: function (e, p, n) { return api.backend.register(e, p, n); },

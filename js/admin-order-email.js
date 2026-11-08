@@ -17,7 +17,7 @@
       var results = await Promise.all([
         client.from("order_email_settings").select("*").eq("id",1).single(),
         client.rpc("order_email_ready"),
-        client.from("order_email_outbox").select("order_id,state,created_at,detail").order("created_at",{ascending:false}).limit(5)
+        client.from("order_email_outbox").select("order_id,tasting_request_id,state,created_at,detail").order("created_at",{ascending:false}).limit(5)
       ]);
       results.forEach(function (r) { if (r.error) throw new Error(r.error.message); });
       var config = results[0].data;
@@ -27,8 +27,8 @@
       var labels = {pending:"Waiting to send",sending:"Sending",accepted:"Accepted by email service",failed:"Needs attention",cancelled:"Cancelled"};
       var rows = results[2].data || [];
       document.getElementById("order-email-history").innerHTML = rows.length ? '<h3>Recent email alerts</h3><ul>' + rows.map(function (row) {
-        return '<li>' + SB.chrome.escapeHtml(String(row.order_id).slice(0,8)) + ': ' + SB.chrome.escapeHtml(labels[row.state] || row.state) + (row.detail ? ' — ' + SB.chrome.escapeHtml(row.detail) : '') + '</li>';
-      }).join('') + '</ul>' : '<p class="muted">No email alerts yet. Only new orders placed while alerts are enabled will generate an email.</p>';
+        return '<li>' + SB.chrome.escapeHtml((row.tasting_request_id ? 'Tasting request ' + String(row.tasting_request_id).slice(0,8) : String(row.order_id).slice(0,8))) + ': ' + SB.chrome.escapeHtml(labels[row.state] || row.state) + (row.detail ? ' — ' + SB.chrome.escapeHtml(row.detail) : '') + '</li>';
+      }).join('') + '</ul>' : '<p class="muted">No email alerts yet. New orders and tasting requests generate emails while alerts are enabled.</p>';
       save.disabled = false;
     }
     form.onsubmit = async function (event) {
@@ -38,7 +38,7 @@
       try {
         var result = await client.from("order_email_settings").update({recipient:recipient.value.trim(),sender:sender.value.trim(),enabled:enabled.checked}).eq("id",1).select().single();
         if (result.error) throw new Error(result.error.message);
-        feedback(result.data.enabled ? "Email alerts enabled for new orders." : "Email alert settings saved. Sending is off.",true);
+        feedback(result.data.enabled ? "Email alerts enabled for new orders and tasting requests." : "Email alert settings saved. Sending is off.",true);
       } catch (error) { feedback(error.message || "Could not save email alert settings.",false); }
       finally { save.disabled = false; }
     };

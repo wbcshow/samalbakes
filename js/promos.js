@@ -15,11 +15,10 @@ window.SAMALBAKES.promos = [
   },
   {
     id: "free-del",
-    code: "FREESHIP1500",
-    title: "Free delivery over ₱1,500",
-    description: "Orders of ₱1,500 or more qualify for free delivery within our area.",
-    type: "free_delivery",
-    minSubtotal: 1500,       // PLACEHOLDER — sync with config.delivery.freeDeliveryMinOrder
+    code: null,
+    title: "Automatic free delivery",
+    description: "Free delivery automatically applies when your total after discounts reaches the delivery minimum. No code needed.",
+    type: "info",
     audience: "everyone",
     active: true,
   },
@@ -34,9 +33,9 @@ window.SAMALBAKES.promos = [
   },
   {
     id: "tasting-box",
-    code: "TASTEBOX",
+    code: null,
     title: "Free tasting box for businesses",
-    description: "New café or resort partners: request a complimentary tasting box (subject to availability). Mention TASTEBOX when you message us.",
+    description: "New café or resort partners: request a complimentary tasting box. Subject to availability and bakery approval.",
     type: "info",
     audience: "B2B",
     active: true,
