@@ -49,11 +49,12 @@
         ? '<p class="wholesale">' + escapeHtml(p.wholesaleNote) + "</p>"
         : "") +
       '<div class="qty-row">' +
-      '<button type="button" class="btn ghost qty-minus" aria-label="Decrease">−</button>' +
+      '<div class="bag-quantity" role="group" aria-label="Quantity for ' + escapeHtml(p.name) + '">' +
+      '<button type="button" class="qty-minus" aria-label="Decrease">−</button>' +
       '<span class="qty" data-qty="' +
       escapeHtml(p.id) +
       '">0</span>' +
-      '<button type="button" class="btn ghost qty-plus" aria-label="Increase">+</button>' +
+      '<button type="button" class="qty-plus" aria-label="Increase">+</button></div>' +
       '<button type="button" class="btn primary add-btn">Add</button></div></article>'
     );
   }
