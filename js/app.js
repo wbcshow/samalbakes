@@ -816,6 +816,8 @@
   })();
 
   document.addEventListener("DOMContentLoaded", async function () {
+    var bagLoading = $("#cart-loading");
+    try {
     await SB.data.init();
     settings = await SB.data.getSettings();
     products = SB.products;
@@ -823,6 +825,15 @@
     promos = SB.promos || [];
     session = await SB.data.getSession();
     await SB.chrome.boot();
+    } catch (err) {
+      if (bagLoading) {
+        bagLoading.querySelector("h2").textContent = "We couldn’t load your bag";
+        bagLoading.querySelector("p").textContent = "Please try again. Your saved bag hasn’t been cleared.";
+        bagLoading.setAttribute("role", "alert");
+        $("#cart-retry").hidden = false;
+      } else throw err;
+      return;
+    }
     restoreCart();
     var savedPromo = $("#promo-code");
     if (savedPromo && appliedPromo && appliedPromo.code && !savedPromo.value) {
@@ -858,6 +869,7 @@
     }
     updateRadiusCopy();
     refreshCartUI();
+    if (bagLoading) bagLoading.hidden = true;
     initMap();
 
     $$('a[href^="#"]').forEach(function (a) {

@@ -65,7 +65,12 @@
           </div>
 
           <div id="place-order-msg" class="msg info" role="status" aria-live="polite" style="display:none"></div>
-          <div id="cart-empty" class="card">
+          <div id="cart-loading" class="card" role="status" aria-live="polite">
+            <h2>Loading your bag…</h2>
+            <p>We’re getting your selected items ready. This may take a moment.</p>
+            <a id="cart-retry" class="btn primary" href="order.html" hidden>Try again</a>
+          </div>
+          <div id="cart-empty" class="card" hidden>
             <h2>Your bag is empty</h2>
             <p>Add cakes or breads from the menu, then come back here to check out.</p>
             <a class="btn primary" href="menu.html">Back to the menu</a>
