@@ -3,7 +3,7 @@
   var SB = window.SAMALBAKES;
   function qs(s) { return document.querySelector(s); }
   function peso(n) {
-    return "\u20b1" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 0 });
+    return "\u20b1" + Number(n).toLocaleString("en-PH", { maximumFractionDigits: 2 });
   }
   function statusLabel(s) { return String(s || "new").replace(/_/g, " "); }
   function formatWhen(iso) {
@@ -36,7 +36,8 @@
         '</strong><span class="pill">' + escape(statusLabel(o.status)) + '</span></div>' +
         '<div class="muted" style="margin:0.5rem 0">' + items + '</div>' +
         '<div class="totals-row"><span>Total</span><strong>' + peso(o.total) + '</strong></div>' +
-        '<div class="muted">' + escape(SB.orderConfirmation.historyLabel(o,formatWhen)) + ' (Philippine time) · COD</div>' +
+        '<div class="muted">' + escape(SB.orderConfirmation.historyLabel(o,formatWhen)) + ' (Philippine time) · ' + escape(SB.manualPayment.label(o)) + '</div>' +
+        (o.payment_method==='gcash' && o.payment_status!=='paid' && o.status!=='cancelled' ? SB.manualPayment.instructions(o,peso) : '') +
         (o.confirmed_ready_at ? '<div class="muted">Original estimate: ' + formatWhen(o.estimated_ready_at) + '</div>' : '') +
         (o.confirmed_ready_note ? '<p>' + escape(o.confirmed_ready_note) + '</p>' : '') + '</article>';
     }).join("");

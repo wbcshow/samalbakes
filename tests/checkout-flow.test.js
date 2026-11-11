@@ -6,7 +6,7 @@ const tick=()=>new Promise(setImmediate);
   const w=dom.window,d=w.document;let start,requests=[],pending;
   w.HTMLElement.prototype.scrollIntoView=function(){};
   const add=d.addEventListener.bind(d);d.addEventListener=(name,fn,...args)=>name==='DOMContentLoaded'?start=fn:add(name,fn,...args);
-  for(const script of ['config','product-sizes','ready-time','delivery-method-tabs','checkout-flow'])w.eval(fs.readFileSync('js/'+script+'.js','utf8'));
+  for(const script of ['config','product-sizes','ready-time','manual-payment','delivery-method-tabs','checkout-flow'])w.eval(fs.readFileSync('js/'+script+'.js','utf8'));
   const SB=w.SAMALBAKES;
   SB.products=[{id:'cake',name:'Test cake',price:450,bakeTimeMinutes:60,prepMinutes:0,slots:1,active:true}];SB.promos=[];
   SB.chrome={boot:async()=>{},refreshCartBadge:()=>{},escapeHtml:require('../js/chrome').escapeHtml};
@@ -48,10 +48,14 @@ const tick=()=>new Promise(setImmediate);
   d.getElementById('guest-name').value='Delivery contact';d.getElementById('guest-email').value='delivery@example.test';next(3);
   assert.equal(stage(4).hidden,false);assert.match(d.getElementById('checkout-review-items').textContent,/Test cake × 2/);assert.equal(d.getElementById('cart-total').textContent,'₱980');assert.match(d.getElementById('checkout-review-contact').textContent,/Delivery contact.*09151112222.*delivery@example.test/);
   stage(4).querySelector('[data-checkout-back]').click();assert.equal(stage(3).hidden,false);assert.equal(d.getElementById('guest-phone').value,'09151112222');next(3);
+  const gcash=process.argv.includes('--gcash');
+  if(gcash){d.getElementById('payment-method').value='gcash';d.getElementById('payment-method').dispatchEvent(new w.Event('change'));assert.equal(d.getElementById('gcash-review-note').hidden,false);}
   const submit=d.getElementById('btn-place-order');submit.click();submit.click();
-  assert.equal(requests.length,1);assert.equal(submit.disabled,true);assert.equal(requests[0].items[0].qty,2);assert.equal(requests[0].guest_name,'Delivery contact');assert.equal(requests[0].guest_email,'delivery@example.test');assert.match(requests[0].delivery_address,/Delivery pin/);
+  assert.equal(requests.length,1);assert.equal(submit.disabled,true);assert.equal(d.getElementById('payment-method').disabled,true);assert.equal(requests[0].payment_method,gcash?'gcash':'cod');assert.equal(requests[0].items[0].qty,2);assert.equal(requests[0].guest_name,'Delivery contact');assert.equal(requests[0].guest_email,'delivery@example.test');assert.match(requests[0].delivery_address,/Delivery pin/);
   pending.reject(new Error('Connection lost'));await tick();assert.equal(submit.disabled,false);assert.match(d.getElementById('place-order-msg').textContent,/Connection lost/);assert.equal(JSON.parse(w.localStorage.getItem('sb_cart')).cake,2);assert.equal(stage(4).hidden,false);
-  submit.click();assert.equal(requests.length,2);pending.resolve({id:'test-order-reference'});await tick();
+  submit.click();assert.equal(requests.length,2);pending.resolve({id:'test-order-reference',total:980.25});await tick();
   assert.equal(w.localStorage.getItem('sb_cart'),'{}');assert.equal(d.getElementById('order-filled').hidden,true);assert.equal(d.getElementById('cart-empty').hidden,true);assert.equal(d.getElementById('checkout-success').hidden,false);assert.match(d.getElementById('checkout-receipt').textContent,/test-ord/);assert.equal(d.querySelector('#checkout-success a.btn').getAttribute('href'),'menu.html');
+  if(gcash){assert.equal(d.getElementById('gcash-payment-instructions').hidden,false);assert.match(d.getElementById('gcash-payment-instructions').textContent,/980.25/);assert.match(d.getElementById('gcash-payment-instructions').textContent,/Annie Joy Pungasi/);assert.match(d.getElementById('checkout-receipt').textContent,/GCash.*awaiting payment verification/);assert.equal(d.querySelector('.gcash-qr').getAttribute('src'),'assets/gcash-qr.jpeg');}
+  else assert.equal(d.getElementById('gcash-payment-instructions').hidden,true);
   dom.window.close();console.log('Checkout stages: bag quantities, pin/contact validation, review fees, back navigation, submitted contact details, duplicate protection, failure preservation and successful bag clearing pass.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

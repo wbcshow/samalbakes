@@ -4,7 +4,7 @@ Static storefront for a home bakery on **Samal Island** (cakes & breads, bake-to
 
 **Domain:** `samalbakes.com` (Namecheap)  
 **Stack:** HTML/CSS/JS + optional **Supabase** (Auth, Postgres, RLS). No build step.  
-**Payment:** Cash on Delivery (COD). Hook `#payment-step` for later PayMongo / Xendit.
+**Payment:** Cash on Delivery (COD) or manual GCash, verified by bakery staff.
 
 ## Quick start
 
@@ -44,7 +44,7 @@ Admin → Products can set an image path (`img/products/….jpg`) or, in **demo 
 1. Hero + about (cakes & breads)
 2. Delivery checker (geo / area / Nominatim) + Esri map; radius from Admin/settings
 3. Menu + cart + ready-time calculator
-4. Place order (guest or logged-in) — COD; share via Messenger/WhatsApp/etc.
+4. Place order (guest or logged-in) — COD or manual GCash; share via Messenger/WhatsApp/etc.
 5. Register / login, account menu, profile (name, phone, delivery address, password), and **order history**
 6. **Admin** (admins only): fees (flat / per-km / both), free-delivery threshold, radius & center, products (price, bake times, hide/show), order status
 7. Promotions
@@ -77,7 +77,7 @@ Orders go through the `place_order` Postgres function so **prices and fees are c
 ## Forms / payments later
 
 - Form backends (Formspree, Basin, Netlify Forms) optional beside chat links.
-- Card / GCash / Maya: add UI in `#payment-step` with PayMongo or Xendit + a small serverless function for secrets.
+- Automated payment processing remains a future integration. Manual GCash does not automatically confirm transfers.
 
 ## Tests
 
@@ -198,3 +198,37 @@ Admin → Products → edit a product → Sizes and prices. Add a label and pric
 Release order: run supabase/product-sizes.sql, deploy frontend, then run supabase/consolidate-cake-sizes.sql. The latter combines the four existing cake families (6/8/9 inches), preserves each price/bake time, and hides eight duplicate listings without deleting them. Original product IDs are saved as legacy mappings so existing carts resolve to the correct sizes. Cake photos are shared by the parent product; original duplicate rows remain available for reference. All current homepage selections already refer to the retained parent IDs. Do not rerun older checkout migrations afterward, which would replace size validation.
 
 Size tests: node tests/product-sizes.test.js, node tests/product-sizes-storefront.test.js, node tests/product-size-consolidation.test.js. They use the existing temporary PGlite and jsdom dependencies. No live orders are needed for these tests.
+
+
+### Manual GCash payments
+
+Apply supabase/manual-gcash.sql after the existing product-size, resort-partner,
+order-email, accept-orders-confirm-ready and tasting-request migrations, before
+publishing this frontend. The SQL wraps the current place_order function rather
+than replacing its pricing, delivery, size or partner rules. It is transactional
+and safe to rerun. Existing COD orders stay unchanged apart from an unpaid
+payment-state default. The old COD RPC remains available for older clients.
+Fresh installations need these migrations too; schema.sql alone is insufficient.
+
+Customers choose COD or GCash in Review. GCash orders are saved first; the receipt
+then shows the exact server total, order reference and the original confirmed QR
+image for Annie Joy Pungasi. Customers pay immediately and contact the bakery
+with their order and GCash transaction references. Logged-in customers can reopen
+payment instructions in My orders while payment is unverified (except cancelled
+orders). Guests should save their receipt and references before leaving.
+
+Annie checks the actual transaction in GCash and uses Admin → Orders →
+“I verified the GCash payment — mark paid”. Payment verification is separate from
+accepting the order or confirming a ready time. The database records the verifying
+admin and time; stale or repeated verification is rejected. No automatic payment
+lookup, screenshot verification, refund or customer payment-confirmation email is
+implemented. Handle incorrect transfers and refunds directly with the customer.
+
+No payment provider, secret keys or customer uploads are needed. The QR file is
+public checkout content, reproduced unchanged from the owner's supplied image.
+The deployment and database migration still require the owner's release approval.
+
+Verification: node tests/manual-gcash-database.test.js,
+node tests/manual-gcash-admin.test.js, node tests/checkout-flow.test.js,
+and node tests/checkout-flow.test.js --gcash. Database tests run locally in PGlite
+with mocked email transport; no real payments, orders or emails are created.

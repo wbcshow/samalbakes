@@ -61,7 +61,7 @@
         <div class="container">
           <div class="section-head">
             <h1>Your order</h1>
-            <p>Check your bag, choose delivery, enter your contact details, and review your order. Payment is <strong>cash on delivery</strong>.</p>
+            <p>Check your bag, choose delivery, enter your contact details, and review your order. Choose <strong>cash on delivery or GCash</strong>.</p>
           </div>
 
           <div id="place-order-msg" class="msg info" role="status" aria-live="polite" style="display:none"></div>
@@ -142,7 +142,7 @@
                   <p id="cart-delivery-note" class="muted"></p>
 
                   <div class="payment-box">
-                    <strong>Payment method:</strong>
+                    <label for="payment-method"><strong>Payment method</strong></label><select id="payment-method"><option value="cod">Cash on Delivery (COD)</option><option value="gcash">GCash — pay now, manually verified</option></select><p id="gcash-review-note" class="muted" hidden>Place your order to get the QR code and final amount. Pay immediately using GCash. Annie will check your payment before marking it paid.</p>
                     <span id="payment-method-label">Cash on Delivery (COD)</span>
                   </div>
 
@@ -151,7 +151,7 @@
                     <span id="delivery-estimate">Earliest delivery: —</span>
                     <p id="ready-assumptions"></p>
                   </div>
-                </div><p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" id="btn-place-order" disabled="">Place order (COD)</button></div></div></section></div><section id="checkout-success" class="card" hidden=""><h2 tabindex="-1">Your order has been placed</h2><div id="checkout-receipt"></div><p>Your bag is now empty and ready for your next order.</p><a class="btn primary" href="menu.html">Back to menu</a></section>
+                </div><p id="checkout-requirements" class="muted" role="status" aria-live="polite"></p><div class="checkout-actions"><button type="button" class="btn ghost" data-checkout-back="">Back</button><button type="button" class="btn primary" id="btn-place-order" disabled="">Place order (COD)</button></div></div></section></div><section id="checkout-success" class="card" hidden=""><h2 tabindex="-1">Your order has been placed</h2><div id="checkout-receipt"></div><div id="gcash-payment-instructions" hidden></div><p>Your bag is now empty and ready for your next order.</p><a class="btn primary" href="menu.html">Back to menu</a></section>
         </div>
       </section>
     </main>
@@ -179,7 +179,7 @@
           <h3>Contact</h3>
           <p>Phone: <a data-contact="phone" data-contact-href="phoneTel" href="tel:+639152943883">0915 294 3883</a></p>
           <p data-contact-email-line="" hidden="">Email: <a href="mailto:orders@samalbakes.example" data-contact="email" data-contact-href="email">orders@samalbakes.example</a></p>
-          <p>Payment: Cash on Delivery (COD)</p>
+          <p>Payment: Cash on Delivery or GCash</p>
         </div>
       </div>
     </footer>
@@ -192,7 +192,7 @@
     <script src="js/ready-time.js"></script>
     <script src="js/delivery.js"></script>
     <script src="js/product-sizes.js"></script>
-<script src="js/data.js"></script>
+<script src="js/data.js"></script><script src="js/manual-payment.js"></script>
     <script src="js/chrome.js"></script>
     <script src="js/menu-card.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

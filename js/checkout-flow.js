@@ -54,7 +54,7 @@
       contactError:contactError,
       setSubmitting:function(value){
         SB.checkoutFlow.submitting=value;
-        root.querySelectorAll('[data-checkout-stage="4"] button,[data-checkout-stage="4"] input').forEach(function(control){control.disabled=value;});
+        root.querySelectorAll('[data-checkout-stage="4"] button,[data-checkout-stage="4"] input,[data-checkout-stage="4"] select').forEach(function(control){control.disabled=value;});
       },
       validate:function(){
         var delivery=deliveryError();if(delivery){show(2,true);warn(delivery);return false;}

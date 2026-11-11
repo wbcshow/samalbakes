@@ -130,10 +130,11 @@
       }).join("");
       return '<article id="order-' + SB.chrome.escapeHtml(o.id) + '" class="card" style="margin-bottom:0.75rem">' +
         "<div class=\"totals-row\"><strong>Ordered on: " + formatWhen(o.created_at) +
-        "</strong><span>" + peso(o.total) + " COD</span></div>" +
+        "</strong><span>" + peso(o.total) + " " + SB.chrome.escapeHtml(SB.manualPayment.label(o)) + "</span></div>" +
         '<div class="muted">' + items + "</div>" +
         '<div class="muted">' + SB.chrome.escapeHtml(o.guest_name || o.guest_email || o.user_id || "guest") +
         (o.delivery_address ? " · " + SB.chrome.escapeHtml(o.delivery_address) : "") + "</div>" +
+        SB.manualPayment.adminCard(o) +
         SB.adminOrderConfirmation.render(o,formatWhen) +
         '<div class="row" style="margin-top:0.5rem;align-items:center">' +
         '<label>Status</label> <select data-order-status="' + o.id + '" data-saved-status="' + SB.chrome.escapeHtml(o.status || "new") + '">' + opts + '</select></div>' +
@@ -166,6 +167,7 @@
       }
     };
     SB.adminOrderConfirmation.bind(el,orders,renderOrders);
+    SB.manualPayment.bindAdmin(el,orders,renderOrders);
   }
 
   function showTab(name) {

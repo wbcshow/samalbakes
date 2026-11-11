@@ -84,7 +84,7 @@ window.SAMALBAKES.config = {
     feeType: "flat",            // flat | per_km | flat_plus_per_km — Admin can change
     feeFlat: 80,                // PLACEHOLDER PHP
     feePerKm: 15,               // PLACEHOLDER PHP
-    feeNote: "Delivery fee is calculated from Admin settings (COD).",
+    feeNote: "Delivery fee is calculated from Admin settings.",
     // Named areas for dropdown fallback (no GPS needed)
     areas: [
       { id: "babak", name: "Babak (Samal Island)", inZone: true },

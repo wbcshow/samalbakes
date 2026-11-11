@@ -1327,3 +1327,10 @@ button.linkish {
 /* Bot-trap field stays outside the customer form layout and keyboard order. */
 .request-honeypot { position:absolute; left:-10000px; width:1px; height:1px; overflow:hidden; }
 #tasting-requests > .card { margin-top:1rem; }
+
+/* Manual GCash checkout */
+.payment-box select { width:100%; min-height:44px; padding:.6rem; margin:.5rem 0; border:1px solid #bcb5a8; border-radius:8px; background:#fff; color:var(--brown); font:inherit; }
+.gcash-instructions { margin-top:1.25rem; padding:1rem; border:1px solid #ddd; border-radius:12px; }
+.gcash-qr { display:block; width:min(100%, 300px); height:auto; margin:1rem auto; }
+.gcash-instructions li { margin-bottom:.6rem; }
+.gcash-admin { margin:.75rem 0; padding:.75rem; background:#f5f8fc; border-radius:8px; }

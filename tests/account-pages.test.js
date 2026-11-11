@@ -8,6 +8,7 @@ async function page(file,script,session,hash=''){
   w.testLocation={hash,href:'',replace(value){this.href=value;}};
   w.SAMALBAKES={config:{timezone:'Asia/Manila'},chrome:{boot:async()=>{},refreshAuthNav:async()=>{},escapeHtml:s=>String(s).replace(/</g,'&lt;')},data:{isDemo:false,init:async()=>{inits++},getSession:async()=>session,login:async()=>{},getMyOrders:async()=>{fetches++;return [{created_at:'2026-11-06T13:28:00Z',status:'accepted',total:850,confirmed_ready_at:'2026-11-08T03:15:00Z',estimated_ready_at:'2026-11-07T03:15:00Z',confirmed_ready_note:'Extra cooling',items:[]}];}}};
   w.eval(fs.readFileSync('js/order-confirmation.js','utf8'));
+  w.eval(fs.readFileSync('js/manual-payment.js','utf8'));
   w.eval(fs.readFileSync(script,'utf8').replace(/\blocation\./g,'testLocation.'));
   await start();
   return {dom,w,fetches:()=>fetches,inits:()=>inits};

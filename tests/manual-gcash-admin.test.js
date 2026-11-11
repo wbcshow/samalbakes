@@ -1,0 +1,20 @@
+const {JSDOM}=require('../.review-tools/ui/node_modules/jsdom');
+const fs=require('fs'),assert=require('node:assert/strict');
+(async()=>{
+ const dom=new JSDOM('<main></main>',{runScripts:'outside-only'}),w=dom.window;
+ w.SAMALBAKES={chrome:{escapeHtml:require('../js/chrome').escapeHtml}};
+ w.eval(fs.readFileSync('js/manual-payment.js','utf8'));
+ const SB=w.SAMALBAKES,order={id:'order-1',payment_method:'gcash',payment_status:'awaiting_verification',updated_at:'saved-version'};
+ const container=w.document.querySelector('main');let calls=0,release,refreshes=0;
+ SB.data={verifyGcashPayment:(id,version)=>{assert.equal(id,order.id);assert.equal(version,order.updated_at);calls++;return new Promise(resolve=>release=resolve);}};
+ container.innerHTML='<article>'+SB.manualPayment.adminCard(order)+'<p data-order-status-message hidden></p></article>';
+ SB.manualPayment.bindAdmin(container,[order],async()=>refreshes++);
+ SB.manualPayment.bindAdmin(container,[order],async()=>refreshes++);
+ const button=container.querySelector('button');button.click();button.click();assert.equal(calls,1);assert.equal(button.disabled,true);
+ release({payment_status:'paid'});await new Promise(setImmediate);assert.equal(refreshes,1);
+ SB.data.verifyGcashPayment=async()=>{throw new Error('Connection lost');};button.click();await new Promise(setImmediate);
+ assert.equal(button.disabled,false);assert.match(container.textContent,/Payment was not marked paid.*Connection lost/);
+ assert.doesNotMatch(SB.manualPayment.adminCard({...order,payment_status:'paid'}),/button/);
+ assert.equal(SB.manualPayment.adminCard({payment_method:'cod'}),'');
+ dom.window.close();console.log('Admin GCash verification: duplicate clicks/listeners, saved version, failure/retry and paid/COD controls pass.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

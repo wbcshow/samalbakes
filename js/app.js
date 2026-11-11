@@ -1,7 +1,7 @@
 /**
  * SamalBakes.com — public storefront
  * Order flow: cart → review → place order (saved if logged in) + share links.
- * Payment: Cash on Delivery (COD). #payment-step reserved for PayMongo/Xendit later.
+ * Payment: Cash on Delivery or manually verified GCash.
  */
 (function () {
   "use strict";
@@ -286,7 +286,8 @@
         note.textContent = "Delivery fee for your area.";
       }
     }
-    $("#payment-method-label").textContent = "Cash on Delivery (COD)";
+    $("#payment-method-label").textContent = paymentLabel();
+    var gcashNote = $('#gcash-review-note'); if(gcashNote)gcashNote.hidden=paymentMethod()!=='gcash';
 
     var est = SB.readyTime.estimate({ lines: lines, config: config, now: new Date() });
     var tz = config.timezone;
@@ -301,7 +302,7 @@
     var placeBtn = $("#btn-place-order");
     var missing = areaState === "out" ? "This pin is outside our delivery area. Move the pin or contact us about delivery." : areaState !== "in" ? "Choose a pin and select Deliver here to continue." : !checkoutValue("guest-name") ? "Enter your name to continue." : !checkoutValue("guest-phone") ? "Enter a contact phone number for your driver." : "";
     if (SB.checkoutFlow) missing = missing || SB.checkoutFlow.contactError();
-    if (placeBtn) { placeBtn.disabled = isPlacingOrder || !!missing; placeBtn.textContent = isPlacingOrder ? "Placing order…" : "Place order (COD)"; }
+    if (placeBtn) { placeBtn.disabled = isPlacingOrder || !!missing; placeBtn.textContent = isPlacingOrder ? "Placing order…" : (paymentMethod()==='gcash' ? "Place order & pay with GCash" : "Place order (COD)"); }
     var requirements = $("#checkout-requirements");
     if (requirements) requirements.textContent = missing;
     if (SB.checkoutFlow) SB.checkoutFlow.update(lines,peso);
@@ -337,7 +338,7 @@
         : areaState !== "in"
           ? "Delivery fee: check your delivery area\n"
           : "Delivery fee: " + (delFee ? peso(delFee) : "Free") + "\n") +
-      "Total: " + peso(total) + "\nPayment: Cash on Delivery (COD)\n\n" +
+      "Total: " + peso(total) + "\nPayment: " + paymentLabel() + "\n\n" +
       "Estimated ready: " + SB.readyTime.formatReady(est.readyAt, tz) + "\n" +
       "Earliest delivery: " + SB.readyTime.formatReady(est.deliverFrom, tz) +
       "\n\nName: " + checkoutValue("guest-name") + "\nPhone: " + checkoutValue("guest-phone") +
@@ -599,9 +600,11 @@
     else if (type === "flat_plus_per_km") feeText = peso(flat) + " plus " + peso(per) + " per km";
     el.textContent =
       "Delivery fee: " + feeText + ". Free delivery on orders of " + peso(freeMin) +
-      " or more. Payment is cash on delivery.";
+      " or more. Payment is cash on delivery or GCash.";
   }
 
+  function paymentMethod() { return checkoutValue('payment-method') || 'cod'; }
+  function paymentLabel() { return paymentMethod()==='gcash' ? 'GCash — awaiting payment verification' : 'Cash on Delivery (COD)'; }
   function checkoutValue(id) {
     var el = document.getElementById(id);
     return el ? el.value.trim() : "";
@@ -664,6 +667,7 @@
         items: lines.map(function (l) {
           return { product_id: l.product.id, size_id: l.product.size_id || null, qty: l.qty };
         }),
+        payment_method: paymentMethod(),
         promo_code: appliedPromo && appliedPromo.code,
         guest_name: guestName.trim(),
         guest_email: guestEmail.trim(),
@@ -682,11 +686,15 @@
           (session ? " to your account" : " (guest)") +
           ". Ref: <code>" +
           escapeHtml(String(order.id).slice(0, 8)) +
-          "</code>. Payment: <strong>COD</strong>. " +
+          "</code>. Payment: <strong>" + escapeHtml(paymentLabel()) + "</strong>. " +
           (session
             ? '<a href="my-orders.html">View order history</a>.'
             : "Keep your order reference for any questions about this order.");
         msg.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      if(paymentMethod()==='gcash' && SB.manualPayment) {
+        var instructions=document.getElementById('gcash-payment-instructions');
+        instructions.innerHTML=SB.manualPayment.instructions(order,peso);instructions.hidden=false;
       }
       cart = {};
       appliedPromo = null;
@@ -705,7 +713,7 @@
       isPlacingOrder = false;
       if (SB.checkoutFlow) SB.checkoutFlow.setSubmitting(false);
       var button = $("#btn-place-order");
-      if (button) { button.disabled = !cartLines().length; button.textContent = "Place order (COD)"; }
+      if (button) { button.disabled = !cartLines().length; button.textContent = paymentMethod()==='gcash' ? "Place order & pay with GCash" : "Place order (COD)"; }
     }
   }
 
@@ -761,6 +769,7 @@
     }
     var placeBtn = $("#btn-place-order");
     if (placeBtn) placeBtn.addEventListener("click", placeOrder);
+    var paymentSelect=$("#payment-method");if(paymentSelect)paymentSelect.addEventListener("change",refreshCartUI);
   }
 
   function isPublicEmail(email) {

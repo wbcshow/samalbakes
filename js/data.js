@@ -335,6 +335,7 @@
       return next;
     },
     async placeOrder(payload) {
+      if(payload.payment_method && ['cod','gcash'].indexOf(payload.payment_method)<0)throw new Error('Choose Cash on Delivery or GCash');
       var products = await demo.getProducts(false);
       var settings = await demo.getSettings();
       var byId = {};
@@ -419,7 +420,8 @@
         discount: discount,
         delivery_fee: deliveryFee,
         total: after + deliveryFee,
-        payment_method: "cod",
+        payment_method: payload.payment_method || "cod",
+        payment_status: payload.payment_method === "gcash" ? "awaiting_verification" : "unpaid",
         promo_code: (payload.promo_code || "").trim() || null,
         estimated_ready_at: payload.estimated_ready_at || null,
         estimated_delivery_at: payload.estimated_delivery_at || null,
@@ -644,7 +646,8 @@
       if (liveDist != null && !isNaN(liveDist) && liveDist > liveRadius) {
         throw new Error("That location is outside our delivery area.");
       }
-      var res = await remote.client.rpc("place_order", {
+      var res = await remote.client.rpc("place_order_with_payment", {
+        p_payment_method: payload.payment_method || "cod",
         p_items: (payload.items || []).map(function (i) {
           return { product_id: i.product_id, size_id: i.size_id || null, qty: i.qty };
         }),
@@ -659,10 +662,10 @@
         p_estimated_delivery_at: payload.estimated_delivery_at || null,
       });
       if (res.error) throw new Error(res.error.message);
-      var orderId = res.data;
+      var orderId = res.data.id;
       var ord = await remote.client.from("orders").select("*").eq("id", orderId).single();
       var items = await remote.client.from("order_items").select("*").eq("order_id", orderId);
-      var order = ord.data || { id: orderId };
+      var order = ord.data || res.data;
       order.items = items.data || [];
       return order;
     },
@@ -832,5 +835,16 @@
     applySettingsToConfig: applySettingsToConfig,
   };
 
+  demo.verifyGcashPayment = async function(id,expected) {
+    var session=await demo.getSession();if(!session||!session.user.is_admin)throw new Error('Admin access required');
+    var orders=lsGet(LS.orders,[]),o=orders.find(function(x){return x.id===id;});
+    if(!o||o.payment_method!=='gcash'||o.payment_status!=='awaiting_verification'||o.updated_at!==expected)throw new Error('This order has changed. Refresh and check its payment before trying again');
+    o.payment_status='paid';o.payment_verified_at=new Date().toISOString();o.payment_verified_by=session.user.id;o.updated_at=new Date().toISOString();lsSet(LS.orders,orders);return o;
+  };
+  remote.verifyGcashPayment = async function(id,expected) {
+    var res=await remote.client.rpc('verify_gcash_payment',{p_order_id:id,p_expected_updated_at:expected});
+    if(res.error)throw new Error(res.error.message);return res.data;
+  };
+  api.verifyGcashPayment=function(id,expected){return api.backend.verifyGcashPayment(id,expected);};
   SB.data = api;
 })();
