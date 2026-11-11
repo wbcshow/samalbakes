@@ -134,10 +134,12 @@
         '<div class="muted">' + items + "</div>" +
         '<div class="muted">' + SB.chrome.escapeHtml(o.guest_name || o.guest_email || o.user_id || "guest") +
         (o.delivery_address ? " · " + SB.chrome.escapeHtml(o.delivery_address) : "") + "</div>" +
+        '<div class="muted">Phone: ' + (o.guest_phone ? '<a href="tel:' + SB.chrome.escapeHtml(String(o.guest_phone).replace(/[^+0-9]/g, '')) + '">' + SB.chrome.escapeHtml(o.guest_phone) + '</a>' : 'Not supplied') + '</div>' +
         SB.manualPayment.adminCard(o) +
         SB.adminOrderConfirmation.render(o,formatWhen) +
         '<div class="row" style="margin-top:0.5rem;align-items:center">' +
         '<label>Status</label> <select data-order-status="' + o.id + '" data-saved-status="' + SB.chrome.escapeHtml(o.status || "new") + '">' + opts + '</select></div>' +
+        '<button type="button" class="btn" data-delete-order="' + SB.chrome.escapeHtml(o.id) + '" style="margin-top:0.75rem">Delete order</button>' +
         '<p data-order-status-message class="msg info" role="status" aria-live="polite" hidden></p></article>';
     }).join("");
     el.onchange = async function (e) {
@@ -168,6 +170,21 @@
     };
     SB.adminOrderConfirmation.bind(el,orders,renderOrders);
     SB.manualPayment.bindAdmin(el,orders,renderOrders);
+    if (el._deleteHandler) el.removeEventListener('click', el._deleteHandler);
+    el._deleteHandler = async function (event) {
+      var button = event.target.closest('[data-delete-order]');
+      if (!button || button.disabled) return;
+      var order = orders.find(function (o) { return String(o.id) === button.getAttribute('data-delete-order'); });
+      if (!window.confirm('Permanently delete order ' + String(order.id).slice(0,8) + ' for ' + (order.guest_name || 'guest') + ' (' + peso(order.total) + ')? This removes it from customer order history and cannot be undone. It does not refund payments.')) return;
+      var card = button.closest('article'), message = card.querySelector('[data-order-status-message]');
+      var controls = card.querySelectorAll('input,select,button');
+      controls.forEach(function (c) { c.disabled = true; });
+      message.hidden = false; message.className = 'msg info'; message.textContent = 'Deleting order…';
+      try { await SB.data.deleteOrder(order.id, order.updated_at); await renderOrders(); }
+      catch (error) { message.className = 'msg warn'; message.textContent = 'Order was not deleted. ' + (error.message || 'Please try again.'); }
+      finally { controls.forEach(function (c) { c.disabled = false; }); }
+    };
+    el.addEventListener('click', el._deleteHandler);
   }
 
   function showTab(name) {

@@ -1,0 +1,23 @@
+const {PGlite}=require('../.review-tools/node_modules/@electric-sql/pglite');
+const fs=require('node:fs'),assert=require('node:assert/strict');
+const db=new PGlite();
+(async()=>{
+  await db.exec(`create role anon; create role authenticated;
+    create function public.is_admin() returns boolean language sql stable as $$select current_setting('test.admin',true)='yes'$$;
+    create table orders(id int primary key); create table order_items(order_id int references orders(id) on delete cascade);
+    create table order_email_outbox(order_id int references orders(id) on delete cascade);
+    insert into orders values(1),(2); insert into order_items values(1); insert into order_email_outbox values(1);
+    alter table orders enable row level security;
+    create policy orders_select on orders for select using(true);
+    grant usage on schema public to anon,authenticated; grant select on orders to anon,authenticated;`);
+  const sql=fs.readFileSync('supabase/admin-order-delete.sql','utf8'); await db.exec(sql);await db.exec(sql);
+  await db.exec("set role authenticated; select set_config('test.admin','no',false)");
+  assert.equal((await db.query('delete from orders where id=1 returning id')).rows.length,0);
+  await db.exec('reset role; set role anon');await assert.rejects(db.query('delete from orders where id=1'),/permission denied/);
+  await db.exec("reset role; set role authenticated; select set_config('test.admin','yes',false)");
+  assert.equal((await db.query('delete from orders where id=1 returning id')).rows.length,1);
+  await db.exec('reset role');assert.equal((await db.query('select * from orders')).rows[0].id,2);
+  assert.equal((await db.query('select * from order_items')).rows.length,0);
+  assert.equal((await db.query('select * from order_email_outbox')).rows.length,0);
+  console.log('Database deletion: admin only, guest/customer blocked, dependent records cascade, other orders preserved.');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>db.close());

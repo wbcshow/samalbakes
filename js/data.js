@@ -846,5 +846,19 @@
     if(res.error)throw new Error(res.error.message);return res.data;
   };
   api.verifyGcashPayment=function(id,expected){return api.backend.verifyGcashPayment(id,expected);};
+  demo.deleteOrder = async function (id, expected) {
+    var session = await demo.getSession();
+    if (!session || !session.user.is_admin) throw new Error('Admin access required');
+    var orders = lsGet(LS.orders, []), order = orders.find(function (o) { return o.id === id; });
+    if (!order || order.updated_at !== expected) throw new Error('This order has changed. Refresh before deleting.');
+    lsSet(LS.orders, orders.filter(function (o) { return o.id !== id; }));
+  };
+  remote.deleteOrder = async function (id, expected) {
+    if (!id || !expected) throw new Error('Refresh this order before deleting.');
+    var res = await remote.client.from('orders').delete().eq('id', id).eq('updated_at', expected).select('id');
+    if (res.error) throw new Error(res.error.message);
+    if (!res.data || res.data.length !== 1) throw new Error('This order has changed or you lack permission. Refresh before deleting.');
+  };
+  api.deleteOrder = function (id, expected) { return api.backend.deleteOrder(id, expected); };
   SB.data = api;
 })();
